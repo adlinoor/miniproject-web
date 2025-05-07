@@ -2,15 +2,19 @@ import * as Yup from "yup";
 
 export const RegisterSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Invalid email address format")
-    .required("Email cannot be empty"),
+    .email("Please enter a valid email address")
+    .required("Email is required"),
   password: Yup.string()
-    .min(3, "Password must be 3 characters at minimum")
+    .min(6, "Password must be at least 6 characters long")
     .matches(
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/,
-      "Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, satu angka, dan satu karakter khusus"
+      /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/,
+      "Password must contain at least one letter and one number"
     )
-    .required("Password cannot be empty"),
-  firstName: Yup.string().required("cannot be empty"),
-  lastName: Yup.string().required("cannot be empty"),
+    .required("Password is required"),
+  firstName: Yup.string()
+    .required("First name is required")
+    .matches(/^[A-Za-z]+$/, "First name should only contain letters"),
+  lastName: Yup.string()
+    .required("Last name is required")
+    .matches(/^[A-Za-z]+$/, "Last name should only contain letters"),
 });

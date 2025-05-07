@@ -2,13 +2,9 @@ import * as Yup from "yup";
 
 export const LoginSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Invalid email address format")
-    .required("Email cannot be empty"),
+    .email("Please enter a valid email address")
+    .required("Email is required"),
   password: Yup.string()
-    .min(3, "Password must be 3 characters at minimum")
-    .matches(
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/,
-      "Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, satu angka, dan satu karakter khusus"
-    )
-    .required("Password cannot be empty"),
+    .required("Password is required")
+    .min(6, "Password must be at least 6 characters long"),
 });

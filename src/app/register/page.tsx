@@ -1,40 +1,44 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams, useRouter } from "next/navigation";
-import { registerSchema, RegisterSchema } from "./schema";
 import InputField from "@/components/ui/InputField";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+
+// 💡 Schema Zod untuk validasi
+const registerSchema = z
+  .object({
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+    referralCode: z.string().optional(), // Referral opsional
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type RegisterSchema = z.infer<typeof registerSchema>;
 
 export default function Register() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const methods = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
   });
-
-  // Isi referral code dari query param ?ref=...
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) {
-      methods.setValue("referralCode", ref);
-    }
-  }, [searchParams, methods]);
+  const router = useRouter();
 
   const onSubmit = async (values: RegisterSchema) => {
     try {
       const { confirmPassword, ...payload } = values;
-
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
         payload
       );
-
-      toast.success(data.message || "Registration successful");
+      toast.success(data.message);
       router.push("/login");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Registration failed");
@@ -57,13 +61,13 @@ export default function Register() {
           />
           <InputField
             name="referralCode"
-            label="Referral Code (Optional)"
-            placeholder="e.g. ABC123"
+            label="Referral Code (optional)"
+            placeholder="ABC123"
           />
 
           <button
             type="submit"
-            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
           >
             Register
           </button>

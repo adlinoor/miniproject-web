@@ -1,6 +1,4 @@
-export interface IRegister {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-}
+import { z } from "zod";
+import { registerSchema } from "./schema";
+
+export type RegisterFormValues = z.infer<typeof registerSchema>;

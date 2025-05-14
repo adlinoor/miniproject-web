@@ -1,20 +1,16 @@
-import * as Yup from "yup";
+import { z } from "zod";
 
-export const RegisterSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Please enter a valid email address")
-    .required("Email is required"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters long")
-    .matches(
-      /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/,
-      "Password must contain at least one letter and one number"
-    )
-    .required("Password is required"),
-  firstName: Yup.string()
-    .required("First name is required")
-    .matches(/^[A-Za-z]+$/, "First name should only contain letters"),
-  lastName: Yup.string()
-    .required("Last name is required")
-    .matches(/^[A-Za-z]+$/, "Last name should only contain letters"),
-});
+export const registerSchema = z
+  .object({
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
+export type RegisterSchema = z.infer<typeof registerSchema>;

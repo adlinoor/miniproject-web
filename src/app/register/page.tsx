@@ -1,140 +1,56 @@
 "use client";
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Formik, Form, Field, FormikProps } from "formik";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema, RegisterSchema } from "./schema";
+import InputField from "@/components/ui/InputField";
 import axios from "axios";
-import { RegisterSchema } from "./schema";
-import { IRegister } from "./type";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
-  const initialValues: IRegister = {
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-  };
+  const methods = useForm<RegisterSchema>({
+    resolver: zodResolver(registerSchema),
+  });
+  const router = useRouter();
 
-  const onRegister = async (values: IRegister) => {
+  const onSubmit = async (values: RegisterSchema) => {
     try {
+      const { confirmPassword, ...payload } = values;
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
-        {
-          email: values.email,
-          password: values.password,
-          first_name: values.firstName,
-          last_name: values.lastName,
-        }
+        payload
       );
-
-      toast.success(data.message, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.success(data.message);
+      router.push("/login");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Registration failed", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="flex flex-col justify-center justify-items-center items-center gap-5">
-      <ToastContainer />
-      <p className="text-4xl">REGISTER FORM</p>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={RegisterSchema}
-        onSubmit={(values) => {
-          onRegister(values);
-        }}
-      >
-        {(props: FormikProps<IRegister>) => {
-          const { values, handleChange, touched, errors } = props;
+    <section className="max-w-md mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Register</h1>
+      <FormProvider {...methods}>
+        <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <InputField name="first_name" label="First Name" />
+          <InputField name="last_name" label="Last Name" />
+          <InputField name="email" label="Email" type="email" />
+          <InputField name="password" label="Password" type="password" />
+          <InputField
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+          />
 
-          return (
-            <Form className="w-full max-w-md">
-              <div className="flex flex-col gap-4 mb-4">
-                <label className="block text-gray-700">Email:</label>
-                <Field
-                  type="email"
-                  name="email"
-                  onChange={handleChange}
-                  value={values.email}
-                  className="w-full p-2 border rounded"
-                />
-                {touched.email && errors.email ? (
-                  <div className="text-red-500 text-sm">*{errors.email}</div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-4 mb-4">
-                <label className="block text-gray-700">Password:</label>
-                <Field
-                  type="password"
-                  name="password"
-                  onChange={handleChange}
-                  value={values.password}
-                  className="w-full p-2 border rounded"
-                />
-                {touched.password && errors.password ? (
-                  <div className="text-red-500 text-sm">*{errors.password}</div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-4 mb-4">
-                <label className="block text-gray-700">First Name:</label>
-                <Field
-                  type="text"
-                  name="firstName"
-                  onChange={handleChange}
-                  value={values.firstName}
-                  className="w-full p-2 border rounded"
-                />
-                {touched.firstName && errors.firstName ? (
-                  <div className="text-red-500 text-sm">
-                    *{errors.firstName}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-4 mb-6">
-                <label className="block text-gray-700">Last Name:</label>
-                <Field
-                  type="text"
-                  name="lastName"
-                  onChange={handleChange}
-                  value={values.lastName}
-                  className="w-full p-2 border rounded"
-                />
-                {touched.lastName && errors.lastName ? (
-                  <div className="text-red-500 text-sm">*{errors.lastName}</div>
-                ) : null}
-              </div>
-
-              <button
-                className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="submit"
-              >
-                Register
-              </button>
-            </Form>
-          );
-        }}
-      </Formik>
-    </div>
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+          >
+            Register
+          </button>
+        </form>
+      </FormProvider>
+    </section>
   );
 }

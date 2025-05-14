@@ -1,4 +1,4 @@
-import { Event } from "@/types/events";
+import { Event } from "@/types/event";
 import { FiCalendar, FiMapPin, FiDollarSign } from "react-icons/fi";
 import Link from "next/link";
 

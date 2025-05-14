@@ -1,14 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authSlice from "./features/authSlice";
+import authReducer from "./features/authSlice";
 
-export function makeStore() {
-  return configureStore({
-    reducer: {
-      auth: authSlice,
-    },
-  });
-}
+export const store = configureStore({
+  reducer: {
+    auth: authReducer,
+    // Tambah reducer lain di sini jika ada
+  },
+});
 
-export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<AppStore["getState"]>;
-export type AppDispatch = AppStore["dispatch"];
+// Hook untuk digunakan di komponen
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

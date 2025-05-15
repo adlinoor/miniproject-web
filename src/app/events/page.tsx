@@ -1,15 +1,25 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Event } from "@/types/event";
+import EventCard from "@/components/events/EventsCard";
+import SearchBar from "@/components/events/SearchBar";
+
+type Event = {
+  id: number;
+  name: string;
+  location: string;
+  price: number;
+  start_date: string;
+  end_date: string;
+};
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
+<<<<<<< HEAD
     const fetchEvents = async () => {
       try {
         const response = await axios.get(
@@ -29,39 +39,25 @@ export default function EventsPage() {
   if (loading) {
     return <p className="text-center py-20">Loading events...</p>;
   }
+=======
+    axios
+      .get(`/api/events?search=${query}`)
+      .then((res) => setEvents(res.data))
+      .catch(console.error);
+  }, [query]);
+>>>>>>> origin/rian
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">All Events</h1>
-
-      {events.length === 0 ? (
-        <p className="text-center text-gray-500">No events available.</p>
-      ) : (
-        <div className="grid md:grid-cols-3 gap-8">
-          {events.map((event) => (
-            <div
-              key={event.id}
-              className="border p-4 rounded shadow hover:shadow-lg transition"
-            >
-              <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
-              <p className="text-gray-600 mb-4 line-clamp-3">
-                {event.description}
-              </p>
-              <div className="text-sm text-gray-500 mb-2">
-                {new Date(event.startDate).toLocaleDateString()} –{" "}
-                {new Date(event.endDate).toLocaleDateString()}
-              </div>
-              <div className="text-sm text-gray-500 mb-4">{event.location}</div>
-              <Link
-                href={`/events/${event.id}`}
-                className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-              >
-                View Details
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
+    <main className="p-6">
+      <h1 className="text-2xl font-semibold mb-4">Upcoming Events</h1>
+      <SearchBar onSearch={setQuery} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        {events.length > 0 ? (
+          events.map((event) => <EventCard key={event.id} event={event} />)
+        ) : (
+          <p>No events found.</p>
+        )}
+      </div>
+    </main>
   );
 }

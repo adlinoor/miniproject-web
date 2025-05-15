@@ -1,91 +1,101 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import axios from "axios";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { z } from "zod";
-
-// Skema validasi ID pakai Zod
-const paramsSchema = z.object({
-  id: z.string().regex(/^\d+$/, "Invalid ID format"),
-});
 
 type Event = {
   id: number;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  location: string;
-  category: string;
+  name: string;
   price: number;
   availableSeats: number;
 };
 
-export default function EventDetailPage() {
-  const rawParams = useParams();
-  const parsed = paramsSchema.safeParse(rawParams);
+type FormData = {
+  quantity: number;
+  usePoints: boolean;
+  paymentProof: FileList;
+};
 
+export default function BuyTicketPage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const { register, handleSubmit, watch } = useForm<FormData>();
   const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [points, setPoints] = useState<number>(0); // dari API profile
 
   useEffect(() => {
-    if (!parsed.success) return;
+    axios.get(`/api/events/${id}`).then((res) => setEvent(res.data));
+    axios.get("/api/users/profile").then((res) => setPoints(res.data.points));
+  }, [id]);
 
-    const { id } = parsed.data;
+  const onSubmit = async (data: FormData) => {
+    const formData = new FormData();
+    formData.append("quantity", data.quantity.toString());
+    formData.append("usePoints", data.usePoints ? "true" : "false");
+    formData.append("paymentProof", data.paymentProof[0]);
 
-    const fetchEvent = async () => {
-      try {
-        const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events/${id}`
-        );
-        setEvent(data);
-      } catch (error) {
-        toast.error("Failed to fetch event");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      await axios.post(`/api/events/${id}/transactions`, formData);
+      toast.success("Transaction created!");
+      router.push("/transactions");
+    } catch (error) {
+      toast.error("Transaction failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchEvent();
-  }, [parsed]);
+  if (!event) return <p>Loading event data...</p>;
 
-  if (!parsed.success)
-    return (
-      <p className="text-center mt-12 text-red-600">
-        Invalid event ID: {parsed.error.errors[0]?.message}
-      </p>
-    );
-
-  if (loading) return <p className="text-center mt-12">Loading event...</p>;
-
-  if (!event)
-    return <p className="text-center mt-12 text-gray-500">Event not found</p>;
+  const usePoints = watch("usePoints");
+  const quantity = watch("quantity") || 1;
+  const finalPrice = usePoints
+    ? event.price * quantity - points
+    : event.price * quantity;
 
   return (
-    <section className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-bold mb-4">{event.title}</h1>
-      <p className="text-gray-600 mb-2">{event.description}</p>
-      <p className="text-sm text-gray-500 mb-2">
-        {new Date(event.startDate).toLocaleString()} -{" "}
-        {new Date(event.endDate).toLocaleString()}
-      </p>
-      <p className="mb-2 font-medium">Location: {event.location}</p>
-      <p className="mb-2 font-medium">Category: {event.category}</p>
-      <p className="mb-2 font-medium">Price: Rp {event.price}</p>
-      <p className="mb-6 font-medium">
-        Available Seats: {event.availableSeats}
-      </p>
+    <div className="max-w-xl mx-auto p-6">
+      <h1 className="text-xl font-bold mb-4">Buy Tickets for {event.name}</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <label>Quantity</label>
+        <input
+          type="number"
+          min="1"
+          max={event.availableSeats}
+          {...register("quantity", { valueAsNumber: true })}
+          className="input"
+        />
 
-      <Link
-        href={`/checkout/${event.id}`}
-        className="inline-block px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-      >
-        Book Now
-      </Link>
-    </section>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" {...register("usePoints")} />
+          Use my points ({points.toLocaleString()} IDR)
+        </label>
+
+        <label>Upload Payment Proof</label>
+        <input
+          type="file"
+          accept="image/*"
+          {...register("paymentProof")}
+          className="input"
+        />
+
+        <p>
+          Total Price: <strong>{finalPrice.toLocaleString()} IDR</strong>
+        </p>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          {loading ? "Processing..." : "Checkout"}
+        </button>
+      </form>
+    </div>
   );
 }

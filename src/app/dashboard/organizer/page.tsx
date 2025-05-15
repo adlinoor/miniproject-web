@@ -6,6 +6,7 @@ import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import OrganizerEventChart from "@/components/events/EventsChart";
 
 type Event = {
   id: number;
@@ -73,12 +74,14 @@ export default function OrganizerDashboard() {
       <section className="max-w-6xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold mb-6">My Events</h1>
 
+        <OrganizerEventChart />
+
         {loading ? (
           <p>Loading...</p>
         ) : events.length === 0 ? (
           <p>You have no events yet.</p>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
             {events.map((event) => (
               <div key={event.id} className="border p-4 rounded shadow-sm">
                 <h2 className="text-xl font-semibold mb-2">{event.title}</h2>

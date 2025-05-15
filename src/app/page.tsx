@@ -41,7 +41,7 @@ export default function Home() {
             Browse Events
           </Link>
           <Link
-            href="/create-event"
+            href="/events/create"
             className="px-8 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-full font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
           >
             Create Event

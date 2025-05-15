@@ -6,7 +6,7 @@ import "./globals.css";
 import StoreProvider from "@/components/storeProvider";
 import AuthProvider from "@/components/authProvider";
 import Navbar from "@/components/navbar";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "EventHub - Discover Amazing Events",
@@ -37,7 +37,7 @@ export default function RootLayout({
             <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               <Navbar />
               <main className="flex-1">{children}</main>
-              <Toaster />
+              <Toaster /> {/* ini dari react-hot-toast */}
             </div>
           </AuthProvider>
         </StoreProvider>

@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 type Event = {
   id: number;
@@ -89,8 +89,10 @@ export default function OrganizerDashboard() {
                 <p className="text-sm text-gray-600">
                   {event.category} | {event.location}
                 </p>
-                <p className="text-sm text-gray-700">Rp{event.price}</p>
-                <div className="flex gap-4 mt-4 text-sm">
+                <p className="text-sm text-gray-700">
+                  Rp{event.price.toLocaleString("id-ID")}
+                </p>
+                <div className="flex flex-wrap gap-4 mt-4 text-sm">
                   <Link
                     href={`/events/${event.id}`}
                     className="text-blue-600 underline"
@@ -98,10 +100,16 @@ export default function OrganizerDashboard() {
                     View
                   </Link>
                   <Link
-                    href={`/events/${event.id}/edit`}
+                    href={`/events/edit/${event.id}`}
                     className="text-yellow-600 underline"
                   >
                     Edit
+                  </Link>
+                  <Link
+                    href={`/events/${event.id}/attendees`}
+                    className="text-green-600 underline"
+                  >
+                    Attendees
                   </Link>
                   <button
                     onClick={() => handleDelete(event.id)}

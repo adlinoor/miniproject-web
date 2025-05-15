@@ -1,8 +1,5 @@
 "use client";
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/rian
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";

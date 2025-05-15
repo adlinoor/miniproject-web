@@ -2,6 +2,8 @@ import { Event } from "@/types/event";
 import axios from "axios";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic"; // 👈 agar page bisa pakai async fetch
+
 type Props = {
   params: { id: string };
 };
@@ -35,6 +37,6 @@ export default async function EventDetailPage({ params }: Props) {
     );
   } catch (error) {
     console.error("Failed to fetch event:", error);
-    notFound(); // Optional: you can customize 404 page
+    notFound();
   }
 }

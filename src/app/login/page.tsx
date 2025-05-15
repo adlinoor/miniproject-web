@@ -9,9 +9,14 @@ import { toast } from "react-toastify";
 import { useAppDispatch } from "@/lib/redux/hook";
 import { login } from "@/lib/redux/features/authSlice";
 import { setCookie } from "cookies-next";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Login() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
   const methods = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
   });
@@ -22,9 +27,13 @@ export default function Login() {
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/login`,
         values
       );
+
       dispatch(login({ user: data.user }));
       setCookie("access_token", data.token);
       toast.success(data.message);
+
+      const fallback = data.user.role === "organizer" ? "/dashboard" : "/";
+      router.push(redirect || fallback);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Login failed");
     }

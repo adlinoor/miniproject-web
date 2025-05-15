@@ -33,7 +33,7 @@ export default function ProfilePage() {
     const fetchRewards = async () => {
       try {
         const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/users/rewards`,
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/user/me`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

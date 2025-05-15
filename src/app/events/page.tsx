@@ -15,7 +15,7 @@ export default function EventsPage() {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/events`
         );
-        setEvents(response.data);
+        setEvents(response.data.data);
       } catch (error) {
         console.error("Failed to fetch events:", error);
       } finally {

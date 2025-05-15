@@ -88,7 +88,7 @@ export default function OrganizerTransactionsPage() {
                 </p>
                 <p>Event: {tx.event.title}</p>
                 <p>Quantity: {tx.quantity}</p>
-                <p>Total Price: Rp{tx.totalPrice}</p>
+                <p>Total Price: Rp{tx.totalPrice.toLocaleString("id-ID")}</p>
                 <p>
                   Status: <span className="font-medium">{tx.status}</span>
                 </p>

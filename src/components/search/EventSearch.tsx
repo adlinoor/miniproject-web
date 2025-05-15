@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
-import { EventCard } from "../events/EventsCard";
+import EventCard from "../events/EventsCard";
 import { FiSearch, FiFilter, FiClock } from "react-icons/fi";
 
 export const EventSearch = () => {
@@ -104,7 +104,17 @@ export const EventSearch = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard
+                  key={event.id}
+                  event={{
+                    id: 0,
+                    name: "",
+                    location: "",
+                    price: 0,
+                    start_date: "",
+                    end_date: "",
+                  }}
+                />
               ))}
             </div>
           )}

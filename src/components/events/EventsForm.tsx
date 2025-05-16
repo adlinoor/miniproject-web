@@ -1,5 +1,10 @@
-import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
-import * as Yup from "yup";
+"use client";
+
+import { useForm, FormProvider } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import InputField from "@/components/shared/InputField";
+import { useEffect } from "react";
 
 interface EventFormValues {
   id?: string;
@@ -13,71 +18,93 @@ interface EventFormValues {
 }
 
 interface EventFormProps {
-  onSubmit: (
-    values: EventFormValues,
-    actions: FormikHelpers<EventFormValues>
-  ) => void;
+  onSubmit: (values: EventFormValues) => void;
   initialValues?: EventFormValues;
 }
 
-const EventSchema = Yup.object().shape({
-  name: Yup.string().required("Required"),
-  description: Yup.string().required("Required"),
-  startDate: Yup.date().required("Required"),
-  endDate: Yup.date()
-    .required("Required")
-    .min(Yup.ref("startDate"), "End date must be after start date"),
-  price: Yup.number().min(0, "Must be positive"),
-  seats: Yup.number().min(1, "At least 1 seat").required("Required"),
-});
+const EventSchema = z
+  .object({
+    name: z.string().min(1, "Required"),
+    description: z.string().min(1, "Required"),
+    startDate: z.string().min(1, "Required"),
+    endDate: z.string().min(1, "Required"),
+    price: z.number().min(0, "Must be positive"),
+    seats: z.number().min(1, "At least 1 seat"),
+    isFree: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+    if (end <= start) {
+      ctx.addIssue({
+        path: ["endDate"],
+        code: z.ZodIssueCode.custom,
+        message: "End date must be after start date",
+      });
+    }
+  });
 
-export const EventForm: React.FC<EventFormProps> = ({
+export default function EventsForm({
   onSubmit,
   initialValues,
-}) => {
+}: EventFormProps) {
+  const methods = useForm<EventFormValues>({
+    resolver: zodResolver(EventSchema),
+    defaultValues: initialValues || {
+      name: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      price: 0,
+      seats: 1,
+      isFree: false,
+    },
+  });
+
+  const { handleSubmit, setValue, watch } = methods;
+
+  // Ensure checkbox updates reactively
+  const isFree = watch("isFree");
+
+  useEffect(() => {
+    setValue("isFree", initialValues?.isFree ?? false);
+  }, [initialValues?.isFree, setValue]);
+
   return (
-    <Formik
-      initialValues={
-        initialValues || {
-          name: "",
-          description: "",
-          startDate: "",
-          endDate: "",
-          price: 0,
-          seats: 1,
-          isFree: false,
-        }
-      }
-      validationSchema={EventSchema}
-      onSubmit={onSubmit}
-    >
-      {({ values, setFieldValue }) => (
-        <Form className="space-y-4">
-          {/* Form fields with proper TypeScript typing */}
-          <div>
-            <label className="block">Event Name</label>
-            <Field
-              name="name"
-              type="text"
-              className="w-full p-2 border rounded"
-            />
-            <ErrorMessage
-              name="name"
-              component="div"
-              className="text-red-500"
-            />
-          </div>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <InputField<EventFormValues> label="Event Name" name="name" />
+        <InputField<EventFormValues> label="Description" name="description" />
+        <InputField<EventFormValues>
+          label="Start Date"
+          name="startDate"
+          type="date"
+        />
+        <InputField<EventFormValues>
+          label="End Date"
+          name="endDate"
+          type="date"
+        />
+        <InputField<EventFormValues> label="Price" name="price" type="number" />
+        <InputField<EventFormValues> label="Seats" name="seats" type="number" />
 
-          {/* Other form fields... */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isFree"
+            checked={isFree}
+            onChange={(e) => setValue("isFree", e.target.checked)}
+          />
+          <label htmlFor="isFree">This event is free</label>
+        </div>
 
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            {initialValues?.id ? "Update Event" : "Create Event"}
-          </button>
-        </Form>
-      )}
-    </Formik>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          {initialValues?.id ? "Update Event" : "Create Event"}
+        </button>
+      </form>
+    </FormProvider>
   );
-};
+}

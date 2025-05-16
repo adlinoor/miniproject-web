@@ -3,7 +3,7 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import InputField from "@/components/ui/InputField";
+import InputField from "@/components/shared/InputField";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";

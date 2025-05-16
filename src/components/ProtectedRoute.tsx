@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;

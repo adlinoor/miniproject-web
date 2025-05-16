@@ -4,7 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 type FormData = {
   code: string;

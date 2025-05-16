@@ -5,7 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchema } from "./schema";
 import InputField from "@/components/shared/InputField";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+
 import { useAppDispatch } from "@/lib/redux/hook";
 import { login } from "@/lib/redux/features/authSlice";
 import { setCookie } from "cookies-next";

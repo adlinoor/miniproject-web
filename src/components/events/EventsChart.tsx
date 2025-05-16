@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 interface EventData {
   id: number;

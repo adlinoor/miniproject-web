@@ -5,7 +5,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "@/components/shared/InputField";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+
 import { useRouter } from "next/navigation";
 
 // 💡 Schema Zod untuk validasi

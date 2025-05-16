@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 type Event = {

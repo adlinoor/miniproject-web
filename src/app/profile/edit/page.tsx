@@ -7,7 +7,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useEffect, useState } from "react";
 import InputField from "@/components/shared/InputField";

@@ -1,6 +1,8 @@
 export interface IUser {
-    email: string;
-    first_name: string;
-    last_name: string;
-    role: string;
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: "CUSTOMER" | "ORGANIZER";
+  referralCode?: string;
 }

@@ -24,10 +24,13 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", data);
 
-      // ✅ Simpan token ke cookie agar AuthProvider bisa mendeteksi
-      setCookie("access_token", res.data.token);
+      // ✅ Simpan token ke cookie
+      setCookie("access_token", res.data.token, {
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
 
-      toast.success(res.data.message || "Login successful");
+      toast.success(res.data.message);
       router.push("/");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Login failed");

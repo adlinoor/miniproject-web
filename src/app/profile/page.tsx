@@ -25,10 +25,12 @@ type Coupon = {
 };
 
 export default function ProfilePage() {
-  const user: IUser | null = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.auth.user);
   const [points, setPoints] = useState<Point[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
+
+  if (!user) return null; // ⬅️ Cegah akses null saat build/prerender
 
   useEffect(() => {
     const fetchRewards = async () => {
@@ -46,8 +48,8 @@ export default function ProfilePage() {
       }
     };
 
-    if (user) fetchRewards();
-  }, [user]);
+    fetchRewards();
+  }, []);
 
   return (
     <ProtectedRoute>

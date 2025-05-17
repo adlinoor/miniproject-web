@@ -19,7 +19,7 @@ export default async function middleware(req: NextRequest) {
 
     const user: IUser = jwtDecode(token);
 
-    if (eoOnly && user.role != "event_organizer")
+    if (eoOnly && user.role != "ORGANIZER")
       return NextResponse.redirect(new URL("/", req.nextUrl));
   } catch (err) {
     return NextResponse.redirect(new URL("/", req.nextUrl));
@@ -27,5 +27,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard/:path*"]
-}
+  matcher: ["/dashboard/:path*"],
+};

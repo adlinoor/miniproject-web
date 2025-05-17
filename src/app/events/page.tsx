@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import useDebouncedSearch from "@/hooks/useDebouncedSearch";
 import EventsCard from "@/components/events/EventsCard";
 import SearchBar from "@/components/shared/SearchBar";
+import { trim } from "lodash";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (debouncedQuery.trim() === "" && query.trim() !== "") return;
+    if (trim() === "" && query.trim() !== "") return;
 
     const fetchEvents = async () => {
       try {

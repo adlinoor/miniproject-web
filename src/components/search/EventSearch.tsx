@@ -1,22 +1,21 @@
 import { useState } from "react";
-import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
-import EventCard from "../events/EventsCard";
+import useDebouncedSearch from "@/hooks/useDebouncedSearch";
+import EventsCard from "../events/EventsCard";
 import { FiSearch, FiFilter, FiClock } from "react-icons/fi";
+import { Event } from "@/types/event";
 
 export const EventSearch = () => {
-  const { query, setQuery, events, isLoading, error } = useDebouncedSearch();
+  const { query, setQuery, events, isLoading, error } = useDebouncedSearch("");
 
-  // Filter state
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [locationFilter, setLocationFilter] = useState<string>("");
 
-  // Apply additional filters
-  const filteredEvents = events.filter((event) => {
+  const filteredEvents = events.filter((event: Event) => {
     const matchesCategory = categoryFilter
       ? event.category === categoryFilter
       : true;
     const matchesLocation = locationFilter
-      ? event.location.includes(locationFilter)
+      ? event.location.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
     return matchesCategory && matchesLocation;
   });
@@ -104,15 +103,16 @@ export const EventSearch = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEvents.map((event) => (
-                <EventCard
+                <EventsCard
                   key={event.id}
                   event={{
-                    id: 0,
-                    name: "",
-                    location: "",
-                    price: 0,
-                    start_date: "",
-                    end_date: "",
+                    id: event.id,
+                    name: event.title,
+                    location: event.location,
+                    description: event.description,
+                    price: event.price,
+                    start_date: event.startDate,
+                    end_date: event.endDate,
                   }}
                 />
               ))}

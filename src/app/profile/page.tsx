@@ -6,6 +6,7 @@ import { RootState } from "@/lib/redux/store";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { format } from "date-fns";
 import api from "@/lib/api-client";
+import { IUser } from "@/interfaces/user.interface";
 
 type Point = {
   id: number;
@@ -24,7 +25,7 @@ type Coupon = {
 };
 
 export default function ProfilePage() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user: IUser | null = useSelector((state: RootState) => state.auth.user);
   const [points, setPoints] = useState<Point[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);

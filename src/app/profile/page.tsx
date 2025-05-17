@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { format } from "date-fns";
+import api from "@/lib/api-client";
 
 type Point = {
   id: number;
@@ -32,15 +32,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchRewards = async () => {
       try {
-        const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/user/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-
+        const { data } = await api.get("/users/me");
         setPoints(data.pointHistory || []);
         setCoupons([
           ...(data.coupons?.active || []),

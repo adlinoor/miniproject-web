@@ -65,7 +65,8 @@ export default function ProfilePage() {
             <strong>Role:</strong> {user?.role}
           </p>
           <p>
-            <strong>Referral Code:</strong> {user?.referralCode || "-"}
+            <strong>Referral Code:</strong>{" "}
+            {"referralCode" in user! ? user?.referralCode || "-" : "-"}
           </p>
         </div>
 

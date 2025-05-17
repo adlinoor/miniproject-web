@@ -2,9 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import Button from "@/components/ui/Button";
 
 type Event = {
   id: number;
@@ -25,11 +26,11 @@ export default function BuyTicketPage() {
   const { register, handleSubmit, watch } = useForm<FormData>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
-  const [points, setPoints] = useState<number>(0); // dari API profile
+  const [points, setPoints] = useState<number>(0);
 
   useEffect(() => {
-    axios.get(`/api/events/${id}`).then((res) => setEvent(res.data));
-    axios.get("/api/users/profile").then((res) => setPoints(res.data.points));
+    api.get(`/events/${id}`).then((res) => setEvent(res.data));
+    api.get("/users/profile").then((res) => setPoints(res.data.points));
   }, [id]);
 
   const onSubmit = async (data: FormData) => {
@@ -40,7 +41,7 @@ export default function BuyTicketPage() {
 
     setLoading(true);
     try {
-      await axios.post(`/api/events/${id}/transactions`, formData);
+      await api.post(`/events/${id}/transactions`, formData);
       toast.success("Transaction created!");
       router.push("/transactions");
     } catch (error) {
@@ -59,7 +60,7 @@ export default function BuyTicketPage() {
     : event.price * quantity;
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow border border-gray-200">
       <h1 className="text-xl font-bold mb-4">Buy Tickets for {event.name}</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <label>Quantity</label>
@@ -88,13 +89,9 @@ export default function BuyTicketPage() {
           Total Price: <strong>{finalPrice.toLocaleString()} IDR</strong>
         </p>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Processing..." : "Checkout"}
-        </button>
+        </Button>
       </form>
     </div>
   );

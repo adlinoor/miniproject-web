@@ -9,16 +9,11 @@ import Navbar from "@/components/navbar";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
-  title: "EventHub - Discover Amazing Events",
-  description: "Find, create, and manage events all in one place",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  title: "ARevents - Discover Amazing Events",
+  description: "Find, create, and manage events all in one place.",
   icons: {
     icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    apple: "/favicons/apple-touch-icon.png",
   },
 };
 
@@ -30,14 +25,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}
+        className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-gray-50 text-gray-900`}
       >
         <StoreProvider>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <div className="min-h-screen flex flex-col">
               <Navbar />
               <main className="flex-1">{children}</main>
-              <Toaster /> {/* ini dari react-hot-toast */}
+              <Toaster />
             </div>
           </AuthProvider>
         </StoreProvider>

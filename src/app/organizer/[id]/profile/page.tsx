@@ -1,56 +1,37 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import ReviewCard from "@/components/review/ReviewCard";
-
-type Organizer = {
-  name: string;
-  bio: string;
-  profilePicture: string;
-};
-
-type Review = {
-  userName: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-};
 
 export default function OrganizerProfilePage() {
   const { id } = useParams();
-  const [organizer, setOrganizer] = useState<Organizer | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    axios.get(`/api/organizers/${id}`).then((res) => setOrganizer(res.data));
-    axios
-      .get(`/api/organizers/${id}/reviews`)
-      .then((res) => setReviews(res.data));
+    axios.get(`/api/organizers/${id}`).then((res) => setProfile(res.data));
   }, [id]);
 
-  if (!organizer) return <p>Loading organizer...</p>;
+  if (!profile) return <p className="text-center py-10">Loading profile...</p>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
-        <img
-          src={organizer.profilePicture}
-          className="w-20 h-20 rounded-full object-cover"
-        />
-        <div>
-          <h1 className="text-2xl font-bold">{organizer.name}</h1>
-          <p className="text-gray-600">{organizer.bio}</p>
-        </div>
+    <section className="max-w-4xl mx-auto p-6">
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-bold">{profile.name}</h1>
+        <p className="text-gray-600">{profile.bio || "No bio provided."}</p>
       </div>
-
-      <h2 className="text-xl font-semibold mb-2">Reviews</h2>
-      {reviews.length > 0 ? (
-        reviews.map((r, i) => <ReviewCard key={i} review={r} />)
-      ) : (
-        <p className="text-gray-500">No reviews yet.</p>
-      )}
-    </div>
+      <hr className="my-8" />
+      <h2 className="text-xl font-semibold mb-4">Reviews</h2>
+      <div className="space-y-4">
+        {profile.reviews?.length > 0 ? (
+          profile.reviews.map((review: any) => (
+            <ReviewCard key={review.id} review={review} />
+          ))
+        ) : (
+          <p className="text-gray-500">No reviews yet.</p>
+        )}
+      </div>
+    </section>
   );
 }

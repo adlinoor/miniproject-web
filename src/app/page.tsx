@@ -1,115 +1,88 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Link from "next/link";
+import Button from "@/components/ui/Button";
+import api from "@/lib/api-client";
 
 export default function Home() {
-  const [events, setEvents] = useState<any[]>([]); // Menambahkan tipe untuk state events
+  const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events`
-        ); // Menggunakan URL dari .env
-        setEvents(response.data); // Menyimpan data events ke state
+        const response = await api.get("/events");
+        setEvents(response.data?.data || []);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     };
 
-    fetchEvents(); // Panggil fungsi fetchEvents ketika komponen pertama kali dimuat
+    fetchEvents();
   }, []);
 
   return (
-    <>
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Hero Section */}
-      <section className="py-20 px-6 max-w-7xl mx-auto text-center">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      <section className="py-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500 leading-tight">
           Discover Amazing Events
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
-          Find, create, and manage events all in one place. Whether you're
-          looking to attend or organize, we've got you covered.
+        <p className="text-base md:text-xl text-gray-600 max-w-xl mx-auto mb-10">
+          Find, create, and manage events all in one place. Whether you're looking to attend or organize, we've got you covered.
         </p>
-        <div className="flex gap-4 justify-center">
-          <Link
-            href="/events"
-            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 hover:scale-105"
-          >
-            Browse Events
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
+          <Link href="/events">
+            <Button variant="primary" className="px-6 py-3 text-base shadow-md">
+              🔍 Browse Events
+            </Button>
           </Link>
-          <Link
-            href="/events/create"
-            className="px-8 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white rounded-full font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-          >
-            Create Event
+          <Link href="/events/create">
+            <Button variant="secondary" className="px-6 py-3 text-base shadow-sm">
+              ➕ Create Event
+            </Button>
           </Link>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold mb-12 text-center">
-          Why Choose EventHub?
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Add feature cards here */}
-          <div className="text-center p-6 border rounded-xl shadow-md">
-            <h3 className="text-2xl font-semibold">Easy to Use</h3>
-            <p className="mt-4 text-gray-600">
-              User-friendly interface for everyone!
-            </p>
-          </div>
-          <div className="text-center p-6 border rounded-xl shadow-md">
-            <h3 className="text-2xl font-semibold">Manage Events</h3>
-            <p className="mt-4 text-gray-600">
-              Create, manage, and organize your events in one place.
-            </p>
-          </div>
-          <div className="text-center p-6 border rounded-xl shadow-md">
-            <h3 className="text-2xl font-semibold">Meet New People</h3>
-            <p className="mt-4 text-gray-600">
-              Connect with like-minded individuals at every event.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Stylish Divider */}
+      <div className="flex items-center justify-center my-16">
+        <div className="flex-grow border-t border-gray-300"></div>
+        <span className="mx-4 text-gray-500 text-sm uppercase tracking-widest">Upcoming Events</span>
+        <div className="flex-grow border-t border-gray-300"></div>
+      </div>
 
-      {/* Upcoming Events Section */}
-      <section className="py-20 px-6 max-w-7xl mx-auto pb-32">
-        <h3 className="text-2xl font-bold text-center mb-8">Upcoming Events</h3>
-        <div className="grid md:grid-cols-3 gap-8">
-          {events.length > 0 ? (
-            events.map((event) => (
+      {/* Event Preview Cards */}
+      {events.length > 0 && (
+        <section className="px-4 md:px-6 max-w-6xl mx-auto pb-24">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {events.slice(0, 6).map((event) => (
               <div
                 key={event.id}
-                className="bg-white dark:bg-gray-800 p-6 border rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                className="rounded-2xl bg-white shadow-md p-6 hover:shadow-lg transition border border-gray-200 flex flex-col justify-between"
               >
-                <h4 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {event.title}
-                </h4>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                  {event.description}
-                </p>
-                <div className="mt-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-2xl">📅</div>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {event.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 line-clamp-3">
+                    {event.description}
+                  </p>
+                </div>
+                <div className="mt-4 text-right">
                   <Link
                     href={`/events/${event.id}`}
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-sm text-primary hover:underline font-medium underline-offset-4"
                   >
-                    View Details
+                    View Details →
                   </Link>
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-600 dark:text-gray-300">
-              No events found.
-            </p>
-          )}
-        </div>
-      </section>
-    </>
+            ))}
+          </div>
+        </section>
+      )}
+    </main>
   );
 }

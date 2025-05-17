@@ -1,55 +1,60 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
-import TransactionStatusBadge from "@/components/transactions/TransactionStatusBadge";
+import api from "@/lib/api-client";
+import Badge from "@/components/ui/Badge";
 
 type Transaction = {
   id: number;
-  eventName: string;
-  status: string;
-  totalPrice: number;
-  quantity: number;
-  createdAt: string;
+  event_name: string;
+  amount: number;
+  status: "waiting" | "done" | "rejected";
+  created_at: string;
 };
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    axios
-      .get("/api/transactions/me")
-      .then((res) => setTransactions(res.data))
-      .catch(console.error);
+    api.get("/users/transactions").then((res) => setTransactions(res.data));
   }, []);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">My Transactions</h1>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="border-b">
-            <th>Event</th>
-            <th>Status</th>
-            <th>Qty</th>
-            <th>Total</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((tx) => (
-            <tr key={tx.id} className="border-b">
-              <td>{tx.eventName}</td>
-              <td>
-                <TransactionStatusBadge status={tx.status as any} />
-              </td>
-              <td>{tx.quantity}</td>
-              <td>{tx.totalPrice.toLocaleString()}</td>
-              <td>{new Date(tx.createdAt).toLocaleDateString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <section className="max-w-5xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">My Transactions</h1>
+
+      {transactions.length === 0 ? (
+        <p className="text-gray-600">You have no transactions yet.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
+            <thead className="bg-gray-50 text-left text-sm font-medium text-gray-700">
+              <tr>
+                <th className="px-4 py-2 border-b">Event</th>
+                <th className="px-4 py-2 border-b">Amount</th>
+                <th className="px-4 py-2 border-b">Status</th>
+                <th className="px-4 py-2 border-b">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((tx) => (
+                <tr key={tx.id} className="text-sm border-b border-gray-100">
+                  <td className="px-4 py-2">{tx.event_name}</td>
+                  <td className="px-4 py-2">
+                    IDR {tx.amount.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2">
+                    <Badge status={tx.status} />
+                  </td>
+                  <td className="px-4 py-2">
+                    {new Date(tx.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }

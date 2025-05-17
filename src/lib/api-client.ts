@@ -1,27 +1,19 @@
 import axios from "axios";
-import { IUser } from "@/interfaces/user.interface";
+import { getCookie } from "cookies-next";
 
-export const login = async (
-  email: string,
-  password: string
-): Promise<{ token: string; user: IUser }> => {
-  const response = await axios.post("/auth/login", { email, password });
-  return response.data;
-};
+// ✅ Konfigurasi dasar axios
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BASE_API_URL,
+  withCredentials: true,
+});
 
-export const register = async (userData: {
-  first_name: string;
-  last_name: string;
-  email: string;
-  password: string;
-  role: "CUSTOMER" | "ORGANIZER";
-  referralCode?: string;
-}): Promise<{ token: string; user: IUser }> => {
-  const response = await axios.post("/auth/register", userData);
-  return response.data;
-};
+// ✅ Tambah Authorization token otomatis
+api.interceptors.request.use((config) => {
+  const token = getCookie("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-export const getCurrentUser = async (): Promise<IUser> => {
-  const response = await axios.get("/users/me");
-  return response.data;
-};
+export default api;

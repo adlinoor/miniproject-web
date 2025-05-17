@@ -9,7 +9,7 @@ import { getCookie } from "cookies-next";
 interface JwtPayload {
   id: number;
   email: string;
-  role: "CUSTOMER" | "ORGANIZER"; // ✅ tipe eksplisit sesuai redux
+  role: "CUSTOMER" | "ORGANIZER";
   first_name: string;
   last_name: string;
   referralCode?: string;
@@ -26,6 +26,8 @@ export default function AuthProvider({
   useEffect(() => {
     const token = getCookie("access_token");
 
+    console.log("🚀 TOKEN DITEMUKAN:", token);
+
     if (!token || typeof token !== "string") {
       dispatch(logout());
       return;
@@ -33,8 +35,10 @@ export default function AuthProvider({
 
     try {
       const decoded = jwtDecode<JwtPayload>(token);
+      console.log("🧩 PAYLOAD TERDECODE:", decoded);
 
       if (decoded.exp * 1000 < Date.now()) {
+        console.warn("⚠️ Token expired");
         dispatch(logout());
         return;
       }
@@ -52,7 +56,7 @@ export default function AuthProvider({
         })
       );
     } catch (error) {
-      console.error("Invalid token:", error);
+      console.error("❌ Token tidak valid:", error);
       dispatch(logout());
     }
   }, [dispatch]);

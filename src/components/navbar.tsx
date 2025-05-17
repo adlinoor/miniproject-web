@@ -8,6 +8,7 @@ import { deleteCookie } from "cookies-next";
 
 export default function Navbar() {
   const user = useSelector((state: RootState) => state.auth.user);
+  console.log("🧠 USER DARI REDUX:", user);
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -16,32 +17,36 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between items-center px-6 py-4 shadow-md bg-white dark:bg-gray-900">
-      <Link href="/" className="text-xl font-bold text-blue-600">
-        EventHub
+    <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
+      <Link href="/" className="text-xl font-bold text-gray-900">
+        ARevents
       </Link>
 
       <div className="flex items-center gap-4">
         {!user ? (
           <>
             <Link
-              href="/login"
-              className="text-sm font-medium text-blue-600 hover:underline"
+              href="/auth/login"
+              className="text-sm text-gray-700 hover:underline"
             >
               Login
             </Link>
             <Link
-              href="/register"
-              className="text-sm font-medium text-blue-600 hover:underline"
+              href="/auth/register"
+              className="text-sm text-gray-700 hover:underline"
             >
               Register
             </Link>
           </>
         ) : (
           <>
-            <span className="text-sm text-gray-700 dark:text-white">
-              Hi, {user.first_name}
-            </span>
+            <Link
+              href={`/dashboard/${user.role.toLowerCase()}`}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Dashboard
+            </Link>
+            <span className="text-sm text-gray-700">Hi, {user.first_name}</span>
             <button
               onClick={handleLogout}
               className="text-sm text-red-500 hover:underline"

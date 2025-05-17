@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { format } from "date-fns";
 import api from "@/lib/api-client";
-import { IUser } from "@/interfaces/user.interface";
+import { format } from "date-fns";
 
 type Point = {
   id: number;
@@ -30,7 +29,10 @@ export default function ProfilePage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
 
-  if (!user) return null; // ⬅️ Cegah akses null saat build/prerender
+  // ⛔ prevent rendering saat SSR
+  if (typeof window !== "undefined" && !user) {
+    return <div className="text-center py-12">You must be logged in</div>;
+  }
 
   useEffect(() => {
     const fetchRewards = async () => {
@@ -48,8 +50,8 @@ export default function ProfilePage() {
       }
     };
 
-    fetchRewards();
-  }, []);
+    if (user) fetchRewards();
+  }, [user]);
 
   return (
     <ProtectedRoute>
@@ -67,8 +69,7 @@ export default function ProfilePage() {
             <strong>Role:</strong> {user?.role}
           </p>
           <p>
-            <strong>Referral Code:</strong>{" "}
-            {"referralCode" in user! ? user?.referralCode || "-" : "-"}
+            <strong>Referral Code:</strong> {user?.referralCode || "-"}
           </p>
         </div>
 

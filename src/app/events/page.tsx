@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import useDebouncedSearch from "@/hooks/useDebouncedSearch";
-import EventsCard from "@/components/events/EventsCard";
-import SearchBar from "@/components/shared/SearchBar";
+import useDebouncedSearch from "../../hooks/useDebouncedSearch";
+import EventsCard from "../../components/events/EventsCard";
+import SearchBar from "../../components/shared/SearchBar";
 import { trim } from "lodash";
 
 export default function EventsPage() {

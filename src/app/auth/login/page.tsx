@@ -11,8 +11,8 @@ import { toast } from "react-hot-toast";
 import { setCookie } from "cookies-next";
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().email({ message: "Email tidak valid" }),
+  password: z.string().min(6, { message: "Password minimal 6 karakter" }),
 });
 type LoginForm = z.infer<typeof loginSchema>;
 
@@ -21,25 +21,26 @@ export default function LoginPage() {
   const methods = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = async (data: LoginForm) => {
+    console.log("Submitting login:", data); // ✅ debug
     try {
       const res = await api.post("/auth/login", data);
 
-      // ✅ Simpan token ke cookie
       setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
       });
 
-      toast.success(res.data.message);
+      toast.success(res.data.message || "Login berhasil");
       router.push("/");
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Login failed");
+      console.error("Login error:", err); // ✅ debug
+      toast.error(err?.response?.data?.message || "Login gagal");
     }
   };
 
   return (
     <section className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Login to ARevents</h1>
+      <h1 className="text-2xl font-semibold mb-6">Login ke ARevents</h1>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
           <Input name="email" type="email" placeholder="Email" />

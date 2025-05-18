@@ -1,42 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
 import { toast } from "react-hot-toast";
-import useDebouncedSearch from "../../hooks/useDebouncedSearch";
-import EventsCard from "../../components/events/EventsCard";
-import SearchBar from "../../components/shared/SearchBar";
+import useDebouncedSearch from "@/hooks/useDebouncedSearch";
+import EventsCard from "@/components/events/EventsCard";
+import SearchBar from "@/components/shared/SearchBar";
 import { trim } from "lodash";
+import api from "@/lib/api-client";
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<any[]>([]);
-  const [query, setQuery] = useState("");
-  const debouncedQuery = useDebouncedSearch(query, 1000);
-  const [loading, setLoading] = useState(true);
+  const { query, setQuery, events, isLoading, error } = useDebouncedSearch(
+    "",
+    1000
+  );
 
   useEffect(() => {
-    if (trim() === "" && query.trim() !== "") return;
+    if (trim(query) === "") return;
 
     const fetchEvents = async () => {
       try {
-        setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events?search=${debouncedQuery}`
-        );
-        setEvents(response.data.data || []);
+        const response = await api.get(`/events?search=${query}`);
+        // asumsi: data sudah dimasukkan di useDebouncedSearch
       } catch (error: any) {
         if (error.response?.status === 429) {
           toast.error("Terlalu banyak permintaan. Coba lagi beberapa saat.");
         } else {
           console.error("Error fetching events:", error);
         }
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchEvents();
-  }, [debouncedQuery]);
+  }, [query]);
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
@@ -48,12 +43,21 @@ export default function EventsPage() {
         placeholder="Search events..."
       />
 
-      {loading ? (
+      {isLoading ? (
         <p className="text-center py-20">Loading events...</p>
       ) : events.length > 0 ? (
         <div className="grid md:grid-cols-3 gap-6">
           {events.map((event) => (
-            <EventsCard key={event.id} event={event} />
+            <EventsCard
+              key={event.id}
+              event={{
+                id: event.id,
+                name: event.title, // asumsi dari backend pakai title
+                location: event.location,
+                price: event.price,
+                start_date: event.startDate, // asumsi camelCase dari backend
+              }}
+            />
           ))}
         </div>
       ) : (

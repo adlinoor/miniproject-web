@@ -1,19 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { logout } from "@/lib/redux/features/authSlice";
 import { deleteCookie } from "cookies-next";
+import { toast } from "react-hot-toast";
 
 export default function Navbar() {
+  const router = useRouter();
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   console.log("🧠 USER DARI REDUX:", user);
-  const dispatch = useDispatch();
 
   const handleLogout = () => {
     deleteCookie("access_token");
     dispatch(logout());
+    toast.success("Logout berhasil");
+    router.push("/auth/login");
   };
 
   return (

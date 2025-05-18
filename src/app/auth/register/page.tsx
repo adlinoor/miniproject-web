@@ -12,18 +12,21 @@ import { setCookie } from "cookies-next";
 
 const registerSchema = z
   .object({
-    first_name: z.string().min(1),
-    last_name: z.string().min(1),
-    email: z.string().email(),
-    password: z.string().min(6),
+    first_name: z.string().min(1, "Nama depan wajib diisi"),
+    last_name: z.string().min(1, "Nama belakang wajib diisi"),
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
     confirmPassword: z.string(),
-    role: z.enum(["CUSTOMER", "ORGANIZER"]),
+    role: z.enum(["CUSTOMER", "ORGANIZER"], {
+      required_error: "Role wajib dipilih",
+    }),
     referralCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Password tidak cocok",
     path: ["confirmPassword"],
   });
+
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
@@ -33,43 +36,44 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterForm) => {
+    console.log("Submitting register:", data); // ✅ debug
     try {
       const { confirmPassword, ...payload } = data;
       const res = await api.post("/auth/register", payload);
 
-      // ✅ Simpan token ke cookie
       setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
       });
 
-      toast.success(res.data.message);
+      toast.success(res.data.message || "Registrasi berhasil");
       router.push("/");
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Register failed");
+      console.error("Register error:", err); // ✅ debug
+      toast.error(err?.response?.data?.message || "Register gagal");
     }
   };
 
   return (
     <section className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Register at ARevents</h1>
+      <h1 className="text-2xl font-semibold mb-6">Registrasi ARevents</h1>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
-          <Input name="first_name" placeholder="First Name" />
-          <Input name="last_name" placeholder="Last Name" />
+          <Input name="first_name" placeholder="Nama Depan" />
+          <Input name="last_name" placeholder="Nama Belakang" />
           <Input name="email" type="email" placeholder="Email" />
           <Input name="password" type="password" placeholder="Password" />
           <Input
             name="confirmPassword"
             type="password"
-            placeholder="Confirm Password"
+            placeholder="Konfirmasi Password"
           />
-          <Input name="referralCode" placeholder="Referral Code (optional)" />
+          <Input name="referralCode" placeholder="Kode Referal (opsional)" />
 
           <div className="space-y-2">
             <label className="block text-sm font-medium">Role</label>
             <select {...methods.register("role")} className="input">
-              <option value="">Select role</option>
+              <option value="">Pilih Role</option>
               <option value="CUSTOMER">Customer</option>
               <option value="ORGANIZER">Organizer</option>
             </select>

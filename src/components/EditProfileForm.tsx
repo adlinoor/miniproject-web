@@ -22,6 +22,10 @@ interface FormData {
 
 export default function EditProfileForm({ initialUser }: Props) {
   const [loading, setLoading] = useState(false);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<
+    string | undefined
+  >(initialUser.profilePicture);
+  const [selectedPreview, setSelectedPreview] = useState<string | null>(null);
 
   const { register, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
@@ -34,18 +38,22 @@ export default function EditProfileForm({ initialUser }: Props) {
     setLoading(true);
 
     try {
+      let updatedUrl = profilePictureUrl;
+
       if (data.profilePicture?.[0]) {
         const formData = new FormData();
         formData.append("first_name", data.first_name);
         formData.append("last_name", data.last_name);
         formData.append("profilePicture", data.profilePicture[0]);
 
-        await api.put("/users/profile", formData, {
+        const response = await api.put("/users/profile", formData, {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         });
+
+        updatedUrl = response.data.user.profilePicture;
       } else {
-        await api.put(
+        const response = await api.put(
           "/users/profile",
           {
             first_name: data.first_name,
@@ -55,10 +63,14 @@ export default function EditProfileForm({ initialUser }: Props) {
             withCredentials: true,
           }
         );
+
+        updatedUrl = response.data.user.profilePicture;
       }
 
       toast.success("Profile updated successfully");
-      // Optional: reset form ke nilai baru
+      setProfilePictureUrl(updatedUrl);
+      setSelectedPreview(null);
+
       reset({
         first_name: data.first_name,
         last_name: data.last_name,
@@ -73,46 +85,65 @@ export default function EditProfileForm({ initialUser }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          First Name
-        </label>
-        <input
-          type="text"
-          {...register("first_name")}
-          className="input"
-          placeholder="Enter your first name"
-        />
-      </div>
+    <>
+      {(selectedPreview || profilePictureUrl) && (
+        <div className="mb-4 text-center">
+          <p className="text-sm text-gray-500 mb-2">Profile Picture Preview</p>
+          <img
+            src={selectedPreview || profilePictureUrl}
+            alt="Profile"
+            className="w-32 h-32 object-cover rounded-full mx-auto border"
+          />
+        </div>
+      )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Last Name
-        </label>
-        <input
-          type="text"
-          {...register("last_name")}
-          className="input"
-          placeholder="Enter your last name"
-        />
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            First Name
+          </label>
+          <input
+            type="text"
+            {...register("first_name")}
+            className="input"
+            placeholder="Enter your first name"
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Profile Picture (optional)
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          {...register("profilePicture")}
-          className="input"
-        />
-      </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Last Name
+          </label>
+          <input
+            type="text"
+            {...register("last_name")}
+            className="input"
+            placeholder="Enter your last name"
+          />
+        </div>
 
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? "Saving..." : "Update Profile"}
-      </Button>
-    </form>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Profile Picture (optional)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            {...register("profilePicture")}
+            className="input"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setSelectedPreview(URL.createObjectURL(file));
+              }
+            }}
+          />
+        </div>
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? "Saving..." : "Update Profile"}
+        </Button>
+      </form>
+    </>
   );
 }

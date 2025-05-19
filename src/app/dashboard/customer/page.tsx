@@ -1,61 +1,106 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@/lib/redux/hook";
-import { useRouter } from "next/navigation";
 import api from "@/lib/api-client";
-import Button from "@/components/ui/Button";
-import EditProfileForm from "@/components/EditProfileForm";
+import Link from "next/link";
+import { toast } from "react-hot-toast";
+
+interface User {
+  first_name: string;
+  last_name: string;
+  profilePicture?: string;
+  userPoints?: number;
+}
 
 export default function CustomerDashboardPage() {
-  const user = useAppSelector((state) => state.auth.user);
-  const router = useRouter();
-  const [points, setPoints] = useState(0);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      router.replace("/auth/login");
-    } else if (user.role !== "CUSTOMER") {
-      router.replace("/unauthorized");
-    } else {
-      api.get("/users/me").then((res) => {
-        setPoints(res.data.userPoints || 0);
-      });
-    }
-  }, [user, router]);
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/users/me", { withCredentials: true });
+        setUser(res.data);
+      } catch (err) {
+        console.error("Error fetching user", err);
+        toast.error("Gagal memuat profil");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!user || user.role !== "CUSTOMER") return null;
+    fetchUser();
+  }, []);
+
+  if (loading)
+    return <div className="text-center py-10">Loading dashboard...</div>;
+
+  if (!user)
+    return <div className="text-center py-10 text-red-500">User not found</div>;
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-10">
-      <h1 className="text-3xl font-bold mb-6">Customer Dashboard</h1>
-
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">Edit Profile</h2>
-        <EditProfileForm initialUser={user} />
-      </section>
-
-      <section className="mb-10">
-        <h2 className="text-xl font-semibold mb-2">My Points</h2>
-        <p className="text-green-600 font-bold text-lg">{points} pts</p>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Referral Code</h2>
-        <div className="flex items-center gap-3">
-          <span className="font-mono bg-gray-100 px-3 py-1 rounded">
-            {user?.referralCode || "-"}
-          </span>
-          <Button
-            type="button"
-            onClick={() =>
-              navigator.clipboard.writeText(user?.referralCode || "")
-            }
-          >
-            Copy
-          </Button>
+    <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
+      {/* ✅ Header Greeting */}
+      <div className="flex items-center gap-4 bg-white shadow-md rounded-xl p-6">
+        {user.profilePicture ? (
+          <img
+            src={user.profilePicture}
+            alt="Profile"
+            className="w-16 h-16 rounded-full object-cover border"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl">
+            ?
+          </div>
+        )}
+        <div>
+          <h2 className="text-2xl font-semibold">Halo, {user.first_name} 👋</h2>
+          {user.userPoints !== undefined && (
+            <p className="text-sm text-gray-500">
+              Poin Anda: {user.userPoints}
+            </p>
+          )}
         </div>
-      </section>
-    </main>
+      </div>
+
+      {/* ✅ Menu Shortcut */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <DashboardCard
+          href="/dashboard/customer/profile"
+          title="Edit Profil"
+          emoji="📝"
+        />
+        <DashboardCard
+          href="/dashboard/customer/rewards"
+          title="Poin & Rewards"
+          emoji="🎁"
+        />
+        <DashboardCard
+          href="/dashboard/customer/transactions"
+          title="Riwayat Transaksi"
+          emoji="📜"
+        />
+      </div>
+    </div>
+  );
+}
+
+function DashboardCard({
+  href,
+  title,
+  emoji,
+}: {
+  href: string;
+  title: string;
+  emoji: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-center justify-center gap-2 bg-white rounded-xl shadow-md p-6 hover:shadow-lg hover:scale-[1.02] transition"
+    >
+      <div className="text-4xl">{emoji}</div>
+      <h3 className="text-lg font-medium">{title}</h3>
+    </Link>
   );
 }

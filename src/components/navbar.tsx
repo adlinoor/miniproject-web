@@ -21,41 +21,49 @@ export default function Navbar() {
     router.push("/auth/login");
   };
 
-  // ✅ Jangan render sebelum Redux siap
   if (!isHydrated) return null;
 
+  const getDashboardLink = () => {
+    if (user?.role === "CUSTOMER") return "/dashboard/customer";
+    if (user?.role === "ORGANIZER") return "/dashboard/organizer";
+    return "/dashboard"; // fallback
+  };
+
   return (
-    <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
-      <Link href="/" className="text-xl font-bold text-gray-900">
+    <nav className="flex justify-between items-center px-6 py-4 backdrop-blur bg-white/70 border-b border-gray-200 shadow-sm">
+      <Link href="/" className="text-xl font-bold text-gray-800">
         ARevents
       </Link>
 
       <div className="flex items-center gap-4 text-sm">
         {!user ? (
           <>
-            <Link href="/auth/login" className="text-gray-700 hover:underline">
+            <Link
+              href="/auth/login"
+              className="text-gray-700 hover:text-blue-600"
+            >
               Login
             </Link>
-            <span className="text-gray-400">/</span>
             <Link
               href="/auth/register"
-              className="text-gray-700 hover:underline"
+              className="text-gray-700 hover:text-blue-600"
             >
               Register
             </Link>
           </>
         ) : (
           <>
-            {/* ✅ Hanya tampilkan dashboard jika user bukan CUSTOMER */}
-            {user.role && (
-              <Link href="/dashboard" className="text-blue-600 hover:underline">
-                Dashboard
-              </Link>
-            )}
+            <Link
+              href={getDashboardLink()}
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Dashboard
+            </Link>
 
-            <span className="text-gray-700">
-              Hi, <strong>{user.first_name}</strong>
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+              {user.first_name} {user.last_name}
             </span>
+
             <button
               onClick={handleLogout}
               className="text-red-500 hover:underline"

@@ -1,31 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { IUser } from "./interfaces/user.interface";
 import { jwtDecode } from "jwt-decode";
+import { IUser } from "./interfaces/user.interface";
 
-const eoRoutes = ["/dashboard"];
+const protectedRoutes = [
+  { path: "/dashboard", roles: ["ORGANIZER"] },
+  { path: "/profile", roles: ["CUSTOMER", "ORGANIZER"] },
+];
 
 export default async function middleware(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); // ✅ FIXED
+    const token = cookieStore.get("access_token")?.value;
 
-    const eoOnly = eoRoutes.some((path) =>
-      req.nextUrl.pathname.startsWith(path)
+    const matched = protectedRoutes.find((r) =>
+      req.nextUrl.pathname.startsWith(r.path)
     );
 
-    const token = cookieStore.get("access_token")?.value || "";
-    if (eoOnly && !token)
+    if (!matched) return NextResponse.next();
+
+    if (!token) {
       return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
 
-    const user: IUser = jwtDecode(token);
+    let user: IUser;
+    try {
+      user = jwtDecode(token);
+    } catch {
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
 
-    if (eoOnly && user.role != "ORGANIZER")
-      return NextResponse.redirect(new URL("/", req.nextUrl));
+    if (!matched.roles.includes(user.role)) {
+      return NextResponse.redirect(new URL("/unauthorized", req.nextUrl));
+    }
+
+    return NextResponse.next();
   } catch (err) {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/profile"],
 };

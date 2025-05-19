@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/redux/store";
+import { useAppSelector } from "@/lib/redux/hook";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import api from "@/lib/api-client";
 import { format } from "date-fns";
@@ -24,15 +23,10 @@ type Coupon = {
 };
 
 export default function ProfilePage() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAppSelector((state) => state.auth.user);
   const [points, setPoints] = useState<Point[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
-
-  // ⛔ prevent rendering saat SSR
-  if (typeof window !== "undefined" && !user) {
-    return <div className="text-center py-12">You must be logged in</div>;
-  }
 
   useEffect(() => {
     const fetchRewards = async () => {
@@ -80,27 +74,27 @@ export default function ProfilePage() {
 
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-2">Point History</h2>
-          <ul className="space-y-2">
-            {points.length > 0 ? (
-              points.map((point) => (
+          {points.length > 0 ? (
+            <ul className="space-y-2">
+              {points.map((point) => (
                 <li key={point.id} className="text-sm border p-2 rounded">
                   <p>+{point.amount} pts</p>
                   <p className="text-gray-500">
                     Exp: {format(new Date(point.expiresAt), "dd MMM yyyy")}
                   </p>
                 </li>
-              ))
-            ) : (
-              <p>No points yet.</p>
-            )}
-          </ul>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm italic">Belum ada histori poin.</p>
+          )}
         </div>
 
         <div>
           <h2 className="text-xl font-semibold mb-2">Coupons</h2>
-          <ul className="space-y-2">
-            {coupons.length > 0 ? (
-              coupons.map((c) => (
+          {coupons.length > 0 ? (
+            <ul className="space-y-2">
+              {coupons.map((c) => (
                 <li key={c.id} className="text-sm border p-2 rounded">
                   <p>
                     <strong>{c.code}</strong> - {c.discount}% off
@@ -117,11 +111,11 @@ export default function ProfilePage() {
                     Exp: {format(new Date(c.expiresAt), "dd MMM yyyy")}
                   </p>
                 </li>
-              ))
-            ) : (
-              <p>No coupons yet.</p>
-            )}
-          </ul>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm italic">Belum ada kupon.</p>
+          )}
         </div>
       </section>
     </ProtectedRoute>

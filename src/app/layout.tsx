@@ -31,7 +31,9 @@ export default function RootLayout({
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+                {children}
+              </main>
               <Toaster />
             </div>
           </AuthProvider>

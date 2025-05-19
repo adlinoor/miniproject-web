@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/api-client";
+import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { useAppSelector } from "@/lib/redux/hook";
 
 type Event = {
   id: number;
@@ -15,15 +18,16 @@ type Event = {
 };
 
 export default function EventDetailPage() {
-  const params = useParams();
+  const { id } = useParams();
+  const user = useAppSelector((state) => state.auth.user);
   const [event, setEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     api
-      .get(`/events/${params.id}`)
+      .get(`/events/${id}`)
       .then((res) => setEvent(res.data))
       .catch(console.error);
-  }, [params.id]);
+  }, [id]);
 
   if (!event) return <p className="text-center py-20">Loading event...</p>;
 
@@ -38,9 +42,15 @@ export default function EventDetailPage() {
         – {new Date(event.end_date).toLocaleDateString()}
       </p>
       <p className="my-4 text-gray-700">{event.description}</p>
-      <p className="text-xl font-semibold">
+      <p className="text-xl font-semibold mb-4">
         {event.price > 0 ? `IDR ${event.price.toLocaleString()}` : "Free"}
       </p>
+
+      {user?.role === "CUSTOMER" && (
+        <Link href={`/events/${event.id}/buy`}>
+          <Button variant="primary">Join Event</Button>
+        </Link>
+      )}
     </div>
   );
 }

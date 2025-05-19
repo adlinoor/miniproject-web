@@ -31,6 +31,9 @@ export default function ProtectedRoute({
   // Jika user belum siap (masih undefined/null), atau tidak punya akses, render kosong
   if (!user) return null;
   if (allowedRoles && !allowedRoles.includes(user.role)) return null;
+  if (typeof window !== "undefined" && user === null) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
 
   return <>{children}</>;
 }

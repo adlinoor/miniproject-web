@@ -12,14 +12,17 @@ export default function Navbar() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("🧠 USER DARI REDUX:", user);
 
   const handleLogout = () => {
     deleteCookie("access_token");
     dispatch(logout());
-    toast.success("Logout berhasil");
+    toast.success("Logout successful");
     router.push("/auth/login");
   };
+
+  const dashboardLink = user?.role
+    ? `/dashboard/${user.role.toLowerCase()}`
+    : "/dashboard";
 
   return (
     <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">
@@ -27,18 +30,16 @@ export default function Navbar() {
         ARevents
       </Link>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 text-sm">
         {!user ? (
           <>
-            <Link
-              href="/auth/login"
-              className="text-sm text-gray-700 hover:underline"
-            >
+            <Link href="/auth/login" className="text-gray-700 hover:underline">
               Login
             </Link>
+            <span className="text-gray-400">/</span>
             <Link
               href="/auth/register"
-              className="text-sm text-gray-700 hover:underline"
+              className="text-gray-700 hover:underline"
             >
               Register
             </Link>
@@ -46,15 +47,17 @@ export default function Navbar() {
         ) : (
           <>
             <Link
-              href={`/dashboard/${user.role.toLowerCase()}`}
-              className="text-sm text-blue-600 hover:underline"
+              href={dashboardLink}
+              className="text-blue-600 hover:underline"
             >
               Dashboard
             </Link>
-            <span className="text-sm text-gray-700">Hi, {user.first_name}</span>
+            <span className="text-gray-700">
+              Hi, <strong>{user.first_name}</strong>
+            </span>
             <button
               onClick={handleLogout}
-              className="text-sm text-red-500 hover:underline"
+              className="text-red-500 hover:underline"
             >
               Logout
             </button>

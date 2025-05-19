@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/api-client";
 import { toast } from "react-hot-toast";
 
 interface Attendee {
@@ -31,16 +31,10 @@ export default function AttendeeListPage() {
   useEffect(() => {
     const fetchAttendees = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/events/${id}/attendees`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setAttendees(res.data.attendees);
-      } catch (err) {
+        const res = await api.get(`/events/${id}/attendees`);
+        setAttendees(res.data.data || []);
+      } catch (err: any) {
+        console.error("Attendee fetch error:", err.response?.data || err);
         toast.error("Failed to fetch attendees");
       } finally {
         setLoading(false);
@@ -50,17 +44,18 @@ export default function AttendeeListPage() {
     if (id) fetchAttendees();
   }, [id]);
 
-  if (loading) return <p className="text-center mt-10">Loading attendees...</p>;
+  if (loading) return <p className="text-center py-20">Loading attendees...</p>;
 
   return (
-    <section className="max-w-5xl mx-auto py-12 px-6">
+    <section className="max-w-5xl mx-auto px-6 py-12">
       <h1 className="text-3xl font-bold mb-6">Event Attendees</h1>
+
       {attendees.length === 0 ? (
-        <p>No attendees found for this event.</p>
+        <p className="text-gray-600">No attendees found for this event.</p>
       ) : (
-        <div className="overflow-x-auto border rounded-md">
+        <div className="overflow-x-auto border rounded-lg">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 dark:bg-gray-800">
+            <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="px-4 py-2 text-left">Name</th>
                 <th className="px-4 py-2">Email</th>
@@ -87,7 +82,7 @@ export default function AttendeeListPage() {
                   <td className="px-4 py-2">
                     Rp{a.totalPaid.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-2">{a.status}</td>
+                  <td className="px-4 py-2 capitalize">{a.status}</td>
                 </tr>
               ))}
             </tbody>

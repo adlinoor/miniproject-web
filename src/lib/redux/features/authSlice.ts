@@ -23,7 +23,12 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/login", { email, password });
-      setCookie("access_token", res.data.token); // ✅ penting
+
+      setCookie("access_token", res.data.token, {
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
+
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -46,7 +51,7 @@ export const registerUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/register", userData);
-      setCookie("access_token", res.data.token); // ✅ penting
+      setCookie("access_token", res.data.token);
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Register failed");
@@ -75,11 +80,12 @@ const authSlice = createSlice({
       state.user = null;
     },
     login(state, action) {
-      state.user = action.payload.user;
+      state.user = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -92,6 +98,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -104,6 +111,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Get Profile
       .addCase(getProfile.fulfilled, (state, action) => {
         state.user = action.payload;
       });

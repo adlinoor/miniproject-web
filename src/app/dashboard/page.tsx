@@ -14,8 +14,7 @@ export default function DashboardRedirect() {
       toast.error("You must be logged in to access the dashboard.");
       router.replace("/auth/login");
     } else if (user.role === "CUSTOMER") {
-      toast.error("Customers cannot access the dashboard.");
-      router.replace("/");
+      router.replace("/dashboard/customer");
     } else if (user.role === "ORGANIZER") {
       router.replace("/dashboard/organizer");
     } else {

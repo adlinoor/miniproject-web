@@ -6,13 +6,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const token = getCookie("access_token");
-  console.log("🚀 Interceptor: token dari cookie =", token);
-  if (token && !config.headers.Authorization) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+if (typeof window !== "undefined") {
+  api.interceptors.request.use((config) => {
+    const token = getCookie("access_token");
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+}
 
 export default api;

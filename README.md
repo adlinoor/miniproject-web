@@ -27,8 +27,8 @@ This is the frontend of the ARevents application — a platform to discover, cre
 ## ⚙️ Local Setup
 
 ```bash
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
 Create `.env.local`:

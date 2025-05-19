@@ -49,7 +49,7 @@ export default function EditProfilePage() {
     setLoading(true);
     try {
       await axios.put(
-        `${process.env.NEXT_PUBLIC_BASE_API_URL}/users/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL}/users/profile`,
         data,
         {
           headers: {

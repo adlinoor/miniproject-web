@@ -20,7 +20,7 @@ export default function EventDetailPage() {
     const fetchEvent = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/events/${id}`
         );
         setEvent(res.data);
       } catch (error) {
@@ -31,7 +31,7 @@ export default function EventDetailPage() {
     const checkJoined = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/transactions/check`,
+          `${process.env.NEXT_PUBLIC_API_URL}/transactions/check`,
           {
             params: { eventId: id },
             headers: {
@@ -52,7 +52,7 @@ export default function EventDetailPage() {
   const handleJoin = async () => {
     try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_API_URL}/transactions`,
+        `${process.env.NEXT_PUBLIC_API_URL}/transactions`,
         { eventId: id },
         {
           headers: {

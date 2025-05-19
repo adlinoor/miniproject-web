@@ -30,7 +30,7 @@ export default function OrganizerEventChart() {
     const fetchEvents = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events/organizer/my-events`,
+          `${process.env.NEXT_PUBLIC_API_URL}/events/organizer/my-events`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

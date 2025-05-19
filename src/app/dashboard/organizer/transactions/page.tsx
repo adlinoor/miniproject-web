@@ -30,7 +30,7 @@ export default function OrganizerTransactionsPage() {
     const fetchTransactions = async () => {
       try {
         const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/transactions/organizer`,
+          `${process.env.NEXT_PUBLIC_API_URL}/transactions/organizer`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -54,7 +54,7 @@ export default function OrganizerTransactionsPage() {
   ) => {
     try {
       await axios.put(
-        `${process.env.NEXT_PUBLIC_BASE_API_URL}/transactions/${id}/status`,
+        `${process.env.NEXT_PUBLIC_API_URL}/transactions/${id}/status`,
         { status: newStatus },
         {
           headers: {

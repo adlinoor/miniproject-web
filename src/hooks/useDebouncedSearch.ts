@@ -21,7 +21,7 @@ const useDebouncedSearch = (initialQuery: string = "", delay: number = 500) => {
       setIsLoading(true);
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events?search=${debouncedQuery}`
+          `${process.env.NEXT_PUBLIC_API_URL}/events?search=${debouncedQuery}`
         );
         setEvents(res.data);
         setError(null);

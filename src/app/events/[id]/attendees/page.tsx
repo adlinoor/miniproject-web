@@ -32,7 +32,7 @@ export default function AttendeeListPage() {
     const fetchAttendees = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/events/${id}/attendees`,
+          `${process.env.NEXT_PUBLIC_API_URL}/events/${id}/attendees`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

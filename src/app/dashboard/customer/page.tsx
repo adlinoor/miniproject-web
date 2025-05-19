@@ -7,19 +7,24 @@ import api from "@/lib/api-client";
 import Button from "@/components/ui/Button";
 import EditProfileForm from "@/components/EditProfileForm";
 
-export default function CustomerDashboard() {
+export default function CustomerDashboardPage() {
   const user = useAppSelector((state) => state.auth.user);
   const router = useRouter();
   const [points, setPoints] = useState(0);
 
   useEffect(() => {
-    if (!user) return router.push("/auth/login");
-    if (user.role !== "CUSTOMER") return router.push("/");
-
-    api.get("/users/me").then((res) => {
-      setPoints(res.data.userPoints || 0);
-    });
+    if (!user) {
+      router.replace("/auth/login");
+    } else if (user.role !== "CUSTOMER") {
+      router.replace("/unauthorized");
+    } else {
+      api.get("/users/me").then((res) => {
+        setPoints(res.data.userPoints || 0);
+      });
+    }
   }, [user, router]);
+
+  if (!user || user.role !== "CUSTOMER") return null;
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-10">
@@ -27,7 +32,7 @@ export default function CustomerDashboard() {
 
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-2">Edit Profile</h2>
-        {user && <EditProfileForm initialUser={user} />}
+        <EditProfileForm initialUser={user} />
       </section>
 
       <section className="mb-10">
@@ -43,9 +48,9 @@ export default function CustomerDashboard() {
           </span>
           <Button
             type="button"
-            onClick={() => {
-              navigator.clipboard.writeText(user?.referralCode || "");
-            }}
+            onClick={() =>
+              navigator.clipboard.writeText(user?.referralCode || "")
+            }
           >
             Copy
           </Button>

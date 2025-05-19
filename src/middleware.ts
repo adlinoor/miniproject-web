@@ -4,7 +4,8 @@ import { jwtDecode } from "jwt-decode";
 import { IUser } from "./interfaces/user.interface";
 
 const protectedRoutes = [
-  { path: "/dashboard", roles: ["ORGANIZER"] },
+  { path: "/dashboard/organizer", roles: ["ORGANIZER"] },
+  { path: "/dashboard/customer", roles: ["CUSTOMER"] },
   { path: "/profile", roles: ["CUSTOMER", "ORGANIZER"] },
 ];
 

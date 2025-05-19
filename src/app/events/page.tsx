@@ -9,29 +9,37 @@ import { trim } from "lodash";
 import api from "@/lib/api-client";
 
 export default function EventsPage() {
-  const { query, setQuery, events, isLoading, error } = useDebouncedSearch(
-    "",
-    1000
-  );
+  const {
+    query,
+    setQuery,
+    events,
+    setEvents, // pastikan ini di-return dari hook
+    isLoading,
+    error,
+  } = useDebouncedSearch("", 1000);
 
   useEffect(() => {
-    if (trim(query) === "") return;
-
     const fetchEvents = async () => {
       try {
-        const response = await api.get(`/events?search=${query}`);
-        // asumsi: data sudah dimasukkan di useDebouncedSearch
+        const endpoint =
+          trim(query) === ""
+            ? "/events"
+            : `/events?search=${encodeURIComponent(query)}`;
+
+        const response = await api.get(endpoint);
+        setEvents(response.data.data); // update list event
       } catch (error: any) {
         if (error.response?.status === 429) {
           toast.error("Terlalu banyak permintaan. Coba lagi beberapa saat.");
         } else {
           console.error("Error fetching events:", error);
+          toast.error("Gagal memuat event.");
         }
       }
     };
 
     fetchEvents();
-  }, [query]);
+  }, [query, setEvents]);
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
@@ -52,10 +60,10 @@ export default function EventsPage() {
               key={event.id}
               event={{
                 id: event.id,
-                name: event.title, // asumsi dari backend pakai title
+                name: event.title,
                 location: event.location,
                 price: event.price,
-                start_date: event.startDate, // asumsi camelCase dari backend
+                start_date: event.startDate,
               }}
             />
           ))}

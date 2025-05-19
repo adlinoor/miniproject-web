@@ -22,6 +22,7 @@ type FormData = {
 
 export default function BuyTicketPage() {
   const { id } = useParams();
+  console.log("🧩 ID dari useParams:", id);
   const router = useRouter();
   const { register, handleSubmit, watch } = useForm<FormData>();
   const [event, setEvent] = useState<Event | null>(null);

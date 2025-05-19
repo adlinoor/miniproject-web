@@ -21,11 +21,7 @@ export default function Navbar() {
     router.push("/auth/login");
   };
 
-  const dashboardLink = user?.role
-    ? `/dashboard/${user.role.toLowerCase()}`
-    : "/dashboard";
-
-  // ✅ Jangan render navbar sampai Redux hydrate selesai
+  // ✅ Jangan render sebelum Redux siap
   if (!isHydrated) return null;
 
   return (
@@ -50,12 +46,15 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link
-              href={dashboardLink}
-              className="text-blue-600 hover:underline"
-            >
-              Dashboard
-            </Link>
+            {/* ✅ Hanya tampilkan dashboard jika user bukan CUSTOMER */}
+            {user.role !== "CUSTOMER" && (
+              <Link
+                href={`/dashboard/${user.role.toLowerCase()}`}
+                className="text-blue-600 hover:underline"
+              >
+                Dashboard
+              </Link>
+            )}
             <span className="text-gray-700">
               Hi, <strong>{user.first_name}</strong>
             </span>

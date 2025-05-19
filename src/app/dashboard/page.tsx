@@ -3,18 +3,23 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hook";
+import { toast } from "react-hot-toast";
 
 export default function DashboardRedirect() {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
-    if (user?.role === "CUSTOMER") {
-      router.replace("/dashboard/customer");
-    } else if (user?.role === "ORGANIZER") {
+    if (!user) {
+      toast.error("You must be logged in to access the dashboard.");
+      router.replace("/auth/login");
+    } else if (user.role === "CUSTOMER") {
+      toast.error("Customers cannot access the dashboard.");
+      router.replace("/");
+    } else if (user.role === "ORGANIZER") {
       router.replace("/dashboard/organizer");
     } else {
-      router.replace("/auth/login"); // fallback
+      router.replace("/");
     }
   }, [user, router]);
 

@@ -29,7 +29,8 @@ export default function Home() {
           Discover Amazing Events
         </h1>
         <p className="text-base md:text-xl text-gray-600 max-w-xl mx-auto mb-10">
-          Find, create, and manage events all in one place. Whether you're looking to attend or organize, we've got you covered.
+          Find, create, and manage events all in one place. Whether you're
+          looking to attend or organize, we've got you covered.
         </p>
         <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
           <Link href="/events">
@@ -38,7 +39,10 @@ export default function Home() {
             </Button>
           </Link>
           <Link href="/events/create">
-            <Button variant="secondary" className="px-6 py-3 text-base shadow-sm">
+            <Button
+              variant="secondary"
+              className="px-6 py-3 text-base shadow-sm"
+            >
               ➕ Create Event
             </Button>
           </Link>
@@ -48,7 +52,9 @@ export default function Home() {
       {/* Stylish Divider */}
       <div className="flex items-center justify-center my-16">
         <div className="flex-grow border-t border-gray-300"></div>
-        <span className="mx-4 text-gray-500 text-sm uppercase tracking-widest">Upcoming Events</span>
+        <span className="mx-4 text-gray-500 text-sm uppercase tracking-widest">
+          Upcoming Events
+        </span>
         <div className="flex-grow border-t border-gray-300"></div>
       </div>
 

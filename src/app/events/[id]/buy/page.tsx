@@ -25,6 +25,16 @@ export default function BuyTicketPage() {
   const { id } = useParams();
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
+  useEffect(() => {
+    if (!user) {
+      toast.error("You must be logged in to continue.");
+      router.push("/auth/login");
+    } else if (user.role !== "CUSTOMER") {
+      toast.error("Only customers can purchase tickets.");
+      router.push("/");
+    }
+  }, [user]);
+
   const { register, handleSubmit, watch } = useForm<FormData>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);

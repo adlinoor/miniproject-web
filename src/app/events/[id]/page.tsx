@@ -31,26 +31,55 @@ export default function EventDetailPage() {
 
   if (!event) return <p className="text-center py-20">Loading event...</p>;
 
-  return (
-    <div className="p-6 max-w-2xl mx-auto bg-white rounded-lg border border-gray-200 shadow-sm">
-      <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
-      <p className="text-gray-600 mb-1">
-        <strong>Location:</strong> {event.location}
-      </p>
-      <p className="mb-1">
-        <strong>Date:</strong> {new Date(event.start_date).toLocaleDateString()}{" "}
-        – {new Date(event.end_date).toLocaleDateString()}
-      </p>
-      <p className="my-4 text-gray-700">{event.description}</p>
-      <p className="text-xl font-semibold mb-4">
-        {event.price > 0 ? `IDR ${event.price.toLocaleString()}` : "Free"}
-      </p>
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString("id-ID", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
 
-      {user?.role === "CUSTOMER" && (
-        <Link href={`/events/${event.id}/buy`}>
-          <Button variant="primary">Join Event</Button>
-        </Link>
-      )}
-    </div>
+  const formatCurrency = (value: number) =>
+    value > 0 ? `Rp${value.toLocaleString("id-ID")}` : "Free";
+
+  return (
+    <main className="max-w-3xl mx-auto px-6 py-12">
+      <section className="bg-white p-8 rounded-2xl border border-gray-200 shadow-md space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            {event.name}
+          </h1>
+          <p className="text-gray-600 text-sm">
+            {formatDate(event.start_date)} – {formatDate(event.end_date)}
+          </p>
+        </div>
+
+        <div className="space-y-2 text-gray-700">
+          <p>
+            <strong>Location:</strong> {event.location}
+          </p>
+          <p>
+            <strong>Price:</strong> {formatCurrency(event.price)}
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Description
+          </h2>
+          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+            {event.description}
+          </p>
+        </div>
+
+        {user?.role === "CUSTOMER" && (
+          <div className="pt-4">
+            <Link href={`/events/${event.id}/buy`}>
+              <Button className="w-full">Join This Event</Button>
+            </Link>
+          </div>
+        )}
+      </section>
+    </main>
   );
 }

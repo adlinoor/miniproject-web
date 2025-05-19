@@ -7,6 +7,9 @@ export const store = configureStore({
     // Tambah reducer lain di sini jika ada
   },
 });
+if (typeof window !== "undefined") {
+  (window as any).__REDUX_STATE__ = store.getState();
+}
 
 // Hook untuk digunakan di komponen
 export type RootState = ReturnType<typeof store.getState>;

@@ -12,6 +12,7 @@ export default function Navbar() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
+  const isHydrated = useSelector((state: RootState) => state.auth.isHydrated);
 
   const handleLogout = () => {
     deleteCookie("access_token");
@@ -23,6 +24,9 @@ export default function Navbar() {
   const dashboardLink = user?.role
     ? `/dashboard/${user.role.toLowerCase()}`
     : "/dashboard";
+
+  // ✅ Jangan render navbar sampai Redux hydrate selesai
+  if (!isHydrated) return null;
 
   return (
     <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white">

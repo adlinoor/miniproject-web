@@ -7,6 +7,9 @@ import { toast } from "react-hot-toast";
 import api from "@/lib/api-client";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import { setCookie } from "cookies-next";
+import { useDispatch } from "react-redux";
+import { login } from "@/lib/redux/features/authSlice";
 
 type FormData = {
   email: string;
@@ -16,6 +19,7 @@ type FormData = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -25,7 +29,19 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await api.post("/auth/login", data);
+      const res = await api.post("/auth/login", data);
+
+      // ✅ Set access_token to cookie
+      setCookie("access_token", res.data.token, {
+        path: "/",
+        maxAge: 60 * 60 * 24,
+        sameSite: "lax",
+        secure: false, // WAJIB false untuk http://localhost
+      });
+
+      // ✅ Update Redux immediately
+      dispatch(login(res.data.user));
+
       toast.success("Login successful!");
       router.push("/");
     } catch (err: any) {
@@ -33,7 +49,6 @@ export default function LoginPage() {
     }
   };
 
-  // Prevent scrolling when on login page
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -58,8 +73,8 @@ export default function LoginPage() {
               {...register("email", { required: "Email is required" })}
               className="input"
               placeholder="username@email.com"
+              autoComplete="email"
             />
-
             {errors.email && (
               <p className="text-sm text-red-500 mt-1">
                 {errors.email.message}
@@ -77,6 +92,7 @@ export default function LoginPage() {
                 {...register("password", { required: "Password is required" })}
                 className="input pr-16"
                 placeholder="••••••••"
+                autoComplete="current-password"
               />
               <button
                 type="button"

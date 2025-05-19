@@ -25,6 +25,7 @@ export default function AuthProvider({
 
   useEffect(() => {
     const token = getCookie("access_token");
+    console.log("🚀 access_token dari cookie:", token);
 
     console.log("🚀 TOKEN DITEMUKAN:", token);
 
@@ -35,7 +36,9 @@ export default function AuthProvider({
 
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      console.log("🧩 PAYLOAD TERDECODE:", decoded);
+      console.log("🚀 access_token dari cookie:", token);
+
+      console.log("🧩 JWT decoded payload:", decoded);
 
       if (decoded.exp * 1000 < Date.now()) {
         console.warn("⚠️ Token expired");
@@ -43,18 +46,32 @@ export default function AuthProvider({
         return;
       }
 
+      console.log("📤 Dispatching to Redux:", {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role,
+        first_name: decoded.first_name,
+        last_name: decoded.last_name,
+        referralCode: decoded.referralCode ?? null,
+      });
+
       dispatch(
         login({
-          user: {
-            id: decoded.id,
-            email: decoded.email,
-            role: decoded.role,
-            first_name: decoded.first_name,
-            last_name: decoded.last_name,
-            referralCode: decoded.referralCode ?? null,
-          },
+          id: decoded.id,
+          email: decoded.email,
+          role: decoded.role,
+          first_name: decoded.first_name,
+          last_name: decoded.last_name,
+          referralCode: decoded.referralCode ?? null,
         })
       );
+
+      setTimeout(() => {
+        console.log(
+          "📦 Redux state after dispatch:",
+          (window as any).__REDUX_STATE__
+        );
+      }, 500);
     } catch (error) {
       console.error("❌ Token tidak valid:", error);
       dispatch(logout());

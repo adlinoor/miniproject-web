@@ -7,12 +7,14 @@ interface AuthState {
   user: IUser | null;
   loading: boolean;
   error: string | null;
+  isHydrated: boolean; // ✅ Tambahan
 }
 
 const initialState: AuthState = {
   user: null,
   loading: false,
   error: null,
+  isHydrated: false,
 };
 
 export const loginUser = createAsyncThunk(
@@ -23,12 +25,12 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/login", { email, password });
-
       setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
+        sameSite: "lax",
+        secure: false,
       });
-
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -51,7 +53,12 @@ export const registerUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/register", userData);
-      setCookie("access_token", res.data.token);
+      setCookie("access_token", res.data.token, {
+        path: "/",
+        maxAge: 60 * 60 * 24,
+        sameSite: "lax",
+        secure: false,
+      });
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Register failed");
@@ -75,17 +82,18 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    login(state, action) {
+      state.user = action.payload;
+      state.isHydrated = true;
+    },
     logout(state) {
       deleteCookie("access_token");
       state.user = null;
-    },
-    login(state, action) {
-      state.user = action.payload;
+      state.isHydrated = true;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -93,27 +101,20 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.isHydrated = true;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      // Register
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.isHydrated = true;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.loading = false;
         state.user = action.payload;
+        state.isHydrated = true;
       })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      // Get Profile
       .addCase(getProfile.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.isHydrated = true;
       });
   },
 });

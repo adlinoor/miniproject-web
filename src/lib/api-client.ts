@@ -1,4 +1,3 @@
-// lib/api-client.ts
 import axios from "axios";
 import { getCookie } from "cookies-next";
 

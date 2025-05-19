@@ -31,17 +31,14 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", data);
 
-      // ✅ Set access_token to cookie
       setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
         sameSite: "lax",
-        secure: false, // WAJIB false untuk http://localhost
+        secure: false,
       });
 
-      // ✅ Update Redux immediately
       dispatch(login(res.data.user));
-
       toast.success("Login successful!");
       router.push("/");
     } catch (err: any) {

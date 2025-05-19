@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import api from "@/lib/api-client";
-import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import Button from "@/components/ui/Button";
 import { useAppSelector } from "@/lib/redux/hook";
+import api from "@/lib/api-client";
+import Button from "@/components/ui/Button";
 
 type Event = {
   id: number;
@@ -22,35 +22,44 @@ type FormData = {
 };
 
 export default function BuyTicketPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id;
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
-  useEffect(() => {
-    if (!user) {
-      toast.error("You must be logged in to continue.");
-      router.push("/auth/login");
-    } else if (user.role !== "CUSTOMER") {
-      toast.error("Only customers can purchase tickets.");
-      router.push("/");
-    }
-  }, [user]);
 
   const { register, handleSubmit, watch } = useForm<FormData>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
-  const [points, setPoints] = useState<number>(0);
+  const [points, setPoints] = useState(0);
 
-  const usePoints = watch("usePoints");
   const quantity = watch("quantity") || 1;
+  const usePoints = watch("usePoints");
 
+  // Check user + role + eventId
   useEffect(() => {
-    if (!id) return;
+    if (!id || typeof id !== "string") {
+      toast.error("Invalid event ID.");
+      router.push("/");
+      return;
+    }
+
+    if (!user) {
+      toast.error("You must be logged in to continue.");
+      router.push("/auth/login");
+      return;
+    }
+
+    if (user.role !== "CUSTOMER") {
+      toast.error("Only customers can purchase tickets.");
+      router.push("/");
+      return;
+    }
 
     api.get(`/events/${id}`).then((res) => setEvent(res.data));
     api
       .get("/users/me")
       .then((res) => setPoints(res.data.totalActivePoints ?? 0));
-  }, [id]);
+  }, [id, user, router]);
 
   const finalPrice =
     event?.price !== undefined
@@ -59,8 +68,14 @@ export default function BuyTicketPage() {
         : event.price * quantity
       : 0;
 
+  const formatCurrency = (value: number | undefined) =>
+    `Rp${(value ?? 0).toLocaleString("id-ID")}`;
+
   const onSubmit = async (data: FormData) => {
+    if (!id || typeof id !== "string") return;
+
     const formData = new FormData();
+    formData.append("eventId", id);
     formData.append("quantity", data.quantity.toString());
     formData.append("usePoints", data.usePoints ? "true" : "false");
 
@@ -70,7 +85,7 @@ export default function BuyTicketPage() {
 
     setLoading(true);
     try {
-      await api.post(`/events/${id}/transactions`, formData);
+      await api.post("/transactions", formData);
       toast.success("Checkout successful!");
       router.push("/transactions");
     } catch (err: any) {
@@ -81,10 +96,9 @@ export default function BuyTicketPage() {
     }
   };
 
-  if (!event) return <p className="text-center py-20">Loading event...</p>;
-
-  const formatCurrency = (value: number | undefined) =>
-    `Rp${(value ?? 0).toLocaleString("id-ID")}`;
+  if (!event) {
+    return <p className="text-center py-20">Loading event...</p>;
+  }
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-10 bg-white rounded-2xl shadow-md border border-gray-200">

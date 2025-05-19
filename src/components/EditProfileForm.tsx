@@ -22,6 +22,7 @@ interface FormData {
 
 export default function EditProfileForm({ initialUser }: Props) {
   const [loading, setLoading] = useState(false);
+
   const { register, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
       first_name: initialUser.first_name,
@@ -31,26 +32,40 @@ export default function EditProfileForm({ initialUser }: Props) {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
+
     try {
       if (data.profilePicture?.[0]) {
-        // Kalau ada file, kirim pakai FormData
         const formData = new FormData();
         formData.append("first_name", data.first_name);
         formData.append("last_name", data.last_name);
         formData.append("profilePicture", data.profilePicture[0]);
 
-        await api.put("/users/profile", formData);
-      } else {
-        // Kalau tidak ada file, kirim biasa (JSON)
-        await api.put("/users/profile", {
-          first_name: data.first_name,
-          last_name: data.last_name,
+        await api.put("/users/profile", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
         });
+      } else {
+        await api.put(
+          "/users/profile",
+          {
+            first_name: data.first_name,
+            last_name: data.last_name,
+          },
+          {
+            withCredentials: true,
+          }
+        );
       }
 
       toast.success("Profile updated successfully");
-    } catch (err: any) {
-      console.error("Update error:", err);
+      // Optional: reset form ke nilai baru
+      reset({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        profilePicture: undefined,
+      });
+    } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update profile");
     } finally {
       setLoading(false);
@@ -63,14 +78,24 @@ export default function EditProfileForm({ initialUser }: Props) {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           First Name
         </label>
-        <input type="text" {...register("first_name")} className="input" />
+        <input
+          type="text"
+          {...register("first_name")}
+          className="input"
+          placeholder="Enter your first name"
+        />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Last Name
         </label>
-        <input type="text" {...register("last_name")} className="input" />
+        <input
+          type="text"
+          {...register("last_name")}
+          className="input"
+          placeholder="Enter your last name"
+        />
       </div>
 
       <div>
@@ -85,7 +110,7 @@ export default function EditProfileForm({ initialUser }: Props) {
         />
       </div>
 
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" disabled={loading} className="w-full">
         {loading ? "Saving..." : "Update Profile"}
       </Button>
     </form>

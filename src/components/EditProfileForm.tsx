@@ -30,16 +30,24 @@ export default function EditProfileForm({ initialUser }: Props) {
   });
 
   const onSubmit = async (data: FormData) => {
-    const formData = new FormData();
-    formData.append("first_name", data.first_name);
-    formData.append("last_name", data.last_name);
-    if (data.profilePicture?.[0]) {
-      formData.append("profilePicture", data.profilePicture[0]);
-    }
-
     setLoading(true);
     try {
-      await api.patch("/users/me", formData);
+      if (data.profilePicture?.[0]) {
+        // Kalau ada file, kirim pakai FormData
+        const formData = new FormData();
+        formData.append("first_name", data.first_name);
+        formData.append("last_name", data.last_name);
+        formData.append("profilePicture", data.profilePicture[0]);
+
+        await api.put("/users/profile", formData);
+      } else {
+        // Kalau tidak ada file, kirim biasa (JSON)
+        await api.put("/users/profile", {
+          first_name: data.first_name,
+          last_name: data.last_name,
+        });
+      }
+
       toast.success("Profile updated successfully");
     } catch (err: any) {
       console.error("Update error:", err);

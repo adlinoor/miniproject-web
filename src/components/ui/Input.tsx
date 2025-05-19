@@ -1,19 +1,28 @@
 import { InputHTMLAttributes, forwardRef } from "react";
 import clsx from "clsx";
+import { FieldError } from "react-hook-form";
 
-type InputProps = InputHTMLAttributes<HTMLInputElement>;
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  error?: FieldError;
+}
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, error, ...props }, ref) => {
     return (
-      <input
-        ref={ref}
-        className={clsx(
-          "w-full p-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition",
-          className
-        )}
-        {...props}
-      />
+      <div className="space-y-1">
+        <input
+          ref={ref}
+          className={clsx(
+            "w-full p-2 border rounded bg-white focus:outline-none transition",
+            error
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-[var(--primary)]",
+            className
+          )}
+          {...props}
+        />
+        {error && <p className="text-sm text-red-500">{error.message}</p>}
+      </div>
     );
   }
 );

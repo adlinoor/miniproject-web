@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
+import { useEffect } from "react";
 
 const schema = z.object({
   name: z.string().min(1, "Event name is required"),
@@ -28,10 +29,13 @@ export default function CreateEventPage() {
   const user = useSelector((state: RootState) => state.auth.user);
   const router = useRouter();
 
-  if (!user || user.role !== "ORGANIZER") {
-    router.push("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!user || user.role !== "ORGANIZER") {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  if (!user || user.role !== "ORGANIZER") return null;
 
   const {
     register,

@@ -31,11 +31,11 @@ export default function BuyTicketPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
   const [points, setPoints] = useState(0);
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
 
   const quantity = watch("quantity") || 1;
   const usePoints = watch("usePoints");
 
-  // Check user + role + eventId
   useEffect(() => {
     if (!id || typeof id !== "string") {
       toast.error("Invalid event ID.");
@@ -64,8 +64,8 @@ export default function BuyTicketPage() {
   const finalPrice =
     event?.price !== undefined
       ? usePoints
-        ? Math.max(0, event.price * quantity - points)
-        : event.price * quantity
+        ? Math.max(0, event.price * quantity - points - voucherDiscount)
+        : event.price * quantity - voucherDiscount
       : 0;
 
   const formatCurrency = (value: number | undefined) =>
@@ -120,6 +120,7 @@ export default function BuyTicketPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Quantity */}
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">
             Ticket Quantity
@@ -134,6 +135,7 @@ export default function BuyTicketPage() {
           />
         </div>
 
+        {/* Use Points */}
         <div className="flex items-center justify-between text-sm text-gray-700">
           <label className="inline-flex items-center gap-2">
             <input type="checkbox" {...register("usePoints")} />
@@ -144,6 +146,80 @@ export default function BuyTicketPage() {
           </span>
         </div>
 
+        {/* Apply Voucher */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-gray-700">
+            Apply Voucher (Organizer Only)
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter voucher code"
+              className="input flex-1"
+              id="voucher-code"
+            />
+            <Button
+              type="button"
+              onClick={async () => {
+                const code = (
+                  document.getElementById("voucher-code") as HTMLInputElement
+                ).value;
+                if (!code) return toast.error("Please enter a voucher code.");
+                try {
+                  const res = await api.post("/vouchers/apply", {
+                    code,
+                    eventId: event.id,
+                  });
+                  setVoucherDiscount(res.data.discount);
+                  toast.success(`Voucher applied: -${res.data.discount} IDR`);
+                } catch (err: any) {
+                  toast.error(
+                    err?.response?.data?.message || "Voucher invalid"
+                  );
+                }
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        </div>
+
+        {/* Redeem Coupon */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-gray-700">
+            Redeem Coupon (App Reward)
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter your coupon code"
+              className="input flex-1"
+              id="coupon-code"
+            />
+            <Button
+              type="button"
+              onClick={async () => {
+                const code = (
+                  document.getElementById("coupon-code") as HTMLInputElement
+                ).value;
+                if (!code) return toast.error("Please enter a coupon code.");
+                try {
+                  const res = await api.post("/coupons/redeem", { code });
+                  toast.success(res.data.message || "Coupon redeemed!");
+                } catch (err: any) {
+                  toast.error(
+                    err?.response?.data?.message ||
+                      "Coupon invalid or already used."
+                  );
+                }
+              }}
+            >
+              Redeem
+            </Button>
+          </div>
+        </div>
+
+        {/* Payment Proof */}
         {finalPrice > 0 && (
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
@@ -163,6 +239,7 @@ export default function BuyTicketPage() {
           </div>
         )}
 
+        {/* Total */}
         <div className="border-t pt-4 mt-6">
           <p className="text-base font-medium text-gray-700">
             Total:{" "}
@@ -170,6 +247,7 @@ export default function BuyTicketPage() {
           </p>
         </div>
 
+        {/* Submit */}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Processing..." : "Checkout Now"}
         </Button>

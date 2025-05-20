@@ -11,7 +11,6 @@ import Button from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { login } from "@/lib/redux/features/authSlice";
-import { useEffect } from "react";
 
 const registerSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -19,6 +18,9 @@ const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   referralCode: z.string().optional(),
+  role: z.enum(["CUSTOMER", "ORGANIZER"], {
+    required_error: "Please select a role",
+  }),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -39,7 +41,6 @@ export default function RegisterPage() {
     try {
       const response = await api.post("/auth/register", data);
 
-      // Set cookie + Redux
       setCookie("access_token", response.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
@@ -56,13 +57,6 @@ export default function RegisterPage() {
     }
   };
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
   return (
     <main className="max-w-md mx-auto p-6">
       <section className="bg-white border border-gray-200 p-8 rounded-2xl shadow-xl w-full">
@@ -71,6 +65,7 @@ export default function RegisterPage() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* First Name */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               First Name
@@ -88,6 +83,7 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Last Name */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Last Name
@@ -105,6 +101,7 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Email
@@ -122,6 +119,7 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Password
@@ -139,6 +137,7 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Referral Code */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Referral Code (optional)
@@ -149,6 +148,21 @@ export default function RegisterPage() {
               className="input"
               placeholder="FRIEND123"
             />
+          </div>
+
+          {/* Role */}
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700">
+              Register as
+            </label>
+            <select {...register("role")} className="input">
+              <option value="">Select role</option>
+              <option value="CUSTOMER">Customer</option>
+              <option value="ORGANIZER">Organizer</option>
+            </select>
+            {errors.role && (
+              <p className="text-sm text-red-500 mt-1">{errors.role.message}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full">

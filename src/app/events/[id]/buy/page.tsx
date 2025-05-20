@@ -146,17 +146,17 @@ export default function BuyTicketPage() {
           </span>
         </div>
 
-        {/* Apply Voucher */}
+        {/* Voucher */}
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">
-            Apply Voucher (Organizer Only)
+            Apply Voucher
           </label>
           <div className="flex gap-2">
             <input
+              id="voucher-code"
               type="text"
               placeholder="Enter voucher code"
               className="input flex-1"
-              id="voucher-code"
             />
             <Button
               type="button"
@@ -184,17 +184,17 @@ export default function BuyTicketPage() {
           </div>
         </div>
 
-        {/* Redeem Coupon */}
+        {/* Coupon */}
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">
-            Redeem Coupon (App Reward)
+            Redeem Coupon
           </label>
           <div className="flex gap-2">
             <input
-              type="text"
-              placeholder="Enter your coupon code"
-              className="input flex-1"
               id="coupon-code"
+              type="text"
+              placeholder="Enter coupon"
+              className="input flex-1"
             />
             <Button
               type="button"
@@ -208,8 +208,7 @@ export default function BuyTicketPage() {
                   toast.success(res.data.message || "Coupon redeemed!");
                 } catch (err: any) {
                   toast.error(
-                    err?.response?.data?.message ||
-                      "Coupon invalid or already used."
+                    err?.response?.data?.message || "Coupon invalid or used."
                   );
                 }
               }}

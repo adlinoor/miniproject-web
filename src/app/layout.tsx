@@ -29,12 +29,13 @@ export default function RootLayout({
       >
         <StoreProvider>
           <AuthProvider>
+            {/* Sticky Navbar layout wrapper */}
             <div className="min-h-screen flex flex-col">
               <Navbar />
-              <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+              <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20">
                 {children}
               </main>
-              <Toaster />
+              <Toaster position="top-center" />
             </div>
           </AuthProvider>
         </StoreProvider>

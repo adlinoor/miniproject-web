@@ -28,5 +28,10 @@ function DashboardRedirect() {
     }
   }, [user, router]);
 
-  return <p className="text-center py-20">Redirecting to your dashboard...</p>;
+  // ⚠ Ini penting → agar Vercel tidak anggap halaman ini "kosong"
+  return (
+    <div className="text-center py-20 text-gray-500">
+      Redirecting to your dashboard...
+    </div>
+  );
 }

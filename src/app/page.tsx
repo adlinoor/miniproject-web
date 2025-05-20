@@ -70,7 +70,7 @@ export default function Home() {
                 <div className="flex flex-col gap-1">
                   <div className="text-2xl">📅</div>
                   <h3 className="text-lg font-semibold text-gray-800">
-                    {event.name}
+                    {event.title}
                   </h3>
                   <p className="text-sm text-gray-600 line-clamp-3">
                     {event.description}

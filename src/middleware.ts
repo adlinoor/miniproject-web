@@ -18,14 +18,14 @@ export default function middleware(req: NextRequest) {
   const token = req.cookies.get("access_token")?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+    return NextResponse.redirect(new URL("/auth/login", req.nextUrl));
   }
 
   let user: IUser;
   try {
     user = jwtDecode(token);
   } catch {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+    return NextResponse.redirect(new URL("/auth/login", req.nextUrl));
   }
 
   if (!route.roles.includes(user.role)) {

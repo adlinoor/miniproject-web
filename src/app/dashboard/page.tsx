@@ -18,6 +18,10 @@ function DashboardRedirect() {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
 
+  if (user === undefined) {
+    return <div className="text-center py-20 text-gray-500">Loading...</div>;
+  }
+
   useEffect(() => {
     if (user?.role === "CUSTOMER") {
       router.replace("/dashboard/customer");

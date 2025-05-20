@@ -20,11 +20,17 @@ export default function Navbar() {
   };
 
   const links = [
-    { label: "Home", href: "/" },
     { label: "Events", href: "/events" },
-    user?.role === "ORGANIZER"
-      ? { label: "Dashboard", href: "/dashboard/organizer" }
-      : { label: "Dashboard", href: "/dashboard/customer" },
+    ...(user
+      ? [
+          user.role === "ORGANIZER"
+            ? { label: "Profile", href: "/dashboard/organizer/profile" }
+            : { label: "Profile", href: "/dashboard/customer/profile" },
+          user.role === "ORGANIZER"
+            ? { label: "Dashboard", href: "/dashboard/organizer" }
+            : { label: "Dashboard", href: "/dashboard/customer" },
+        ]
+      : []),
   ];
 
   return (

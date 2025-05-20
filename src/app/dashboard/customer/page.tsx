@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api-client";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface User {
   first_name: string;
@@ -13,6 +14,14 @@ interface User {
 }
 
 export default function CustomerDashboardPage() {
+  return (
+    <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <DashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function DashboardContent() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +49,6 @@ export default function CustomerDashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 space-y-8">
-      {/* ✅ Header Greeting */}
       <div className="flex items-center gap-4 bg-white shadow-md rounded-xl p-6">
         {user.profilePicture ? (
           <img
@@ -63,7 +71,6 @@ export default function CustomerDashboardPage() {
         </div>
       </div>
 
-      {/* ✅ Menu Shortcut */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <DashboardCard
           href="/dashboard/customer/profile"

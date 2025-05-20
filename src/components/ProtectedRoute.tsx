@@ -21,16 +21,24 @@ export default function ProtectedRoute({
   const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
+    // Jangan apa-apa kalau masih undefined
+    if (user === undefined) return;
+
     if (!user) {
       toast.error("You must be logged in");
-      router.replace("/auth/login"); // Arahkan ke login yang benar
+      router.replace("/auth/login");
     } else if (allowedRoles && !allowedRoles.includes(user.role)) {
       toast.error("Access denied");
       router.replace(redirectTo);
     }
   }, [user, allowedRoles, redirectTo, router]);
 
-  // Render kosong kalau user belum siap atau tidak punya akses
+  // Tambahkan loading state ketika user masih undefined
+  if (user === undefined) {
+    return <div className="text-center py-12">Loading user...</div>;
+  }
+
+  // Render kosong kalau belum login atau salah role
   if (!user) return null;
   if (allowedRoles && !allowedRoles.includes(user.role)) return null;
 

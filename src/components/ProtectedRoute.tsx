@@ -8,12 +8,14 @@ import { toast } from "react-hot-toast";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
-  allowedRoles?: string[]; // Opsional: jika tidak diberikan, berarti semua role boleh
+  allowedRoles?: string[]; // Opsional: batasi role
+  redirectTo?: string; // Opsional: redirect jika tidak punya akses
 };
 
 export default function ProtectedRoute({
   children,
   allowedRoles,
+  redirectTo = "/unauthorized", // Default redirect jika akses ditolak
 }: ProtectedRouteProps) {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
@@ -21,34 +23,34 @@ export default function ProtectedRoute({
   useEffect(() => {
     if (!user) {
       toast.error("You must be logged in");
-      router.replace("/login");
+      router.replace("/auth/login"); // Arahkan ke login yang benar
     } else if (allowedRoles && !allowedRoles.includes(user.role)) {
       toast.error("Access denied");
-      router.replace("/unauthorized"); // Optional page, or use router.replace("/") for homepage
+      router.replace(redirectTo);
     }
-  }, [user, allowedRoles, router]);
+  }, [user, allowedRoles, redirectTo, router]);
 
-  // Jika user belum siap (masih undefined/null), atau tidak punya akses, render kosong
+  // Render kosong kalau user belum siap atau tidak punya akses
   if (!user) return null;
   if (allowedRoles && !allowedRoles.includes(user.role)) return null;
-  if (typeof window !== "undefined" && user === null) {
-    return <div className="text-center py-12">Loading...</div>;
-  }
 
   return <>{children}</>;
 }
 
-// Untuk semua yang sudah login
-// <ProtectedRoute>
-//   <Dashboard />
-// </ProtectedRoute>
+{
+  /* <ProtectedRoute>
+  <Dashboard />
+</ProtectedRoute> */
+}
 
-// Hanya untuk CUSTOMER
-// <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-//   <TicketPage />
-// </ProtectedRoute>
+{
+  /* <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+  <CustomerDashboard />
+</ProtectedRoute> */
+}
 
-// Hanya untuk ORGANIZER
-// <ProtectedRoute allowedRoles={["ORGANIZER"]}>
-//   <CreateEvent />
-// </ProtectedRoute>
+{
+  /* <ProtectedRoute allowedRoles={["ORGANIZER"]} redirectTo="/">
+  <CreateEvent />
+</ProtectedRoute> */
+}

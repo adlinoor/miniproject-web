@@ -6,16 +6,24 @@ import api from "@/lib/api-client";
 import Button from "@/components/ui/Button";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
+interface Event {
+  id: number;
+  title: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+}
+
 export default function OrganizerDashboardPage() {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
     api
       .get("/events/organizer/my-events")
-      .then((res) => setEvents(res.data.data || [])) // ✅ Ambil arraynya langsung
+      .then((res) => setEvents(res.data.data || []))
       .catch((err) => {
-        console.error("Failed to load organizer events:", err);
-        setEvents([]); // Fallback agar map tidak error
+        console.error("❌ Failed to load events:", err);
+        setEvents([]);
       });
   }, []);
 
@@ -28,22 +36,23 @@ export default function OrganizerDashboardPage() {
             <Button variant="primary">+ Create New</Button>
           </Link>
         </div>
+
         {events.length === 0 ? (
           <p className="text-gray-600">No events yet. Start by creating one.</p>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
-            {events.map((event: any) => (
+            {events.map((event) => (
               <div
                 key={event.id}
-                className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+                className="border rounded-lg p-4 bg-white shadow-sm"
               >
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {event.name}
+                  {event.title}
                 </h3>
                 <p className="text-sm text-gray-600">{event.location}</p>
                 <p className="text-sm text-gray-500">
-                  {new Date(event.start_date).toLocaleDateString()} -{" "}
-                  {new Date(event.end_date).toLocaleDateString()}
+                  {new Date(event.startDate).toLocaleDateString()} –{" "}
+                  {new Date(event.endDate).toLocaleDateString()}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href={`/events/${event.id}`}>

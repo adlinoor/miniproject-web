@@ -5,7 +5,7 @@ import "./globals.css";
 
 import StoreProvider from "@/components/storeProvider";
 import AuthProvider from "@/components/authProvider";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {

@@ -111,7 +111,7 @@ function CreateEventForm() {
 
         {selectedCity === "Other" && (
           <Input
-            label="City (Manual)"
+            label="Other"
             value={customCity}
             onChange={(e) => {
               setCustomCity(e.target.value);

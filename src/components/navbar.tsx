@@ -7,6 +7,7 @@ import { logout } from "@/lib/redux/features/authSlice";
 import { deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { UserCircle } from "lucide-react";
 
 export default function Navbar() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -21,28 +22,82 @@ export default function Navbar() {
     router.push("/auth/login");
   };
 
-  const getDashboardLink = () => {
-    if (user?.role === "CUSTOMER") return "/dashboard/customer";
-    if (user?.role === "ORGANIZER") return "/dashboard/organizer";
-    return "/dashboard";
-  };
+  const getDashboardLink = () =>
+    user?.role === "CUSTOMER" ? "/dashboard/customer" : "/dashboard/organizer";
 
   const getProfileLink = () =>
     user?.role === "CUSTOMER"
       ? "/dashboard/customer/profile"
       : "/dashboard/organizer/profile";
 
-  if (!isHydrated) return null;
+  // Skeleton saat belum siap
+  if (!isHydrated) {
+    return (
+      <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
+        <div className="h-6 w-24 bg-gray-200 animate-pulse rounded" />
+        <div className="h-6 w-32 bg-gray-200 animate-pulse rounded" />
+      </nav>
+    );
+  }
 
   return (
     <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
-      {/* Left Logo */}
+      {/* Logo */}
       <Link href="/" className="text-xl font-bold text-blue-600">
         ARevents
       </Link>
 
-      {/* Right Menu Button (always) */}
-      <div className="relative">
+      {/* 👀 Desktop Menu */}
+      <div className="hidden md:flex items-center gap-4 text-sm">
+        {!user ? (
+          <>
+            <Link href="/auth/login" className="text-gray-700 hover:underline">
+              Login
+            </Link>
+            <Link
+              href="/auth/register"
+              className="text-gray-700 hover:underline"
+            >
+              Register
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              href={getDashboardLink()}
+              className="text-blue-600 hover:underline"
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              href={getProfileLink()}
+              className="flex items-center gap-2 hover:underline text-gray-700 font-medium"
+            >
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt="avatar"
+                  className="w-6 h-6 rounded-full object-cover border"
+                />
+              ) : (
+                <UserCircle className="w-6 h-6 text-gray-400" />
+              )}
+              {user.first_name} {user.last_name}
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="text-red-500 hover:underline"
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* 📱 Mobile Menu */}
+      <div className="md:hidden relative">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="text-sm text-gray-700 border border-gray-300 rounded px-3 py-1 shadow-sm hover:bg-gray-50 transition"
@@ -75,9 +130,12 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
-                <span className="block px-4 py-2 text-sm text-gray-700 font-medium">
+                <Link
+                  href={getProfileLink()}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
                   {user.first_name} {user.last_name}
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50"

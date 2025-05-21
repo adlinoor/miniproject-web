@@ -2,13 +2,17 @@ import { useState, useEffect } from "react";
 import { Event } from "@/types/event";
 import api from "@/lib/api-client";
 
-const useDebouncedSearch = (initialQuery: string = "", delay: number = 500) => {
+const useDebouncedSearch = (
+  initialQuery: string = "",
+  delay: number = 1000
+) => {
   const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null); // ✅ fix type
 
+  // Debounce keyword input
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(query);
@@ -16,8 +20,14 @@ const useDebouncedSearch = (initialQuery: string = "", delay: number = 500) => {
     return () => clearTimeout(handler);
   }, [query, delay]);
 
+  // Fetch when debouncedQuery changes
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!debouncedQuery || debouncedQuery.trim().length < 2) {
+        setEvents([]);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const url =
@@ -26,10 +36,14 @@ const useDebouncedSearch = (initialQuery: string = "", delay: number = 500) => {
             : `/events?search=${encodeURIComponent(debouncedQuery)}`;
 
         const res = await api.get(url);
-        setEvents(res.data.data ?? res.data); // support both wrapped or raw array
+        setEvents(res.data.data ?? res.data);
         setError(null);
-      } catch (err) {
-        setError(err);
+      } catch (err: any) {
+        if (err.response?.status === 429) {
+          setError(new Error("Too many requests. Please wait a moment."));
+        } else {
+          setError(new Error("Failed to fetch events."));
+        }
         setEvents([]);
       } finally {
         setIsLoading(false);

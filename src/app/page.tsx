@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import api from "@/lib/api-client";
-import EventsCard from "@/components/events/EventsCard";
 
 interface EventData {
   id: number;
@@ -44,12 +43,12 @@ export default function Home() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/events" aria-label="Browse all events">
+          <Link href="/events">
             <Button variant="primary" className="px-6 py-3 text-base shadow-md">
               🔍 Browse Events
             </Button>
           </Link>
-          <Link href="/events/create" aria-label="Create a new event">
+          <Link href="/events/create">
             <Button
               variant="secondary"
               className="px-6 py-3 text-base bg-white text-gray-800 hover:bg-gray-200 font-semibold shadow"
@@ -71,32 +70,58 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto px-2 fade-in-up">
-          {events.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-300">
-              {events.slice(0, 6).map((event) => (
-                <EventsCard
-                  key={event.id}
-                  event={{
-                    id: event.id,
-                    name: event.title,
-                    location: event.location,
-                    description: event.description,
-                    price: event.price,
-                    start_date: event.startDate,
-                    end_date: event.endDate,
-                  }}
-                />
-              ))}
+        <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 px-2 fade-in-up">
+          {events.slice(0, 6).map((event) => (
+            <div
+              key={event.id}
+              className="card flex flex-col justify-between h-full"
+            >
+              <div>
+                <h2 className="text-xl font-semibold mb-1 text-primary">
+                  {event.title}
+                </h2>
+                <p className="text-sm text-gray-500">{event.location}</p>
+                <p className="text-sm text-gray-600 mt-2">
+                  📅{" "}
+                  {new Date(event.startDate).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                  {event.endDate &&
+                    ` – ${new Date(event.endDate).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}`}
+                </p>
+                {event.description && (
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                    {event.description}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex justify-center mt-6 pt-4 border-t border-gray-100">
+                <Link href={`/events/${event.id}`}>
+                  <Button
+                    variant="secondary"
+                    className="w-full text-center font-medium"
+                  >
+                    View Details
+                  </Button>
+                </Link>
+              </div>
             </div>
-          ) : (
-            <p className="text-center text-gray-500 py-10">
-              No upcoming events available.
-            </p>
-          )}
+          ))}
         </div>
 
-        {/* ✅ Background Blend Transition */}
+        {events.length === 0 && (
+          <p className="text-center text-gray-500 py-10">
+            No upcoming events available.
+          </p>
+        )}
+
         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none z-0" />
       </section>
     </main>

@@ -1,54 +1,44 @@
 "use client";
 
-import { useEffect } from "react";
-import { toast } from "react-hot-toast";
-import useDebouncedSearch from "@/hooks/useDebouncedSearch";
-import EventsCard from "@/components/events/EventsCard";
-import SearchBar from "@/components/shared/SearchBar";
-import { trim } from "lodash";
+import { useEffect, useState } from "react";
 import api from "@/lib/api-client";
+import EventsCard from "@/components/events/EventsCard";
+
+interface Event {
+  id: number;
+  title: string;
+  location: string;
+  description?: string;
+  price: number;
+  startDate: string;
+  endDate?: string;
+}
 
 export default function EventsPage() {
-  const { query, setQuery, events, setEvents, isLoading, error } =
-    useDebouncedSearch("", 1000);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const endpoint =
-          trim(query) === ""
-            ? "/events"
-            : `/events?search=${encodeURIComponent(query)}`;
-
-        const response = await api.get(endpoint);
-        setEvents(response.data.data); // pastikan response sesuai schema
-      } catch (error: any) {
-        if (error.response?.status === 429) {
-          toast.error("Terlalu banyak permintaan. Coba lagi beberapa saat.");
-        } else {
-          console.error("Error fetching events:", error);
-          toast.error("Gagal memuat event.");
-        }
+        const res = await api.get("/events");
+        setEvents(res.data?.data || []);
+      } catch (err) {
+        console.error("Failed to fetch events:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchEvents();
-  }, [query, setEvents]);
+  }, []);
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-6 text-center">Browse Events</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">All Events</h1>
 
-      <div className="max-w-md mx-auto mb-8">
-        <SearchBar
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search events..."
-        />
-      </div>
-
-      {isLoading ? (
-        <p className="text-center py-20 text-gray-500">Loading events...</p>
+      {loading ? (
+        <p className="text-center text-gray-500 py-12">Loading...</p>
       ) : events.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {events.map((event) => (
@@ -58,16 +48,16 @@ export default function EventsPage() {
                 id: event.id,
                 name: event.title,
                 location: event.location,
+                description: event.description,
                 price: event.price,
                 start_date: event.startDate,
+                end_date: event.endDate,
               }}
             />
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-600 dark:text-gray-300 mt-12">
-          No events found.
-        </p>
+        <p className="text-center text-gray-500 mt-10">No events available.</p>
       )}
     </main>
   );

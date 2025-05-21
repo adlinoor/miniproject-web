@@ -32,7 +32,9 @@ export default function RootLayout({
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
               <Navbar />
-              <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+              <ClientLayoutWrapper>
+                <main>{children}</main>
+              </ClientLayoutWrapper>
               <Toaster position="top-center" />
             </div>
           </AuthProvider>

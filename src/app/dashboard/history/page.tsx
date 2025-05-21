@@ -34,7 +34,7 @@ export default function HistoryPage() {
     const fetchHistory = async () => {
       try {
         const rewardRes = await api.get("/users/rewards");
-        const transactionRes = await api.get("/transactions/my");
+        const transactionRes = await api.get("/transactions/myevents");
 
         setCoupons([
           ...rewardRes.data.coupons.used,
@@ -94,6 +94,8 @@ export default function HistoryPage() {
             )}
           </section>
 
+          <hr className="my-6 border-gray-200" />
+
           {/* Kupon */}
           <section>
             <h2 className="text-xl font-semibold mb-4">Coupon History</h2>
@@ -103,9 +105,17 @@ export default function HistoryPage() {
               <ul className="space-y-3">
                 {coupons.map((c, i) => (
                   <li key={i} className="border p-4 rounded bg-white shadow-sm">
-                    <p className="font-medium">
-                      {c.code} — {c.discount}%{" "}
-                      {c.isUsed ? "(Used)" : "(Expired)"}
+                    <p className="font-medium flex items-center gap-2">
+                      {c.code} — {c.discount}%
+                      <span
+                        className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                          c.isUsed
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {c.isUsed ? "Used" : "Expired"}
+                      </span>
                     </p>
                     <p className="text-sm text-gray-600">
                       Expired at: {new Date(c.expiresAt).toLocaleDateString()}

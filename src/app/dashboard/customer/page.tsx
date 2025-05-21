@@ -74,17 +74,17 @@ function DashboardContent() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <DashboardCard
           href="/dashboard/customer/profile"
-          title="Edit Profil"
+          title="Edit Profile"
           emoji="📝"
         />
         <DashboardCard
-          href="/dashboard/customer/rewards"
-          title="Poin & Rewards"
+          href="/dashboard/customer/profile"
+          title="Points & Rewards"
           emoji="🎁"
         />
         <DashboardCard
-          href="/dashboard/customer/transactions"
-          title="Riwayat Transaksi"
+          href="/dashboard/history"
+          title="Transaction History"
           emoji="📜"
         />
       </div>

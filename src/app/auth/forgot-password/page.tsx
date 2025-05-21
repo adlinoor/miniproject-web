@@ -1,9 +1,9 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import api from "@/lib/api-client";
 import { toast } from "react-hot-toast";
 import Button from "@/components/ui/Button";
+import authService from "@/services/auth.service";
 
 type FormData = {
   email: string;
@@ -13,12 +13,12 @@ export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
     try {
-      await api.post("/auth/forgot-password", { email: data.email });
+      await authService.forgotPassword(data.email);
       toast.success("Reset link sent if email is registered.");
     } catch {
       toast.error("Failed to send reset email.");
@@ -41,6 +41,7 @@ export default function ForgotPasswordPage() {
               {...register("email", { required: "Email is required" })}
               className="input"
               placeholder="you@example.com"
+              autoComplete="email"
             />
             {errors.email && (
               <p className="text-sm text-red-500 mt-1">
@@ -48,8 +49,8 @@ export default function ForgotPasswordPage() {
               </p>
             )}
           </div>
-          <Button type="submit" className="w-full">
-            Send Reset Link
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Sending..." : "Send Reset Link"}
           </Button>
         </form>
       </section>

@@ -41,7 +41,10 @@ export default function CustomerProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-semibold mb-6">Edit Profile</h1>
+      <h1 className="text-2xl font-semibold mb-2">Profile</h1>
+      <p className="text-gray-500 mb-6">
+        Edit your information & manage rewards
+      </p>
       <EditProfileForm initialUser={user} />
     </div>
   );

@@ -38,6 +38,12 @@ export default function LoginPage() {
         secure: false,
       });
 
+      if (data.rememberMe) {
+        localStorage.setItem("access_token", res.data.token);
+      } else {
+        localStorage.removeItem("access_token");
+      }
+
       dispatch(login(res.data.user));
       toast.success("Login successful!");
       router.push("/");
@@ -112,8 +118,8 @@ export default function LoginPage() {
               Remember me
             </label>
             <Link
-              href="#"
-              className="text-blue-600 hover:underline whitespace-nowrap"
+              href="/auth/forgot-password"
+              className="text-blue-600 hover:text-blue-700 whitespace-nowrap"
             >
               Forgot password?
             </Link>
@@ -126,7 +132,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-sm text-center text-gray-600">
           Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="text-blue-600 hover:underline">
+          <Link
+            href="/auth/register"
+            className="text-blue-600 hover:text-blue-700"
+          >
             Register
           </Link>
         </p>

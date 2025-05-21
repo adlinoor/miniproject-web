@@ -35,34 +35,37 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 backdrop-blur-sm bg-transparent border-b border-white/10">
+    <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-transparent border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        {/* ✅ Logo tetap putih */}
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-gray-900"
+          className="text-xl font-bold tracking-tight text-white drop-shadow-md"
         >
           ARevents
         </Link>
 
+        {/* ✅ Hamburger / X tetap putih */}
         <div className="md:hidden">
           <button onClick={() => setOpen(!open)}>
             {open ? (
-              <X className="w-6 h-6 text-gray-800" />
+              <X className="w-6 h-6 text-white" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-800" />
+              <Menu className="w-6 h-6 text-white" />
             )}
           </button>
         </div>
 
+        {/* ✅ Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium transition-all ${
+              className={`text-sm font-medium hover:text-sky-400 transition-all ${
                 pathname === link.href
-                  ? "text-gray-900 font-semibold"
-                  : "text-gray-700 hover:text-gray-900"
+                  ? "text-white font-semibold"
+                  : "text-white/80"
               }`}
             >
               {link.label}
@@ -72,14 +75,14 @@ export default function Navbar() {
           {user ? (
             <button
               onClick={handleLogout}
-              className="text-sm text-red-500 hover:underline"
+              className="text-sm text-red-400 hover:underline"
             >
               Logout
             </button>
           ) : (
             <Link
               href="/auth/login"
-              className="text-sm text-gray-700 hover:underline"
+              className="text-sm text-white hover:underline"
             >
               Login
             </Link>
@@ -87,16 +90,17 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* ✅ Mobile menu */}
       {open && (
         <>
-          {/* ✅ Backdrop transparan */}
+          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/30 z-40"
             onClick={() => setOpen(false)}
           />
 
-          {/* ✅ Mobile Menu Panel */}
-          <div className="md:hidden fixed top-[56px] left-0 w-full bg-white/95 z-50 shadow-md ring-1 ring-gray-200 rounded-b-xl px-4 pt-4 pb-6 animate-fade-in-up">
+          {/* Dropdown menu */}
+          <div className="md:hidden fixed top-[56px] left-0 w-full bg-white/70 backdrop-blur-sm z-50 shadow-md ring-1 ring-gray-200 rounded-b-xl px-4 pt-4 pb-6 animate-fade-in-up">
             <div className="flex flex-col space-y-3">
               {links.map((link) => (
                 <Link

@@ -35,18 +35,22 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/50 border-b border-white/20 shadow-sm">
+    <nav className="fixed top-0 w-full z-50 backdrop-blur-sm bg-transparent border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
         <Link
           href="/"
-          className="text-xl font-extrabold tracking-tight text-primary text-white drop-shadow"
+          className="text-xl font-semibold tracking-tight text-gray-900"
         >
           ARevents
         </Link>
 
         <div className="md:hidden">
           <button onClick={() => setOpen(!open)}>
-            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {open ? (
+              <X className="w-6 h-6 text-gray-800" />
+            ) : (
+              <Menu className="w-6 h-6 text-gray-800" />
+            )}
           </button>
         </div>
 
@@ -55,8 +59,10 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium hover:text-primary transition-all ${
-                pathname === link.href ? "text-primary" : "text-white/80"
+              className={`text-sm font-medium transition-all ${
+                pathname === link.href
+                  ? "text-gray-900 font-semibold"
+                  : "text-gray-700 hover:text-gray-900"
               }`}
             >
               {link.label}
@@ -73,7 +79,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/auth/login"
-              className="text-sm text-white hover:underline"
+              className="text-sm text-gray-700 hover:underline"
             >
               Login
             </Link>
@@ -87,8 +93,10 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`block py-2 text-sm font-medium hover:text-primary transition-all ${
-                pathname === link.href ? "text-primary" : "text-gray-700"
+              className={`block py-2 text-sm font-medium transition-all ${
+                pathname === link.href
+                  ? "text-gray-900 font-semibold"
+                  : "text-gray-700 hover:text-gray-900"
               }`}
               onClick={() => setOpen(false)}
             >
@@ -109,7 +117,7 @@ export default function Navbar() {
             <Link
               href="/auth/login"
               onClick={() => setOpen(false)}
-              className="block mt-2 text-sm text-primary hover:underline"
+              className="block mt-2 text-sm text-gray-700 hover:underline"
             >
               Login
             </Link>

@@ -1,13 +1,23 @@
-// ✅ file: app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import api from "@/lib/api-client";
+import EventsCard from "@/components/events/EventsCard";
+
+interface EventData {
+  id: number;
+  title: string;
+  location: string;
+  description?: string;
+  price: number;
+  startDate: string;
+  endDate?: string;
+}
 
 export default function Home() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -34,12 +44,12 @@ export default function Home() {
         </p>
 
         <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/events">
+          <Link href="/events" aria-label="Browse all events">
             <Button variant="primary" className="px-6 py-3 text-base shadow-md">
               🔍 Browse Events
             </Button>
           </Link>
-          <Link href="/events/create">
+          <Link href="/events/create" aria-label="Create a new event">
             <Button
               variant="secondary"
               className="px-6 py-3 text-base bg-white text-gray-800 hover:bg-gray-200 font-semibold shadow"
@@ -61,31 +71,29 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3 px-2 fade-in-up">
-          {events.slice(0, 6).map((event) => (
-            <div
-              key={event.id}
-              className="card border border-gray-200 bg-white text-gray-800 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1 p-6"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="text-2xl">📅</div>
-                <h3 className="text-lg font-semibold tracking-tight">
-                  {event.title}
-                </h3>
-              </div>
-              <p className="text-sm text-gray-600 line-clamp-3">
-                {event.description}
-              </p>
-              <div className="mt-4 text-right">
-                <Link
-                  href={`/events/${event.id}`}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium underline underline-offset-2"
-                >
-                  View Details →
-                </Link>
-              </div>
+        <div className="max-w-6xl mx-auto px-2 fade-in-up">
+          {events.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-300">
+              {events.slice(0, 6).map((event) => (
+                <EventsCard
+                  key={event.id}
+                  event={{
+                    id: event.id,
+                    name: event.title,
+                    location: event.location,
+                    description: event.description,
+                    price: event.price,
+                    start_date: event.startDate,
+                    end_date: event.endDate,
+                  }}
+                />
+              ))}
             </div>
-          ))}
+          ) : (
+            <p className="text-center text-gray-500 py-10">
+              No upcoming events available.
+            </p>
+          )}
         </div>
 
         {/* ✅ Background Blend Transition */}

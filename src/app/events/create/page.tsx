@@ -12,14 +12,17 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
 const schema = z.object({
-  name: z.string().min(1, "Event name is required"),
-  location: z.string().min(1, "Location is required"),
-  city: z.string().min(1, "City is required"),
+  title: z.string().min(1, "Event title is required"),
+  location: z.string().min(1, "Venue location is required"),
+  category: z.string().min(1, "Category is required"),
+  availableSeats: z
+    .number({ invalid_type_error: "Seats must be a number" })
+    .min(1, "At least 1 seat required"),
   price: z
     .number({ invalid_type_error: "Price must be a number" })
     .nonnegative(),
-  start_date: z.string().min(1, "Start date is required"),
-  end_date: z.string().min(1, "End date is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
 });
 
@@ -48,12 +51,21 @@ function CreateEventForm() {
   });
 
   const onSubmit = async (data: FormData) => {
+    const finalCity =
+      selectedCity === "Other" ? customCity.trim() : selectedCity;
+
+    const finalLocation = `${finalCity} - ${data.location}`;
+
     try {
-      await api.post("/events", data);
+      await api.post("/events", {
+        ...data,
+        location: finalLocation, // override location
+      });
+
       toast.success("Event created successfully!");
       router.push("/dashboard/organizer");
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Create event failed:", error.response?.data || error);
       toast.error("Failed to create event.");
     }
   };
@@ -66,36 +78,25 @@ function CreateEventForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Input
-          label="Event Name"
+          label="Event Title"
           placeholder="e.g. Music Festival 2025"
-          {...register("name")}
-          error={errors.name}
+          {...register("title")}
+          error={errors.title}
         />
 
-        <Input
-          label="Location (Venue)"
-          placeholder="e.g. Istora Senayan"
-          {...register("location")}
-          error={errors.location}
-        />
-
-        {/* Kota */}
+        {/* City Selector */}
         <div>
           <label className="block mb-1 font-medium text-gray-700">City</label>
           <select
             className="w-full border rounded-lg px-3 py-2 text-gray-700"
-            {...register("city")}
+            value={selectedCity}
             onChange={(e) => {
               const value = e.target.value;
               setSelectedCity(value);
               if (value !== "Other") {
-                setValue("city", value);
                 setCustomCity("");
-              } else {
-                setValue("city", "");
               }
             }}
-            defaultValue="Jakarta"
           >
             <option value="Jakarta">Jakarta</option>
             <option value="Bandung">Bandung</option>
@@ -104,22 +105,38 @@ function CreateEventForm() {
             <option value="Denpasar">Bali</option>
             <option value="Other">Other</option>
           </select>
-          {errors.city && (
-            <p className="mt-1 text-sm text-red-500">{errors.city.message}</p>
-          )}
         </div>
 
         {selectedCity === "Other" && (
           <Input
-            label="Other"
+            label="Custom City"
             value={customCity}
-            onChange={(e) => {
-              setCustomCity(e.target.value);
-              setValue("city", e.target.value);
-            }}
+            onChange={(e) => setCustomCity(e.target.value)}
             placeholder="e.g. Malang"
           />
         )}
+
+        <Input
+          label="Venue (Location)"
+          placeholder="e.g. Istora Senayan"
+          {...register("location")}
+          error={errors.location}
+        />
+
+        <Input
+          label="Category"
+          placeholder="e.g. Music, Seminar, Workshop"
+          {...register("category")}
+          error={errors.category}
+        />
+
+        <Input
+          label="Available Seats"
+          type="number"
+          placeholder="e.g. 100"
+          {...register("availableSeats", { valueAsNumber: true })}
+          error={errors.availableSeats}
+        />
 
         <Input
           label="Price (IDR)"
@@ -133,14 +150,14 @@ function CreateEventForm() {
           <Input
             label="Start Date"
             type="date"
-            {...register("start_date")}
-            error={errors.start_date}
+            {...register("startDate")}
+            error={errors.startDate}
           />
           <Input
             label="End Date"
             type="date"
-            {...register("end_date")}
-            error={errors.end_date}
+            {...register("endDate")}
+            error={errors.endDate}
           />
         </div>
 

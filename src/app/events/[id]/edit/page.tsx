@@ -6,120 +6,106 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
+import EventsForm, {
+  EventFormValues,
+  EventFormProps,
+} from "@/components/events/EventsForm";
 
-export default function EventDetailPage() {
+export default function EditEventPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
-  const [event, setEvent] = useState<any>(null);
-  const [hasJoined, setHasJoined] = useState(false);
   const user = useSelector((state: RootState) => state.auth.user);
+  const [initialValues, setInitialValues] = useState<EventFormValues | null>(
+    null
+  );
 
   useEffect(() => {
-    if (!id || !user) return;
+    if (!id) return;
 
     const fetchEvent = async () => {
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/events/${id}`
         );
-        setEvent(res.data);
-      } catch (error) {
-        toast.error("Failed to fetch event");
-      }
-    };
 
-    const checkJoined = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/transactions/check`,
-          {
-            params: { eventId: id },
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        if (res.data.joined) setHasJoined(true);
-      } catch {
-        // ignore error, assume not joined
+        const event = res.data;
+
+        if (user?.role !== "ORGANIZER" || user?.id !== event.organizerId) {
+          toast.error("Unauthorized to edit this event");
+          router.push("/unauthorized");
+          return;
+        }
+
+        const [cityPart, ...locationParts] = event.location.split(" - ");
+        const location = locationParts.join(" - ") || cityPart;
+
+        const parsed: EventFormValues & { id?: string } = {
+          id: event.id,
+          name: event.title,
+          description: event.description,
+          startDate: event.startDate.slice(0, 10),
+          endDate: event.endDate.slice(0, 10),
+          price: event.price,
+          seats: event.availableSeats,
+          isFree: event.price === 0,
+          category: event.category,
+          city: locationParts.length > 0 ? cityPart : "",
+        };
+
+        setInitialValues(parsed);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to fetch event data");
+        router.push("/dashboard/organizer");
       }
     };
 
     fetchEvent();
-    checkJoined();
-  }, [id, user]);
+  }, [id, user, router]);
 
-  const handleJoin = async () => {
+  const handleUpdate = async (data: EventFormValues) => {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/transactions`,
-        { eventId: id },
+      const finalCity = data.city;
+      const finalLocation = `${finalCity} - ${data.name}`;
+
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/events/${id}`,
+        {
+          title: data.name,
+          description: data.description,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          price: data.price,
+          availableSeats: data.seats,
+          isFree: data.isFree,
+          category: data.category,
+          location: finalLocation,
+        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-      toast.success("Successfully joined the event!");
-      router.push("/my-events");
+
+      toast.success("Event updated successfully!");
+      router.push("/dashboard/organizer");
     } catch (error: any) {
-      if (error.response?.status === 400 && error.response.data?.message) {
-        toast.error(error.response.data.message);
-        setHasJoined(true);
-      } else {
-        toast.error("Failed to join the event");
-      }
+      console.error("Update failed:", error.response?.data || error);
+      toast.error("Failed to update event");
     }
   };
 
-  if (!event) return <p className="text-center mt-10">Loading event...</p>;
+  if (!initialValues) {
+    return <p className="text-center mt-10">Loading form...</p>;
+  }
 
   return (
-    <section className="max-w-4xl mx-auto py-12 px-6">
-      {event.images?.length > 0 && (
-        <img
-          src={event.images[0].url}
-          alt={event.title}
-          className="w-full h-64 object-cover rounded-xl mb-6 border"
-        />
-      )}
-      <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
-        {event.title}
+    <section className="max-w-3xl mx-auto py-12 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Edit Event
       </h1>
-      <p className="text-gray-700 dark:text-gray-300 mb-6">
-        {event.description}
-      </p>
-      <div className="mb-2">
-        <strong>Date:</strong> {new Date(event.startDate).toLocaleDateString()}{" "}
-        - {new Date(event.endDate).toLocaleDateString()}
-      </div>
-      <div className="mb-2">
-        <strong>Location:</strong> {event.location}
-      </div>
-      <div className="mb-2">
-        <strong>Category:</strong> {event.category}
-      </div>
-      <div className="mb-2">
-        <strong>Price:</strong>{" "}
-        {event.price > 0 ? `Rp${event.price.toLocaleString("id-ID")}` : "Free"}
-      </div>
-      <div className="mb-2">
-        <strong>Seats Available:</strong> {event.availableSeats}
-      </div>
-
-      {user?.role === "CUSTOMER" && (
-        <button
-          onClick={handleJoin}
-          disabled={hasJoined}
-          className={`mt-6 px-6 py-2 text-white rounded transition-colors ${
-            hasJoined
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
-        >
-          {hasJoined ? "Already Joined" : "Join Event"}
-        </button>
-      )}
+      <EventsForm onSubmit={handleUpdate} initialValues={initialValues} />
     </section>
   );
 }

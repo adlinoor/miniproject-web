@@ -4,23 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "@/components/shared/InputField";
-import { useEffect } from "react";
-
-interface EventFormValues {
-  id?: string;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  price: number;
-  seats: number;
-  isFree: boolean;
-}
-
-interface EventFormProps {
-  onSubmit: (values: EventFormValues) => void;
-  initialValues?: EventFormValues;
-}
+import { useEffect, useState } from "react";
 
 const EventSchema = z
   .object({
@@ -31,6 +15,8 @@ const EventSchema = z
     price: z.number().min(0, "Must be positive"),
     seats: z.number().min(1, "At least 1 seat"),
     isFree: z.boolean(),
+    category: z.string().min(1, "Required"),
+    city: z.string().min(1, "Required"),
   })
   .superRefine((data, ctx) => {
     const start = new Date(data.startDate);
@@ -43,6 +29,33 @@ const EventSchema = z
       });
     }
   });
+
+export type EventFormValues = z.infer<typeof EventSchema>;
+
+export interface EventFormProps {
+  onSubmit: (values: EventFormValues) => void;
+  initialValues?: EventFormValues & { id?: string };
+}
+
+const defaultCategories = [
+  "Music",
+  "Workshop",
+  "Seminar",
+  "Tech",
+  "Education",
+  "Business",
+  "Health",
+  "Other",
+];
+
+const defaultCities = [
+  "Jakarta",
+  "Bandung",
+  "Yogyakarta",
+  "Surabaya",
+  "Denpasar",
+  "Other",
+];
 
 export default function EventsForm({
   onSubmit,
@@ -58,17 +71,31 @@ export default function EventsForm({
       price: 0,
       seats: 1,
       isFree: false,
+      category: "",
+      city: "",
     },
   });
 
-  const { handleSubmit, setValue, watch } = methods;
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    register,
+    formState: { errors },
+  } = methods;
 
-  // Ensure checkbox updates reactively
   const isFree = watch("isFree");
+  const city = watch("city");
+
+  const [customCity, setCustomCity] = useState("");
 
   useEffect(() => {
     setValue("isFree", initialValues?.isFree ?? false);
-  }, [initialValues?.isFree, setValue]);
+    if (initialValues?.city && !defaultCities.includes(initialValues.city)) {
+      setValue("city", "Other");
+      setCustomCity(initialValues.city);
+    }
+  }, [initialValues?.isFree, initialValues?.city, setValue]);
 
   return (
     <FormProvider {...methods}>
@@ -97,6 +124,72 @@ export default function EventsForm({
           />
           <label htmlFor="isFree">This event is free</label>
         </div>
+
+        {/* Category Select */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Category
+          </label>
+          <select
+            {...register("category")}
+            defaultValue=""
+            className="w-full border rounded-lg px-3 py-2 text-gray-700"
+          >
+            <option value="" disabled>
+              Select a category
+            </option>
+            {defaultCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          {errors.category && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.category.message}
+            </p>
+          )}
+        </div>
+
+        {/* City Select */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">City</label>
+          <select
+            {...register("city")}
+            className="w-full border rounded-lg px-3 py-2 text-gray-700"
+            defaultValue=""
+            onChange={(e) => {
+              setValue("city", e.target.value);
+              if (e.target.value !== "Other") {
+                setCustomCity("");
+              }
+            }}
+          >
+            <option value="" disabled>
+              Select a city
+            </option>
+            {defaultCities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          {errors.city && (
+            <p className="mt-1 text-sm text-red-500">{errors.city.message}</p>
+          )}
+        </div>
+
+        {city === "Other" && (
+          <InputField<EventFormValues>
+            label="Custom City"
+            name="city"
+            value={customCity}
+            onChange={(e) => {
+              setCustomCity(e.target.value);
+              setValue("city", e.target.value);
+            }}
+          />
+        )}
 
         <button
           type="submit"

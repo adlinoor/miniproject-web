@@ -20,17 +20,21 @@ export default function Navbar() {
     deleteCookie("access_token");
   };
 
+  // ✅ Dynamic link based on role
   const links = [
     { label: "Events", href: "/events" },
     ...(user
-      ? [
-          user.role === "ORGANIZER"
-            ? { label: "Profile", href: "/dashboard/organizer/profile" }
-            : { label: "Profile", href: "/dashboard/customer/profile" },
-          user.role === "ORGANIZER"
-            ? { label: "Dashboard", href: "/dashboard/organizer" }
-            : { label: "Dashboard", href: "/dashboard/customer" },
-        ]
+      ? user.role === "ORGANIZER"
+        ? [
+            { label: "Dashboard", href: "/dashboard/organizer" },
+            { label: "Attendees", href: "/dashboard/organizer/attendees" },
+            { label: "Profile", href: "/dashboard/organizer/profile" },
+          ]
+        : [
+            { label: "Dashboard", href: "/dashboard/customer" },
+            { label: "Prizes", href: "/dashboard/customer/prizes" },
+            { label: "Profile", href: "/dashboard/customer/profile" },
+          ]
       : []),
   ];
 

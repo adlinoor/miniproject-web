@@ -7,6 +7,7 @@ import StoreProvider from "@/components/storeProvider";
 import AuthProvider from "@/components/authProvider";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
+import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 
 export const metadata: Metadata = {
   title: "ARevents - Discover Amazing Events",
@@ -25,16 +26,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-gray-50 text-gray-900`}
+        className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}
       >
         <StoreProvider>
           <AuthProvider>
-            {/* Sticky Navbar layout wrapper */}
             <div className="min-h-screen flex flex-col">
               <Navbar />
-              <main className="flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20">
-                {children}
-              </main>
+              <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
               <Toaster position="top-center" />
             </div>
           </AuthProvider>

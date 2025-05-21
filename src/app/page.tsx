@@ -1,3 +1,4 @@
+// ✅ file: app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,17 +23,17 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      {/* Hero Section */}
-      <section className="py-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500 leading-tight">
-          Discover Amazing Events
+    <main className="relative w-full min-h-screen overflow-x-hidden">
+      {/* ✅ Hero Section */}
+      <section className="relative min-h-[75vh] flex flex-col justify-center items-center text-center px-4 z-10">
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 drop-shadow-md">
+          Explore. Create. Connect.
         </h1>
-        <p className="text-base md:text-xl text-gray-600 max-w-xl mx-auto mb-10">
-          Find, create, and manage events all in one place. Whether you're
-          looking to attend or organize, we've got you covered.
+        <p className="text-lg md:text-xl mb-8 text-gray-700 max-w-2xl">
+          Discovering & Crafting Your Essentials
         </p>
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
+
+        <div className="flex flex-wrap justify-center gap-4">
           <Link href="/events">
             <Button variant="primary" className="px-6 py-3 text-base shadow-md">
               🔍 Browse Events
@@ -41,7 +42,7 @@ export default function Home() {
           <Link href="/events/create">
             <Button
               variant="secondary"
-              className="px-6 py-3 text-base shadow-sm"
+              className="px-6 py-3 text-base bg-white text-gray-800 hover:bg-gray-200 font-semibold shadow"
             >
               ➕ Create Event
             </Button>
@@ -49,46 +50,47 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stylish Divider */}
-      <div className="flex items-center justify-center my-16">
-        <div className="flex-grow border-t border-gray-300"></div>
-        <span className="mx-4 text-gray-500 text-sm uppercase tracking-widest">
-          Upcoming Events
-        </span>
-        <div className="flex-grow border-t border-gray-300"></div>
-      </div>
+      {/* ✅ Upcoming Events Section */}
+      <section className="relative z-10 pt-28 pb-32 px-4 md:px-0 text-gray-900">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+            Upcoming Events
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-10">
+            Curated just for you. Join the rhythm of discovery.
+          </p>
+        </div>
 
-      {/* Event Preview Cards */}
-      {events.length > 0 && (
-        <section className="px-4 md:px-6 max-w-6xl mx-auto pb-24">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.slice(0, 6).map((event) => (
-              <div
-                key={event.id}
-                className="rounded-2xl bg-white shadow-md p-6 hover:shadow-lg transition border border-gray-200 flex flex-col justify-between"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-2xl">📅</div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 line-clamp-3">
-                    {event.description}
-                  </p>
-                </div>
-                <div className="mt-4 text-right">
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="text-sm text-primary hover:underline font-medium underline-offset-4"
-                  >
-                    View Details →
-                  </Link>
-                </div>
+        <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3 px-2 fade-in-up">
+          {events.slice(0, 6).map((event) => (
+            <div
+              key={event.id}
+              className="card border border-gray-200 bg-white text-gray-800 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1 p-6"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="text-2xl">📅</div>
+                <h3 className="text-lg font-semibold tracking-tight">
+                  {event.title}
+                </h3>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+              <p className="text-sm text-gray-600 line-clamp-3">
+                {event.description}
+              </p>
+              <div className="mt-4 text-right">
+                <Link
+                  href={`/events/${event.id}`}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium underline underline-offset-2"
+                >
+                  View Details →
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ✅ Background Blend Transition */}
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none z-0" />
+      </section>
     </main>
   );
 }

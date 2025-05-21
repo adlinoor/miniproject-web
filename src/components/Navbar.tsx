@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hook";
@@ -34,9 +35,12 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm fixed top-0 w-full z-50">
+    <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/50 border-b border-white/20 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-primary">
+        <Link
+          href="/"
+          className="text-xl font-extrabold tracking-tight text-primary text-white drop-shadow"
+        >
           ARevents
         </Link>
 
@@ -52,7 +56,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               className={`text-sm font-medium hover:text-primary transition-all ${
-                pathname === link.href ? "text-primary" : "text-gray-700"
+                pathname === link.href ? "text-primary" : "text-white/80"
               }`}
             >
               {link.label}
@@ -62,14 +66,14 @@ export default function Navbar() {
           {user ? (
             <button
               onClick={handleLogout}
-              className="text-sm text-red-600 hover:underline"
+              className="text-sm text-red-500 hover:underline"
             >
               Logout
             </button>
           ) : (
             <Link
               href="/auth/login"
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-white hover:underline"
             >
               Login
             </Link>
@@ -77,9 +81,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4">
+        <div className="md:hidden bg-white/90 border-t border-gray-100 px-4 pb-4">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -92,7 +95,6 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-
           {user ? (
             <button
               onClick={() => {

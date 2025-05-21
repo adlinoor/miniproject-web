@@ -88,41 +88,53 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden bg-white/90 border-t border-gray-100 px-4 pb-4">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`block py-2 text-sm font-medium transition-all ${
-                pathname === link.href
-                  ? "text-gray-900 font-semibold"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
-              onClick={() => setOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-          {user ? (
-            <button
-              onClick={() => {
-                handleLogout();
-                setOpen(false);
-              }}
-              className="mt-2 text-sm text-red-600 hover:underline"
-            >
-              Logout
-            </button>
-          ) : (
-            <Link
-              href="/auth/login"
-              onClick={() => setOpen(false)}
-              className="block mt-2 text-sm text-gray-700 hover:underline"
-            >
-              Login
-            </Link>
-          )}
-        </div>
+        <>
+          {/* ✅ Backdrop transparan */}
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setOpen(false)}
+          />
+
+          {/* ✅ Mobile Menu Panel */}
+          <div className="md:hidden fixed top-[56px] left-0 w-full bg-white/95 z-50 shadow-md ring-1 ring-gray-200 rounded-b-xl px-4 pt-4 pb-6 animate-fade-in-up">
+            <div className="flex flex-col space-y-3">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block text-base font-medium transition-all ${
+                    pathname === link.href
+                      ? "text-sky-700 font-semibold"
+                      : "text-gray-800 hover:text-sky-700"
+                  }`}
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              {user ? (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setOpen(false);
+                  }}
+                  className="text-base text-red-600 hover:underline text-left"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  onClick={() => setOpen(false)}
+                  className="text-base text-sky-700 hover:underline"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </nav>
   );

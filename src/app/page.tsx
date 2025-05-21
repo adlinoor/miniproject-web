@@ -42,12 +42,17 @@ export default function Home() {
     <main className="relative w-full min-h-screen overflow-x-hidden">
       {/* Hero */}
       <section className="relative min-h-[75vh] flex flex-col justify-center items-center text-center px-4 z-10">
+        {/* Heading */}
         <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 drop-shadow-md">
           Explore. Create. Connect.
         </h1>
-        <p className="text-lg md:text-xl mb-8 text-gray-700 max-w-2xl">
+
+        {/* Tagline */}
+        <p className="text-lg md:text-xl text-gray-700 max-w-2xl mb-10">
           Discovering & Crafting Your Essentials
         </p>
+
+        {/* Action Buttons */}
         <div className="flex flex-wrap justify-center gap-4">
           <Link href="/events">
             <Button variant="primary" className="px-6 py-3 text-base shadow-md">
@@ -71,20 +76,9 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
             Upcoming Events
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-6">
+          <p className="text-gray-600 max-w-2xl mx-auto mb-10">
             Curated just for you. Join the rhythm of discovery.
           </p>
-        </div>
-
-        {/* Search */}
-        <div className="max-w-xl mx-auto mb-10">
-          <input
-            type="text"
-            placeholder="Search events by title or location..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 rounded-xl border border-gray-300 text-black"
-          />
         </div>
 
         <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 px-2 fade-in-up">

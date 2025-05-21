@@ -37,7 +37,7 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-transparent border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* ✅ Logo tetap putih */}
+        {/* ✅ Logo */}
         <Link
           href="/"
           className="text-xl font-bold tracking-tight text-white drop-shadow-md"
@@ -45,9 +45,13 @@ export default function Navbar() {
           ARevents
         </Link>
 
-        {/* ✅ Hamburger / X tetap putih */}
+        {/* ✅ Hamburger Icon */}
         <div className="md:hidden">
-          <button onClick={() => setOpen(!open)}>
+          <button
+            aria-label="Toggle menu"
+            onClick={() => setOpen(!open)}
+            className="focus:outline-none"
+          >
             {open ? (
               <X className="w-6 h-6 text-white" />
             ) : (
@@ -56,13 +60,13 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* ✅ Desktop nav */}
+        {/* ✅ Desktop menu */}
         <div className="hidden md:flex items-center gap-6">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium hover:text-sky-400 transition-all ${
+              className={`text-sm font-medium hover:text-sky-400 transition ${
                 pathname === link.href
                   ? "text-white font-semibold"
                   : "text-white/80"
@@ -90,52 +94,53 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ✅ Mobile menu */}
+      {/* ✅ Mobile Menu */}
       {open && (
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/30 z-40"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
             onClick={() => setOpen(false)}
           />
 
-          {/* Dropdown menu */}
-          <div className="md:hidden fixed top-[56px] left-0 w-full bg-white/70 backdrop-blur-sm z-50 shadow-md ring-1 ring-gray-200 rounded-b-xl px-4 pt-4 pb-6 animate-fade-in-up">
-            <div className="flex flex-col space-y-3">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`block text-base font-medium transition-all ${
-                    pathname === link.href
-                      ? "text-sky-700 font-semibold"
-                      : "text-gray-800 hover:text-sky-700"
-                  }`}
-                  onClick={() => setOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-              {user ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setOpen(false);
-                  }}
-                  className="text-base text-red-600 hover:underline text-left"
-                >
-                  Logout
-                </button>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  onClick={() => setOpen(false)}
-                  className="text-base text-sky-700 hover:underline"
-                >
-                  Login
-                </Link>
-              )}
+          {/* Panel Menu */}
+          <div className="fixed top-14 left-0 w-full z-50 md:hidden animate-fade-in-up">
+            <div className="bg-white/80 backdrop-blur-md mx-4 mt-2 p-6 rounded-xl shadow-lg ring-1 ring-gray-300">
+              <div className="flex flex-col gap-4">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={`text-base font-medium transition ${
+                      pathname === link.href
+                        ? "text-sky-700 font-semibold"
+                        : "text-gray-800 hover:text-sky-700"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {user ? (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setOpen(false);
+                    }}
+                    className="text-base text-red-600 hover:underline text-left"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setOpen(false)}
+                    className="text-base text-sky-700 hover:underline"
+                  >
+                    Login
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </>

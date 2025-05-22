@@ -3,9 +3,9 @@
 import { useState } from "react";
 import useDebouncedSearch from "@/hooks/useDebouncedSearch";
 import EventsCard from "../events/EventsCard";
-import { FiSearch, FiFilter, FiClock, FiX } from "react-icons/fi";
+import { FiFilter, FiClock } from "react-icons/fi";
 import { Event } from "@/types/event";
-import clsx from "clsx";
+import SearchBar from "../shared/SearchBar";
 
 export const EventSearch = () => {
   const { query, setQuery, events, isLoading, error } = useDebouncedSearch(
@@ -14,6 +14,8 @@ export const EventSearch = () => {
   );
   const [categoryFilter, setCategoryFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   const filteredEvents = events.filter((event: Event) => {
     const matchCategory = categoryFilter
@@ -22,40 +24,32 @@ export const EventSearch = () => {
     const matchLocation = locationFilter
       ? event.location.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
-    return matchCategory && matchLocation;
+    const matchText = (event.title + event.location)
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchDate = startDate
+      ? new Date(event.startDate) >= new Date(startDate)
+      : true;
+    const matchPrice = maxPrice ? event.price <= Number(maxPrice) : true;
+
+    return (
+      matchCategory && matchLocation && matchText && matchDate && matchPrice
+    );
   });
 
   return (
     <div className="space-y-6">
-      {/* Search Input */}
-      <div className="relative">
-        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search events..."
-          className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        {query && (
-          <button
-            onClick={() => setQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            <FiX className="w-4 h-4" />
-          </button>
-        )}
-        {isLoading && (
-          <div className="absolute right-8 top-1/2 -translate-y-1/2 animate-spin text-blue-500">
-            <FiClock className="w-4 h-4" />
-          </div>
-        )}
-      </div>
+      {/* ✅ SearchBar */}
+      <SearchBar
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search events..."
+        isLoading={isLoading}
+      />
 
-      {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Category Filter */}
-        <div className="relative flex-1">
+      {/* ✅ Filter Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="relative">
           <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <select
             value={categoryFilter}
@@ -71,8 +65,7 @@ export const EventSearch = () => {
           </select>
         </div>
 
-        {/* Location Filter */}
-        <div className="relative flex-1">
+        <div className="relative">
           <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
@@ -82,6 +75,21 @@ export const EventSearch = () => {
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <input
+          type="number"
+          placeholder="Max Price"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
 
       {/* Error */}
@@ -89,13 +97,6 @@ export const EventSearch = () => {
         <div className="p-4 text-red-500 bg-red-50 border border-red-200 rounded-lg">
           Error loading events:{" "}
           {typeof error === "string" ? error : error.message}
-        </div>
-      )}
-
-      {/* Loading Skeleton */}
-      {isLoading && !events.length && (
-        <div className="flex justify-center items-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" />
         </div>
       )}
 

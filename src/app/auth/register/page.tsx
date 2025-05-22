@@ -1,16 +1,17 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setCookie } from "cookies-next";
-import api from "@/lib/api-client";
-import Button from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+
+import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
+import Button from "@/components/ui/Button";
 
 const registerSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -39,24 +40,23 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const response = await api.post("/auth/register", data);
+      const res = await api.post("/auth/register", data);
 
-      setCookie("access_token", response.data.token, {
+      setCookie("access_token", res.data.token, {
         path: "/",
-        maxAge: 60 * 60 * 24,
+        maxAge: 60 * 60 * 24, // 1 day
         sameSite: "strict",
         secure: process.env.NODE_ENV === "production",
       });
 
-      dispatch(login(response.data.user));
+      dispatch(login(res.data.user));
       toast.success("Registration successful!");
 
-      // ⏩ Arahkan berdasarkan role
-      if (response.data.user.role === "ORGANIZER") {
-        router.push("/dashboard/organizer");
-      } else {
-        router.push("/dashboard/customer");
-      }
+      router.push(
+        res.data.user.role === "ORGANIZER"
+          ? "/dashboard/organizer"
+          : "/dashboard/customer"
+      );
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Registration failed. Try again."
@@ -74,7 +74,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* First Name */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               First Name
             </label>
             <input
@@ -92,7 +92,7 @@ export default function RegisterPage() {
 
           {/* Last Name */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Last Name
             </label>
             <input
@@ -110,7 +110,7 @@ export default function RegisterPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
@@ -128,7 +128,7 @@ export default function RegisterPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <input
@@ -146,7 +146,7 @@ export default function RegisterPage() {
 
           {/* Referral Code */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Referral Code (optional)
             </label>
             <input
@@ -159,7 +159,7 @@ export default function RegisterPage() {
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Register as
             </label>
             <select {...register("role")} className="input">

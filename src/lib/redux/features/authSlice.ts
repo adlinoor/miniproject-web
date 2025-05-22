@@ -31,6 +31,7 @@ export const loginUser = createAsyncThunk(
         sameSite: "lax",
         secure: false,
       });
+      localStorage.setItem("token", res.data.token);
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -59,6 +60,7 @@ export const registerUser = createAsyncThunk(
         sameSite: "lax",
         secure: false,
       });
+      localStorage.setItem("token", res.data.token);
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Register failed");
@@ -88,6 +90,7 @@ const authSlice = createSlice({
     },
     logout(state) {
       deleteCookie("access_token");
+      localStorage.removeItem("token");
       state.user = null;
       state.isHydrated = true;
     },

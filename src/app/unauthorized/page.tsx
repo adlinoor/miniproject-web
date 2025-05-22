@@ -1,20 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { AlertCircle } from "lucide-react";
 
 export default function UnauthorizedPage() {
   return (
-    <div className="text-center mt-32">
-      <h1 className="text-4xl font-bold text-red-500 mb-4">Access Denied</h1>
-      <p className="text-lg text-gray-600 mb-6">
-        You are not authorized to view this page.
+    <section className="max-w-lg mx-auto mt-32 px-6 py-10 bg-white shadow-md rounded-xl text-center">
+      <div className="flex justify-center mb-4 text-red-500">
+        <AlertCircle className="w-12 h-12" />
+      </div>
+      <h1 className="text-3xl font-bold text-red-600 mb-2">Access Denied</h1>
+      <p className="text-gray-600 mb-6">
+        You do not have permission to access this page.
       </p>
+
       <Link
         href="/"
-        className="flex justify-center mt-6 pt-4 border-t border-gray-100 w-full text-center font-medium"
+        className="inline-block px-5 py-2 bg-gray-100 text-gray-700 rounded-md font-medium hover:bg-gray-200 transition"
       >
-        Back to Home
+        ← Back to Home
       </Link>
-    </div>
+    </section>
   );
 }

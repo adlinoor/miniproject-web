@@ -7,7 +7,7 @@ interface AuthState {
   user: IUser | null;
   loading: boolean;
   error: string | null;
-  isHydrated: boolean; // ✅ Tambahan
+  isHydrated: boolean;
 }
 
 const initialState: AuthState = {
@@ -25,12 +25,14 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/login", { email, password });
+
       setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
-        sameSite: "lax",
-        secure: false,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
       });
+
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -53,12 +55,14 @@ export const registerUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/register", userData);
+
       setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
-        sameSite: "lax",
-        secure: false,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
       });
+
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Register failed");

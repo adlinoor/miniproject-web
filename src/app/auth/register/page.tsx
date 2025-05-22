@@ -1,16 +1,17 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setCookie } from "cookies-next";
-import api from "@/lib/api-client";
-import Button from "@/components/ui/Button";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+
+import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
+import Button from "@/components/ui/Button";
 
 const registerSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -39,17 +40,23 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const response = await api.post("/auth/register", data);
+      const res = await api.post("/auth/register", data);
 
-      setCookie("access_token", response.data.token, {
+      setCookie("access_token", res.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
-        sameSite: "lax",
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
       });
-      dispatch(login(response.data.user));
 
+      dispatch(login(res.data.user));
       toast.success("Registration successful!");
-      router.push("/");
+
+      router.push(
+        res.data.user.role === "ORGANIZER"
+          ? "/dashboard/organizer"
+          : "/dashboard/customer"
+      );
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Registration failed. Try again."
@@ -65,7 +72,6 @@ export default function RegisterPage() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* First Name */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               First Name
@@ -83,7 +89,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Last Name */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Last Name
@@ -101,7 +106,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Email
@@ -119,7 +123,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Password
@@ -137,7 +140,6 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Referral Code */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Referral Code (optional)
@@ -150,7 +152,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Role */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Register as

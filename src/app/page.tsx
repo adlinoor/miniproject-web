@@ -5,8 +5,19 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import api from "@/lib/api-client";
 
+interface EventData {
+  id: number;
+  title: string;
+  location: string;
+  description?: string;
+  price: number;
+  startDate: string;
+  endDate?: string;
+}
+
 export default function Home() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -21,18 +32,28 @@ export default function Home() {
     fetchEvents();
   }, []);
 
+  const filteredEvents = events.filter((event) =>
+    (event.title + event.location)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      {/* Hero Section */}
-      <section className="py-20 px-4 md:px-6 max-w-7xl mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500 leading-tight">
-          Discover Amazing Events
+    <main className="relative w-full min-h-screen overflow-x-hidden">
+      {/* Hero */}
+      <section className="relative min-h-[75vh] flex flex-col justify-center items-center text-center px-4 z-10">
+        {/* Heading */}
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 drop-shadow-md">
+          Explore. Create. Connect.
         </h1>
-        <p className="text-base md:text-xl text-gray-600 max-w-xl mx-auto mb-10">
-          Find, create, and manage events all in one place. Whether you're
-          looking to attend or organize, we've got you covered.
+
+        {/* Tagline */}
+        <p className="text-lg md:text-xl text-gray-700 max-w-2xl mb-10">
+          Discovering & Crafting Your Essentials
         </p>
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap justify-center gap-4">
           <Link href="/events">
             <Button variant="primary" className="px-6 py-3 text-base shadow-md">
               🔍 Browse Events
@@ -41,7 +62,7 @@ export default function Home() {
           <Link href="/events/create">
             <Button
               variant="secondary"
-              className="px-6 py-3 text-base shadow-sm"
+              className="px-6 py-3 text-base bg-white text-gray-800 hover:bg-gray-200 font-semibold shadow"
             >
               ➕ Create Event
             </Button>
@@ -49,46 +70,68 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stylish Divider */}
-      <div className="flex items-center justify-center my-16">
-        <div className="flex-grow border-t border-gray-300"></div>
-        <span className="mx-4 text-gray-500 text-sm uppercase tracking-widest">
-          Upcoming Events
-        </span>
-        <div className="flex-grow border-t border-gray-300"></div>
-      </div>
+      {/* Event List */}
+      <section className="relative z-10 pt-28 pb-32 px-4 md:px-0 text-gray-900">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+            Upcoming Events
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-10">
+            Curated just for you. Join the rhythm of discovery.
+          </p>
+        </div>
 
-      {/* Event Preview Cards */}
-      {events.length > 0 && (
-        <section className="px-4 md:px-6 max-w-6xl mx-auto pb-24">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {events.slice(0, 6).map((event) => (
-              <div
-                key={event.id}
-                className="rounded-2xl bg-white shadow-md p-6 hover:shadow-lg transition border border-gray-200 flex flex-col justify-between"
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-2xl">📅</div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 line-clamp-3">
+        <div className="max-w-6xl mx-auto grid gap-6 sm:grid-cols-2 md:grid-cols-3 px-2 fade-in-up">
+          {filteredEvents.slice(0, 6).map((event) => (
+            <div
+              key={event.id}
+              className="card flex flex-col justify-between h-full"
+            >
+              <div>
+                <h2 className="text-xl font-semibold mb-1 text-primary">
+                  {event.title}
+                </h2>
+                <p className="text-sm text-gray-500">{event.location}</p>
+                <p className="text-sm text-gray-600 mt-2">
+                  📅{" "}
+                  {new Date(event.startDate).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                  {event.endDate &&
+                    ` – ${new Date(event.endDate).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}`}
+                </p>
+                {event.description && (
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">
                     {event.description}
                   </p>
-                </div>
-                <div className="mt-4 text-right">
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="text-sm text-primary hover:underline font-medium underline-offset-4"
-                  >
-                    View Details →
-                  </Link>
-                </div>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+              <div className="flex justify-center mt-6 pt-4 border-t border-gray-100">
+                <Link href={`/events/${event.id}`}>
+                  <Button
+                    variant="secondary"
+                    className="w-full text-center font-medium"
+                  >
+                    View Details
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredEvents.length === 0 && (
+          <p className="text-center text-gray-500 py-10">
+            No events match your search.
+          </p>
+        )}
+      </section>
     </main>
   );
 }

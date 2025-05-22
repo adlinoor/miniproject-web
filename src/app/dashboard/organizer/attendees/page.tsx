@@ -1,10 +1,10 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
-import EditEventPage from "./EditEventPage";
+import AttendeeListPage from "./list/page";
 
-export default function EditEventWrapper() {
+export default function AttendeesPageWrapper() {
   return (
     <ProtectedRoute allowedRoles={["ORGANIZER"]}>
-      <EditEventPage />
+      <AttendeeListPage />
     </ProtectedRoute>
   );
 }

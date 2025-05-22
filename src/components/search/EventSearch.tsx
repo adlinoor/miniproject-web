@@ -1,59 +1,66 @@
+"use client";
+
 import { useState } from "react";
 import useDebouncedSearch from "@/hooks/useDebouncedSearch";
 import EventsCard from "../events/EventsCard";
-import { FiSearch, FiFilter, FiClock } from "react-icons/fi";
+import { FiSearch, FiFilter, FiClock, FiX } from "react-icons/fi";
 import { Event } from "@/types/event";
+import clsx from "clsx";
 
 export const EventSearch = () => {
-  const { query, setQuery, events, isLoading, error } = useDebouncedSearch("");
-
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [locationFilter, setLocationFilter] = useState<string>("");
+  const { query, setQuery, events, isLoading, error } = useDebouncedSearch(
+    "",
+    800
+  );
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
 
   const filteredEvents = events.filter((event: Event) => {
-    const matchesCategory = categoryFilter
-      ? event.category === categoryFilter
+    const matchCategory = categoryFilter
+      ? event.category?.toLowerCase() === categoryFilter.toLowerCase()
       : true;
-    const matchesLocation = locationFilter
+    const matchLocation = locationFilter
       ? event.location.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
-    return matchesCategory && matchesLocation;
+    return matchCategory && matchLocation;
   });
-
-  if (error) {
-    return (
-      <div className="p-4 text-red-500 bg-red-50 rounded-lg">
-        Error loading events: {error.message}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      {/* Search Bar */}
+      {/* Search Input */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <FiSearch className="text-gray-400" />
-        </div>
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search events..."
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <FiX className="w-4 h-4" />
+          </button>
+        )}
+        {isLoading && (
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 animate-spin text-blue-500">
+            <FiClock className="w-4 h-4" />
+          </div>
+        )}
       </div>
 
-      {/* Filters */}
+      {/* Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
+        {/* Category Filter */}
         <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FiFilter className="text-gray-400" />
-          </div>
+          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Categories</option>
             <option value="music">Music</option>
@@ -64,24 +71,31 @@ export const EventSearch = () => {
           </select>
         </div>
 
+        {/* Location Filter */}
         <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FiFilter className="text-gray-400" />
-          </div>
+          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
             placeholder="Filter by location"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      {/* Error */}
+      {error && (
+        <div className="p-4 text-red-500 bg-red-50 border border-red-200 rounded-lg">
+          Error loading events:{" "}
+          {typeof error === "string" ? error : error.message}
+        </div>
+      )}
+
+      {/* Loading Skeleton */}
+      {isLoading && !events.length && (
+        <div className="flex justify-center items-center py-16">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" />
         </div>
       )}
 
@@ -90,14 +104,12 @@ export const EventSearch = () => {
         <>
           {filteredEvents.length === 0 ? (
             <div className="text-center py-12">
-              <FiClock className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
+              <FiClock className="mx-auto h-10 w-10 text-gray-400" />
+              <h3 className="mt-2 text-lg font-medium text-gray-800">
                 No events found
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {query || categoryFilter || locationFilter
-                  ? "Try adjusting your search or filters"
-                  : "There are currently no upcoming events"}
+                Try adjusting your search or filters
               </p>
             </div>
           ) : (

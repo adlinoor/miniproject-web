@@ -1,15 +1,16 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
+import { setCookie } from "cookies-next";
+import Link from "next/link";
+
+import { login } from "@/lib/redux/features/authSlice";
 import api from "@/lib/api-client";
 import Button from "@/components/ui/Button";
-import Link from "next/link";
-import { setCookie } from "cookies-next";
-import { useDispatch } from "react-redux";
-import { login } from "@/lib/redux/features/authSlice";
 
 type FormData = {
   email: string;
@@ -20,27 +21,36 @@ type FormData = {
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
+
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     try {
       const res = await api.post("/auth/login", data);
 
+      // Simpan token di cookie
       setCookie("access_token", res.data.token, {
         path: "/",
-        maxAge: 60 * 60 * 24,
-        sameSite: "lax",
-        secure: false,
+        maxAge: data.rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 1,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
       });
 
       dispatch(login(res.data.user));
       toast.success("Login successful!");
-      router.push("/");
+
+      // Arahkan langsung ke dashboard berdasarkan role
+      router.push(
+        res.data.user.role === "ORGANIZER"
+          ? "/dashboard/organizer"
+          : "/dashboard/customer"
+      );
     } catch (err: any) {
       toast.error("Login failed. Please check your credentials.");
     }
@@ -61,6 +71,7 @@ export default function LoginPage() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Email
@@ -69,7 +80,7 @@ export default function LoginPage() {
               type="email"
               {...register("email", { required: "Email is required" })}
               className="input"
-              placeholder="username@email.com"
+              placeholder="you@example.com"
               autoComplete="email"
             />
             {errors.email && (
@@ -79,6 +90,7 @@ export default function LoginPage() {
             )}
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Password
@@ -106,19 +118,21 @@ export default function LoginPage() {
             )}
           </div>
 
+          {/* Remember Me & Forgot */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 text-gray-700 whitespace-nowrap">
               <input type="checkbox" {...register("rememberMe")} />
               Remember me
             </label>
             <Link
-              href="#"
-              className="text-blue-600 hover:underline whitespace-nowrap"
+              href="/auth/forgot-password"
+              className="text-blue-600 hover:text-blue-700 whitespace-nowrap"
             >
               Forgot password?
             </Link>
           </div>
 
+          {/* Submit */}
           <Button type="submit" className="w-full">
             Login
           </Button>
@@ -126,7 +140,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-sm text-center text-gray-600">
           Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="text-blue-600 hover:underline">
+          <Link
+            href="/auth/register"
+            className="text-blue-600 hover:text-blue-700"
+          >
             Register
           </Link>
         </p>

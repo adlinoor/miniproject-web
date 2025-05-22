@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const getOrganizerEvents = async () => {
-  const response = await axios.get("/dashboard/events");
-  return response.data;
+  const response = await axios.get("/events/organizer/my-events");
+  return response.data?.data || [];
 };
 
 export const getEventTransactions = async (eventId: number) => {

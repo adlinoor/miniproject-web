@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import { setCookie } from "cookies-next";
@@ -21,8 +21,6 @@ type FormData = {
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect");
 
   const {
     register,
@@ -47,16 +45,12 @@ export default function LoginPage() {
       dispatch(login(res.data.user));
       toast.success("Login successful!");
 
-      // Arahkan ke halaman terakhir atau dashboard sesuai role
-      if (redirectTo) {
-        router.push(redirectTo);
-      } else {
-        router.push(
-          res.data.user.role === "ORGANIZER"
-            ? "/dashboard/organizer"
-            : "/dashboard/customer"
-        );
-      }
+      // Arahkan langsung ke dashboard berdasarkan role
+      router.push(
+        res.data.user.role === "ORGANIZER"
+          ? "/dashboard/organizer"
+          : "/dashboard/customer"
+      );
     } catch (err: any) {
       toast.error("Login failed. Please check your credentials.");
     }
@@ -86,7 +80,7 @@ export default function LoginPage() {
               type="email"
               {...register("email", { required: "Email is required" })}
               className="input"
-              placeholder="username@email.com"
+              placeholder="you@example.com"
               autoComplete="email"
             />
             {errors.email && (

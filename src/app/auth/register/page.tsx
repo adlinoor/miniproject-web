@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
       setCookie("access_token", res.data.token, {
         path: "/",
-        maxAge: 60 * 60 * 24, // 1 day
+        maxAge: 60 * 60 * 24,
         sameSite: "strict",
         secure: process.env.NODE_ENV === "production",
       });
@@ -72,9 +72,8 @@ export default function RegisterPage() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* First Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               First Name
             </label>
             <input
@@ -90,9 +89,8 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Last Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Last Name
             </label>
             <input
@@ -108,9 +106,8 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Email
             </label>
             <input
@@ -126,9 +123,8 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Password
             </label>
             <input
@@ -144,9 +140,8 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Referral Code */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Referral Code (optional)
             </label>
             <input
@@ -157,9 +152,8 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700">
               Register as
             </label>
             <select {...register("role")} className="input">

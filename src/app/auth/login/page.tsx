@@ -14,7 +14,7 @@ import { login } from "@/lib/redux/features/authSlice";
 type FormData = {
   email: string;
   password: string;
-  rememberMe: boolean;
+  rememberMe: boolean; // tetap bisa dipakai untuk waktu cookie
 };
 
 export default function LoginPage() {
@@ -31,22 +31,23 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", data);
 
+      // Set token di cookie
       setCookie("access_token", res.data.token, {
         path: "/",
-        maxAge: 60 * 60 * 24,
-        sameSite: "lax",
-        secure: false,
+        maxAge: data.rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 1, // 1 jam vs 7 hari
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
       });
-
-      if (data.rememberMe) {
-        localStorage.setItem("access_token", res.data.token);
-      } else {
-        localStorage.removeItem("access_token");
-      }
 
       dispatch(login(res.data.user));
       toast.success("Login successful!");
-      router.push("/");
+
+      // Arahkan ke dashboard sesuai role
+      if (res.data.user.role === "ORGANIZER") {
+        router.push("/dashboard/organizer");
+      } else {
+        router.push("/dashboard/customer");
+      }
     } catch (err: any) {
       toast.error("Login failed. Please check your credentials.");
     }

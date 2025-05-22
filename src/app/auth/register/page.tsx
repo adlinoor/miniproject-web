@@ -44,12 +44,19 @@ export default function RegisterPage() {
       setCookie("access_token", response.data.token, {
         path: "/",
         maxAge: 60 * 60 * 24,
-        sameSite: "lax",
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
       });
-      dispatch(login(response.data.user));
 
+      dispatch(login(response.data.user));
       toast.success("Registration successful!");
-      router.push("/");
+
+      // ⏩ Arahkan berdasarkan role
+      if (response.data.user.role === "ORGANIZER") {
+        router.push("/dashboard/organizer");
+      } else {
+        router.push("/dashboard/customer");
+      }
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Registration failed. Try again."

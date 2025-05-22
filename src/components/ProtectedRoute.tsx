@@ -8,21 +8,21 @@ import { toast } from "react-hot-toast";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
-  allowedRoles?: string[]; // Opsional: batasi role
-  redirectTo?: string; // Opsional: redirect jika tidak punya akses
+  allowedRoles?: string[]; // Optional: restrict access by role
+  redirectTo?: string; // Optional: custom redirect path
 };
 
 export default function ProtectedRoute({
   children,
   allowedRoles,
-  redirectTo = "/unauthorized", // Default redirect jika akses ditolak
+  redirectTo = "/unauthorized",
 }: ProtectedRouteProps) {
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
+  const isHydrated = useSelector((state: RootState) => state.auth.isHydrated);
 
   useEffect(() => {
-    // Jangan apa-apa kalau masih undefined
-    if (user === undefined) return;
+    if (!isHydrated) return;
 
     if (!user) {
       toast.error("You must be logged in");
@@ -31,34 +31,12 @@ export default function ProtectedRoute({
       toast.error("Access denied");
       router.replace(redirectTo);
     }
-  }, [user, allowedRoles, redirectTo, router]);
+  }, [user, isHydrated, allowedRoles, redirectTo, router]);
 
-  // Tambahkan loading state ketika user masih undefined
-  if (user === undefined) {
+  if (!isHydrated)
     return <div className="text-center py-12">Loading user...</div>;
-  }
-
-  // Render kosong kalau belum login atau salah role
   if (!user) return null;
   if (allowedRoles && !allowedRoles.includes(user.role)) return null;
 
   return <>{children}</>;
-}
-
-{
-  /* <ProtectedRoute>
-  <Dashboard />
-</ProtectedRoute> */
-}
-
-{
-  /* <ProtectedRoute allowedRoles={["CUSTOMER"]}>
-  <CustomerDashboard />
-</ProtectedRoute> */
-}
-
-{
-  /* <ProtectedRoute allowedRoles={["ORGANIZER"]} redirectTo="/">
-  <CreateEvent />
-</ProtectedRoute> */
 }

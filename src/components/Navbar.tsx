@@ -17,7 +17,6 @@ export default function Navbar() {
 
   const handleLogout = () => {
     dispatch(logout());
-    deleteCookie("access_token");
   };
 
   // ✅ Dynamic link based on role

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -17,6 +18,7 @@ export default function ProtectedRoute({
   allowedRoles,
   redirectTo = "/unauthorized",
 }: ProtectedRouteProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   const isHydrated = useSelector((state: RootState) => state.auth.isHydrated);
@@ -26,7 +28,8 @@ export default function ProtectedRoute({
 
     if (!user) {
       toast.error("You must be logged in");
-      router.replace("/auth/login");
+      // Sebelum redirect ke /auth/login
+      router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
     } else if (allowedRoles && !allowedRoles.includes(user.role)) {
       toast.error("Access denied");
       router.replace(redirectTo);

@@ -13,6 +13,7 @@ import Link from "next/link";
 import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input"; // ✅ use your Input component
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -71,35 +72,27 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Login</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              {...register("email")}
-              className="input"
-              placeholder="you@example.com"
-              autoComplete="email"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
+          <Input
+            type="email"
+            label="Email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            {...register("email")}
+            error={errors.email}
+          />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? "text" : "password"}
-                {...register("password")}
-                className="input pr-16"
                 placeholder="••••••••"
                 autoComplete="current-password"
+                className="pr-16"
+                {...register("password")}
+                error={errors.password}
               />
               <button
                 type="button"
@@ -109,11 +102,6 @@ export default function LoginPage() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            )}
           </div>
 
           <div className="flex items-center justify-between text-sm">

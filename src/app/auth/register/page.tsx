@@ -12,6 +12,7 @@ import Link from "next/link";
 import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 const registerSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -77,13 +78,13 @@ export default function RegisterPage() {
               label: "First Name",
               name: "first_name",
               type: "text",
-              placeholder: "John",
+              placeholder: "Adli",
             },
             {
               label: "Last Name",
               name: "last_name",
               type: "text",
-              placeholder: "Doe",
+              placeholder: "Mumtaz",
             },
             {
               label: "Email",
@@ -101,25 +102,17 @@ export default function RegisterPage() {
               label: "Referral Code (optional)",
               name: "referralCode",
               type: "text",
-              placeholder: "FRIEND123",
+              placeholder: "REF-ARevents",
             },
           ].map((field) => (
-            <div key={field.name}>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                {field.label}
-              </label>
-              <input
-                type={field.type}
-                {...register(field.name as keyof RegisterFormData)}
-                className="input"
-                placeholder={field.placeholder}
-              />
-              {errors[field.name as keyof RegisterFormData] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors[field.name as keyof RegisterFormData]?.message}
-                </p>
-              )}
-            </div>
+            <Input
+              key={field.name}
+              type={field.type}
+              label={field.label}
+              placeholder={field.placeholder}
+              {...register(field.name as keyof RegisterFormData)}
+              error={errors[field.name as keyof RegisterFormData]}
+            />
           ))}
 
           <div>

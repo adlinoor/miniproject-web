@@ -12,7 +12,7 @@ export default function CustomerPrizesPage() {
     const fetchReferrals = async () => {
       try {
         const res = await api.get("/users/me");
-        setReferralCount(res.data?.data?.referralCount || 0);
+        setReferralCount(res.data?.referralCount || 0);
       } catch (error) {
         console.error("Error fetching referral data:", error);
       }

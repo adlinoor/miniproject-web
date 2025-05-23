@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { useAppSelector } from "@/lib/redux/hook";
 import api from "@/lib/api-client";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 type Event = {
   id: number;
@@ -27,7 +28,13 @@ export default function BuyTicketPage() {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
 
-  const { register, handleSubmit, watch } = useForm<FormData>();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>();
+
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
   const [points, setPoints] = useState(0);
@@ -116,10 +123,8 @@ export default function BuyTicketPage() {
       toast.success("Checkout successful!");
       router.push("/events/success");
     } catch (err: any) {
-      console.error("❌ Response error:", err?.response?.data);
-      toast.error(
-        err?.response?.data?.message || "Checkout failed. Please try again."
-      );
+      console.error("Checkout error:", err);
+      toast.error("Checkout failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -149,19 +154,15 @@ export default function BuyTicketPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Ticket Quantity
-          </label>
-          <input
-            type="number"
-            min="1"
-            max={event.availableSeats}
-            defaultValue={1}
-            {...register("quantity", { valueAsNumber: true })}
-            className="input"
-          />
-        </div>
+        <Input
+          label="Ticket Quantity"
+          type="number"
+          min={1}
+          max={event.availableSeats}
+          defaultValue={1}
+          error={errors.quantity}
+          {...register("quantity", { valueAsNumber: true })}
+        />
 
         <div className="flex items-center justify-between text-sm text-gray-700">
           <label className="inline-flex items-center gap-2">
@@ -216,8 +217,13 @@ export default function BuyTicketPage() {
             </label>
             <input
               type="file"
-              accept="image/*,application/pdf"
-              {...register("paymentProof", { required: true })}
+              accept="image/*"
+              {...register("paymentProof", {
+                required: {
+                  value: true,
+                  message: "Payment proof is required for paid events.",
+                },
+              })}
               className="input"
             />
           </div>

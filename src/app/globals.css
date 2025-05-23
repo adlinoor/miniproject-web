@@ -74,6 +74,11 @@ a:hover {
 .btn-secondary:hover {
   background-color: var(--secondary-hover);
 }
+.btn:active {
+  transform: scale(
+    0.98
+  ); /* Mengurangi ukuran tombol saat ditekan untuk feedback */
+}
 
 /* ===== Form Elements ===== */
 input,

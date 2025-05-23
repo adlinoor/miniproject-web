@@ -1,17 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setCookie } from "cookies-next";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 
 import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 const registerSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -33,7 +34,7 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
@@ -41,14 +42,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const res = await api.post("/auth/register", data);
-
-      setCookie("access_token", res.data.token, {
-        path: "/",
-        maxAge: 60 * 60 * 24,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
-
+      localStorage.setItem("access_token", res.data.token); // Make sure to handle security concerns
       dispatch(login(res.data.user));
       toast.success("Registration successful!");
 
@@ -72,86 +66,49 @@ export default function RegisterPage() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              First Name
-            </label>
-            <input
-              type="text"
-              {...register("first_name")}
-              className="input"
-              placeholder="John"
+          {[
+            {
+              label: "First Name",
+              name: "first_name",
+              type: "text",
+              placeholder: "Adli",
+            },
+            {
+              label: "Last Name",
+              name: "last_name",
+              type: "text",
+              placeholder: "Mumtaz",
+            },
+            {
+              label: "Email",
+              name: "email",
+              type: "email",
+              placeholder: "email@example.com",
+            },
+            {
+              label: "Password",
+              name: "password",
+              type: "password",
+              placeholder: "••••••••",
+            },
+            {
+              label: "Referral Code (optional)",
+              name: "referralCode",
+              type: "text",
+              placeholder: "REF-ARevents",
+            },
+          ].map((field) => (
+            <Input
+              key={field.name}
+              type={field.type}
+              label={field.label}
+              placeholder={field.placeholder}
+              {...register(field.name as keyof RegisterFormData)}
+              error={errors[field.name as keyof RegisterFormData]}
             />
-            {errors.first_name && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.first_name.message}
-              </p>
-            )}
-          </div>
+          ))}
 
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Last Name
-            </label>
-            <input
-              type="text"
-              {...register("last_name")}
-              className="input"
-              placeholder="Doe"
-            />
-            {errors.last_name && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.last_name.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              {...register("email")}
-              className="input"
-              placeholder="email@example.com"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              {...register("password")}
-              className="input"
-              placeholder="••••••••"
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Referral Code (optional)
-            </label>
-            <input
-              type="text"
-              {...register("referralCode")}
-              className="input"
-              placeholder="FRIEND123"
-            />
-          </div>
-
+          {/* Role selection */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Register as
@@ -166,8 +123,8 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <Button type="submit" className="w-full">
-            Register
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </form>
 

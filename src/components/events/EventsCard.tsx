@@ -15,12 +15,13 @@ interface EventsCardProps {
 
 export default function EventsCard({ event }: EventsCardProps) {
   return (
-    <div className="group bg-white/80 backdrop-blur-md border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-300 h-full flex flex-col justify-between">
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 group-hover:text-sky-700 transition">
+    <div className="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between overflow-hidden">
+      <div className="p-6 space-y-1">
+        <h2 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition">
           {event.name}
         </h2>
-        <p className="text-sm text-gray-500 mb-1">{event.location}</p>
+
+        <p className="text-sm text-gray-500">{event.location}</p>
 
         <p className="text-sm text-gray-600">
           📅{" "}
@@ -45,18 +46,17 @@ export default function EventsCard({ event }: EventsCardProps) {
         </p>
 
         {event.description && (
-          <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-gray-500 mt-2 line-clamp-3">
             {event.description}
           </p>
         )}
       </div>
 
-      <div className="flex justify-between items-center gap-2 mt-6 pt-4 border-t border-gray-100">
-        <Link href={`/events/${event.id}`}>
-          <Button variant="secondary">View Details</Button>
-        </Link>
-        <Link href={`/events/${event.id}/buy`}>
-          <Button variant="primary">Buy Ticket</Button>
+      <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-center">
+        <Link href={`/events/${event.id}`} className="w-full">
+          <Button variant="secondary" className="w-full text-center">
+            View Details
+          </Button>
         </Link>
       </div>
     </div>

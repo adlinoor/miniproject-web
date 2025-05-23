@@ -23,17 +23,12 @@ const useDebouncedSearch = (
   // Fetch when debouncedQuery changes
   useEffect(() => {
     const fetchEvents = async () => {
-      if (!debouncedQuery || debouncedQuery.trim().length < 2) {
-        setEvents([]);
-        return;
-      }
-
       setIsLoading(true);
       try {
         const url =
-          debouncedQuery.trim() === ""
-            ? "/events"
-            : `/events?search=${encodeURIComponent(debouncedQuery)}`;
+          debouncedQuery.trim().length >= 2
+            ? `/events?search=${encodeURIComponent(debouncedQuery)}`
+            : "/events"; // ✅ fetch all when empty or too short
 
         const res = await api.get(url);
         setEvents(res.data.data ?? res.data);

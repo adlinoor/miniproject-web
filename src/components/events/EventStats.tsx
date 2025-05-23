@@ -35,7 +35,7 @@ interface Transaction {
 
 interface EventStatsProps {
   events: {
-    id: string;
+    id: number;
     startDate: string;
     endDate: string;
     isCancelled: boolean;

@@ -1,57 +1,52 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { setCookie } from "cookies-next";
 import Link from "next/link";
 
-import { login } from "@/lib/redux/features/authSlice";
 import api from "@/lib/api-client";
+import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input"; // ✅ use your Input component
 
-type FormData = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-};
+const loginSchema = z.object({
+  email: z.string().email("Email tidak valid"),
+  password: z.string().min(1, "Password wajib diisi"),
+  rememberMe: z.boolean().optional(),
+});
+
+type FormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
-
-  const [showPassword, setShowPassword] = useState(false);
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
   const onSubmit = async (data: FormData) => {
     try {
       const res = await api.post("/auth/login", data);
-
-      // Simpan token di cookie
-      setCookie("access_token", res.data.token, {
-        path: "/",
-        maxAge: data.rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 1,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
-
+      localStorage.setItem("access_token", res.data.token);
       dispatch(login(res.data.user));
       toast.success("Login successful!");
-
-      // Arahkan langsung ke dashboard berdasarkan role
       router.push(
         res.data.user.role === "ORGANIZER"
           ? "/dashboard/organizer"
           : "/dashboard/customer"
       );
-    } catch (err: any) {
+    } catch {
       toast.error("Login failed. Please check your credentials.");
     }
   };
@@ -65,85 +60,64 @@ export default function LoginPage() {
 
   return (
     <main className="max-w-md mx-auto p-6">
-      <section className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-left">
-          Login
-        </h1>
+      <section className="bg-white border border-gray-200 p-8 rounded-2xl shadow-xl">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Login</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              {...register("email", { required: "Email is required" })}
-              className="input"
-              placeholder="you@example.com"
-              autoComplete="email"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <Input
+            type="email"
+            label="Email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            {...register("email")}
+            error={errors.email}
+          />
 
-          {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <div className="relative">
-              <input
+              <Input
                 type={showPassword ? "text" : "password"}
-                {...register("password", { required: "Password is required" })}
-                className="input pr-16"
                 placeholder="••••••••"
                 autoComplete="current-password"
+                className="pr-16"
+                {...register("password")}
+                error={errors.password}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            )}
           </div>
 
-          {/* Remember Me & Forgot */}
           <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 text-gray-700 whitespace-nowrap">
+            <label className="flex items-center gap-2 text-gray-700">
               <input type="checkbox" {...register("rememberMe")} />
               Remember me
             </label>
             <Link
               href="/auth/forgot-password"
-              className="text-blue-600 hover:text-blue-700 whitespace-nowrap"
+              className="text-blue-600 hover:underline"
             >
               Forgot password?
             </Link>
           </div>
 
-          {/* Submit */}
-          <Button type="submit" className="w-full">
-            Login
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in..." : "Login"}
           </Button>
         </form>
 
         <p className="mt-6 text-sm text-center text-gray-600">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/auth/register"
-            className="text-blue-600 hover:text-blue-700"
-          >
+          Don't have an account?{" "}
+          <Link href="/auth/register" className="text-blue-600 hover:underline">
             Register
           </Link>
         </p>

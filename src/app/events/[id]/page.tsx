@@ -96,18 +96,20 @@ export default function EventDetailPage() {
           </p>
         </section>
 
-        {/* Tombol Join */}
-        <div className="pt-4">
-          <Link
-            href={
-              user?.role === "CUSTOMER"
-                ? `/events/${event.id}/buy`
-                : "/auth/login"
-            }
-          >
+        {/* Tombol Join Khusus Customer*/}
+        {user?.role === "CUSTOMER" ? (
+          <Link href={`/events/${event.id}/buy`}>
             <Button className="w-full">Join this Event</Button>
           </Link>
-        </div>
+        ) : user?.role === "ORGANIZER" ? (
+          <Link href={`/events/${event.id}/edit`}>
+            <Button className="w-full">Edit This Event</Button>
+          </Link>
+        ) : (
+          <Link href="/auth/login">
+            <Button className="w-full">Login to Join</Button>
+          </Link>
+        )}
       </section>
     </main>
   );

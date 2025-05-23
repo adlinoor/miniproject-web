@@ -73,33 +73,26 @@ export default function BuyTicketPage() {
     `Rp${(value ?? 0).toLocaleString("id-ID")}`;
 
   const onSubmit = async (data: FormData) => {
-    if (!id || typeof id !== "string") return;
+    const eventIdNumber = parseInt(id as string);
+    const quantityNumber = parseInt(String(data.quantity));
 
-    const formData = new FormData();
-
-    // Kirim eventId dan quantity sebagai string angka
-    formData.append("eventId", Number(id).toString());
-    formData.append("quantity", Number(data.quantity).toString());
-
-    // Kirim usePoints sebagai boolean string
-    formData.append("usePoints", data.usePoints ? "true" : "false");
-
-    // Kirim pointsUsed hanya jika valid
-    if (
-      data.usePoints &&
-      typeof points === "number" &&
-      !isNaN(points) &&
-      points > 0
-    ) {
-      formData.append("pointsUsed", points.toString());
+    if (!eventIdNumber || isNaN(quantityNumber) || quantityNumber < 1) {
+      toast.error("Event ID atau jumlah tiket tidak valid.");
+      return;
     }
 
-    // Kirim voucherCode jika ada
+    const formData = new FormData();
+    formData.append("eventId", String(eventIdNumber));
+    formData.append("quantity", String(quantityNumber));
+
+    if (data.usePoints && points > 0) {
+      formData.append("pointsUsed", String(points));
+    }
+
     if (voucherCode) {
       formData.append("voucherCode", voucherCode);
     }
 
-    // Kirim paymentProof jika ada dan diperlukan
     if (finalPrice > 0) {
       const file = data.paymentProof?.[0];
       if (!file) {
@@ -107,6 +100,12 @@ export default function BuyTicketPage() {
         return;
       }
       formData.append("paymentProof", file);
+    }
+
+    // Debug log
+    console.log("=== FormData yang dikirim ===");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value instanceof File ? value.name : value);
     }
 
     setLoading(true);
@@ -117,7 +116,7 @@ export default function BuyTicketPage() {
       toast.success("Checkout successful!");
       router.push("/events/success");
     } catch (err: any) {
-      console.error("Response error:", err?.response?.data);
+      console.error("❌ Response error:", err?.response?.data);
       toast.error(
         err?.response?.data?.message || "Checkout failed. Please try again."
       );

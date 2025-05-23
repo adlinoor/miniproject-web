@@ -34,7 +34,7 @@ export default function HistoryPage() {
     const fetchHistory = async () => {
       try {
         const rewardRes = await api.get("/users/rewards");
-        const transactionRes = await api.get("/transactions/myevents");
+        const transactionRes = await api.get("/transactions/me");
 
         setCoupons([
           ...rewardRes.data.coupons.used,

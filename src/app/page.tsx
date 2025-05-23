@@ -43,12 +43,12 @@ export default function Home() {
       {/* Hero */}
       <section className="relative min-h-[75vh] flex flex-col justify-center items-center text-center px-4 z-10">
         {/* Heading */}
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 drop-shadow-md">
-          Explore. Create. Connect.
+        <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-gray-400 mb-6 tracking-tight drop-shadow-lg text-glow">
+          Unleash Your Dreams
         </h1>
 
         {/* Tagline */}
-        <p className="text-lg md:text-xl text-gray-700 max-w-2xl mb-10">
+        <p className="text-lg md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-blue-400 max-w-2xl mb-10">
           Discovering & Crafting Your Essentials
         </p>
 
@@ -73,7 +73,7 @@ export default function Home() {
       {/* Event List */}
       <section className="relative z-10 pt-28 pb-32 px-4 md:px-0 text-gray-900">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-gray-400">
             Upcoming Events
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-10">

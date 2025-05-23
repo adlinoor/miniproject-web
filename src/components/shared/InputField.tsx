@@ -21,17 +21,17 @@ function InputFieldInner<TFormValues extends FieldValues>(
   } = useFormContext<TFormValues>();
 
   const fieldError = error ?? (errors?.[name] as FieldError | undefined);
-  const id = useId();
+  const inputId = rest.id ?? useId();
 
   return (
     <div className="mb-4">
-      <label htmlFor={id} className="block font-medium mb-1">
+      <label htmlFor={inputId} className="block font-medium mb-1">
         {label}
       </label>
       <input
-        id={id}
-        {...register(name)}
+        id={inputId}
         {...rest}
+        {...register(name)}
         ref={ref}
         className={clsx(
           "w-full p-2 border rounded",

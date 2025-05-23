@@ -38,7 +38,7 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     try {
       const res = await api.post("/auth/login", data);
-
+      localStorage.setItem("access_token", res.data.token);
       dispatch(login(res.data.user));
       toast.success("Login successful!");
       router.push(

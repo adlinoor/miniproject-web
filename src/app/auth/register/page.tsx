@@ -33,7 +33,7 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
@@ -72,85 +72,55 @@ export default function RegisterPage() {
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              First Name
-            </label>
-            <input
-              type="text"
-              {...register("first_name")}
-              className="input"
-              placeholder="John"
-            />
-            {errors.first_name && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.first_name.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Last Name
-            </label>
-            <input
-              type="text"
-              {...register("last_name")}
-              className="input"
-              placeholder="Doe"
-            />
-            {errors.last_name && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.last_name.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              {...register("email")}
-              className="input"
-              placeholder="email@example.com"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              {...register("password")}
-              className="input"
-              placeholder="••••••••"
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Referral Code (optional)
-            </label>
-            <input
-              type="text"
-              {...register("referralCode")}
-              className="input"
-              placeholder="FRIEND123"
-            />
-          </div>
+          {[
+            {
+              label: "First Name",
+              name: "first_name",
+              type: "text",
+              placeholder: "John",
+            },
+            {
+              label: "Last Name",
+              name: "last_name",
+              type: "text",
+              placeholder: "Doe",
+            },
+            {
+              label: "Email",
+              name: "email",
+              type: "email",
+              placeholder: "email@example.com",
+            },
+            {
+              label: "Password",
+              name: "password",
+              type: "password",
+              placeholder: "••••••••",
+            },
+            {
+              label: "Referral Code (optional)",
+              name: "referralCode",
+              type: "text",
+              placeholder: "FRIEND123",
+            },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-sm font-medium mb-1 text-gray-700">
+                {field.label}
+              </label>
+              <input
+                type={field.type}
+                {...register(field.name as keyof RegisterFormData)}
+                className="input"
+                placeholder={field.placeholder}
+              />
+              {errors[field.name as keyof RegisterFormData] && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors[field.name as keyof RegisterFormData]?.message}
+                </p>
+              )}
+            </div>
+          ))}
 
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
@@ -166,8 +136,8 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <Button type="submit" className="w-full">
-            Register
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </form>
 

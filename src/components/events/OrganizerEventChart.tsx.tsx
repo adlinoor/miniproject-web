@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/lib/api-client";
 import {
   BarChart,
   Bar,
@@ -29,15 +29,9 @@ export default function OrganizerEventChart() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/events/organizer/my-events`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        const events: EventData[] = res.data;
+        const res = await api.get("/events/organizer/my-events");
+        const events: EventData[] = res.data.data || [];
+
         const monthly: Record<string, number> = {};
 
         events.forEach((e) => {
@@ -46,18 +40,32 @@ export default function OrganizerEventChart() {
           monthly[key] = (monthly[key] || 0) + 1;
         });
 
-        const result: MonthlyCount[] = Object.entries(monthly).map(
-          ([month, count]) => ({
-            month,
-            count,
-          })
-        );
+        const orderedMonths = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+
+        const result: MonthlyCount[] = orderedMonths
+          .filter((m) => monthly[m])
+          .map((month) => ({ month, count: monthly[month] }));
 
         setData(result);
       } catch (err) {
         toast.error("Failed to fetch event data");
+        console.error("❌ Chart fetch failed:", err);
       }
     };
+
     fetchEvents();
   }, []);
 
@@ -65,7 +73,7 @@ export default function OrganizerEventChart() {
     <div className="w-full max-w-4xl mx-auto px-6 py-12">
       <h2 className="text-2xl font-bold mb-4">Events Created per Month</h2>
       {data.length === 0 ? (
-        <p>No event data yet.</p>
+        <p className="text-gray-600">No event data yet.</p>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data}>

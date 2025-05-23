@@ -1,23 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "@/lib/api-client";
 import useDebouncedSearch from "@/hooks/useDebouncedSearch";
-import EventsCard from "../events/EventsCard";
-import { FiFilter, FiClock } from "react-icons/fi";
-import { Event } from "@/types/event";
+import EventsCard from "./EventsCard";
 import SearchBar from "../shared/SearchBar";
+import { FiClock } from "react-icons/fi";
+import { Event } from "@/types/event";
 
-export const EventSearch = () => {
-  const { query, setQuery, events, isLoading, error } = useDebouncedSearch(
-    "",
-    800
-  );
+interface EventSearchProps {
+  role?: string;
+}
+
+export default function EventSearch({ role }: EventSearchProps) {
+  const { query, setQuery } = useDebouncedSearch("", 800);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
   const [categoryFilter, setCategoryFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const filteredEvents = events.filter((event: Event) => {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        const endpoint =
+          role === "ORGANIZER" ? "/events/organizer/my-events" : "/events";
+        const res = await api.get(endpoint);
+        setEvents(res.data.data || []);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [role]);
+
+  const filteredEvents = events.filter((event) => {
     const matchCategory = categoryFilter
       ? event.category?.toLowerCase() === categoryFilter.toLowerCase()
       : true;
@@ -47,38 +71,33 @@ export const EventSearch = () => {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="relative h-full">
-          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full h-full min-h-[42px] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Categories</option>
-            <option value="music">Music</option>
-            <option value="sports">Sports</option>
-            <option value="art">Art</option>
-            <option value="food">Food & Drink</option>
-            <option value="business">Business</option>
-          </select>
-        </div>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Categories</option>
+          <option value="music">Music</option>
+          <option value="sports">Sports</option>
+          <option value="art">Art</option>
+          <option value="food">Food & Drink</option>
+          <option value="business">Business</option>
+          <option value="other">Other</option>
+        </select>
 
-        <div className="relative h-full">
-          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          <input
-            type="text"
-            value={locationFilter}
-            onChange={(e) => setLocationFilter(e.target.value)}
-            placeholder="Filter by location"
-            className="w-full h-full min-h-[42px] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <input
+          type="text"
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
+          placeholder="Filter by location"
+          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
 
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="w-full h-full min-h-[42px] py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <input
@@ -86,7 +105,7 @@ export const EventSearch = () => {
           placeholder="Max Price"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-full h-full min-h-[42px] py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -116,7 +135,7 @@ export const EventSearch = () => {
                   key={event.id}
                   event={{
                     id: event.id,
-                    name: event.title, // pastikan backend mengembalikan `name`
+                    name: event.title,
                     location: event.location,
                     description: event.description,
                     price: event.price,
@@ -131,4 +150,4 @@ export const EventSearch = () => {
       )}
     </div>
   );
-};
+}

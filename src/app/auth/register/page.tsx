@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +42,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const res = await api.post("/auth/register", data);
-      localStorage.setItem("access_token", res.data.token);
+      localStorage.setItem("access_token", res.data.token); // Make sure to handle security concerns
       dispatch(login(res.data.user));
       toast.success("Registration successful!");
 
@@ -107,6 +108,7 @@ export default function RegisterPage() {
             />
           ))}
 
+          {/* Role selection */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">
               Register as

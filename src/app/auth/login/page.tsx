@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { setCookie } from "cookies-next";
 import Link from "next/link";
 
 import api from "@/lib/api-client";
@@ -39,13 +38,6 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     try {
       const res = await api.post("/auth/login", data);
-
-      setCookie("access_token", res.data.token, {
-        path: "/",
-        maxAge: data.rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 1,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
 
       dispatch(login(res.data.user));
       toast.success("Login successful!");

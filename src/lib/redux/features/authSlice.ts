@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/lib/api-client";
 import { IUser } from "@/interfaces/user.interface";
-import { setCookie, deleteCookie } from "cookies-next";
+import { deleteCookie } from "cookies-next";
 
 interface AuthState {
   user: IUser | null;
@@ -26,13 +26,6 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await api.post("/auth/login", { email, password });
 
-      setCookie("access_token", res.data.token, {
-        path: "/",
-        maxAge: 60 * 60 * 24,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
-
       return res.data.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -55,13 +48,6 @@ export const registerUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/auth/register", userData);
-
-      setCookie("access_token", res.data.token, {
-        path: "/",
-        maxAge: 60 * 60 * 24,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
 
       return res.data.user;
     } catch (err: any) {

@@ -5,7 +5,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setCookie } from "cookies-next";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 
@@ -42,13 +41,6 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const res = await api.post("/auth/register", data);
-
-      setCookie("access_token", res.data.token, {
-        path: "/",
-        maxAge: 60 * 60 * 24,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
 
       dispatch(login(res.data.user));
       toast.success("Registration successful!");

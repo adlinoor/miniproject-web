@@ -1,60 +1,107 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import api from "@/lib/api-client";
-import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
 
 type Transaction = {
   id: number;
-  event_name: string;
-  amount: number;
-  status: "waiting" | "done" | "rejected";
-  created_at: string;
+  event: { title: string };
+  quantity: number;
+  totalPrice: number;
+  status: string;
+  paymentProof?: string;
 };
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/users/transactions").then((res) => setTransactions(res.data));
+    api
+      .get("/transactions/me")
+      .then((res) => {
+        setTransactions(res.data);
+      })
+      .catch((err) => {
+        console.error("Fetch transactions error:", err);
+        toast.error("Failed to load transactions");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  return (
-    <section className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">My Transactions</h1>
+  if (loading)
+    return <p className="text-center py-20">Loading transactions...</p>;
 
-      {transactions.length === 0 ? (
-        <p className="text-gray-600">You have no transactions yet.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
-            <thead className="bg-gray-50 text-left text-sm font-medium text-gray-700">
-              <tr>
-                <th className="px-4 py-2 border-b">Event</th>
-                <th className="px-4 py-2 border-b">Amount</th>
-                <th className="px-4 py-2 border-b">Status</th>
-                <th className="px-4 py-2 border-b">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx) => (
-                <tr key={tx.id} className="text-sm border-b border-gray-100">
-                  <td className="px-4 py-2">{tx.event_name}</td>
-                  <td className="px-4 py-2">
-                    IDR {tx.amount.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2">
-                    <Badge status={tx.status} />
-                  </td>
-                  <td className="px-4 py-2">
-                    {new Date(tx.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+  if (!transactions.length) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">
+          No Transactions Yet
+        </h2>
+        <p className="text-gray-500">Start by joining an event.</p>
+        <a
+          href="/events"
+          className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Browse Events
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <section className="max-w-3xl mx-auto px-6 py-10">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-800">
+        My Transactions
+      </h1>
+
+      <div className="space-y-4">
+        {transactions.map((tx) => (
+          <div
+            key={tx.id}
+            className="border border-gray-200 rounded-xl p-5 shadow-sm bg-white"
+          >
+            <div className="mb-2">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {tx.event.title}
+              </h2>
+              <p className="text-sm text-gray-500">Transaction ID: #{tx.id}</p>
+            </div>
+
+            <div className="text-sm text-gray-700 space-y-1">
+              <p>
+                Tickets: <strong>{tx.quantity}</strong>
+              </p>
+              <p>
+                Total Paid:{" "}
+                <strong>Rp{tx.totalPrice.toLocaleString("id-ID")}</strong>
+              </p>
+              <p>
+                Status:{" "}
+                <strong className="capitalize">
+                  {tx.status.toLowerCase()}
+                </strong>
+              </p>
+
+              {tx.paymentProof && (
+                <div>
+                  <p className="mt-2 text-gray-600">Payment Proof:</p>
+                  <a
+                    href={`/${tx.paymentProof}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline text-sm"
+                  >
+                    View File
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

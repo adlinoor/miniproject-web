@@ -38,6 +38,7 @@ export default function BuyTicketPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
   const [points, setPoints] = useState(0);
+  const [voucherCode, setVoucherCode] = useState("");
   const [voucherDiscount, setVoucherDiscount] = useState(0);
 
   const quantity = watch("quantity") || 1;
@@ -79,23 +80,50 @@ export default function BuyTicketPage() {
     `Rp${(value ?? 0).toLocaleString("id-ID")}`;
 
   const onSubmit = async (data: FormData) => {
-    if (!id || typeof id !== "string") return;
+    const eventIdNumber = parseInt(id as string);
+    const quantityNumber = parseInt(String(data.quantity));
+
+    if (!eventIdNumber || isNaN(quantityNumber) || quantityNumber < 1) {
+      toast.error("Event ID atau jumlah tiket tidak valid.");
+      return;
+    }
 
     const formData = new FormData();
-    formData.append("eventId", id);
-    formData.append("quantity", data.quantity.toString());
-    formData.append("usePoints", data.usePoints ? "true" : "false");
+    formData.append("eventId", String(eventIdNumber));
+    formData.append("quantity", String(quantityNumber));
 
-    if (finalPrice > 0 && data.paymentProof?.[0]) {
-      formData.append("paymentProof", data.paymentProof[0]);
+    if (data.usePoints && points > 0) {
+      formData.append("pointsUsed", String(points));
+    }
+
+    if (voucherCode) {
+      formData.append("voucherCode", voucherCode);
+    }
+
+    if (finalPrice > 0) {
+      const file = data.paymentProof?.[0];
+      if (!file) {
+        toast.error("Please upload your payment proof.");
+        return;
+      }
+      formData.append("paymentProof", file);
+    }
+
+    // Debug log
+    console.log("=== FormData yang dikirim ===");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value instanceof File ? value.name : value);
     }
 
     setLoading(true);
     try {
-      await api.post("/transactions", formData);
+      await api.post("/transactions", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toast.success("Checkout successful!");
-      router.push("/transactions");
+      router.push("/events/success");
     } catch (err: any) {
+      console.error("Checkout error:", err);
       toast.error("Checkout failed. Please try again.");
     } finally {
       setLoading(false);
@@ -126,7 +154,6 @@ export default function BuyTicketPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Quantity */}
         <Input
           label="Ticket Quantity"
           type="number"
@@ -137,7 +164,6 @@ export default function BuyTicketPage() {
           {...register("quantity", { valueAsNumber: true })}
         />
 
-        {/* Use Points */}
         <div className="flex items-center justify-between text-sm text-gray-700">
           <label className="inline-flex items-center gap-2">
             <input type="checkbox" {...register("usePoints")} />
@@ -148,28 +174,26 @@ export default function BuyTicketPage() {
           </span>
         </div>
 
-        {/* Voucher */}
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">
             Apply Voucher
           </label>
           <div className="flex gap-2">
             <input
-              id="voucher-code"
               type="text"
               placeholder="Enter voucher code"
               className="input flex-1"
+              value={voucherCode}
+              onChange={(e) => setVoucherCode(e.target.value)}
             />
             <Button
               type="button"
               onClick={async () => {
-                const code = (
-                  document.getElementById("voucher-code") as HTMLInputElement
-                ).value;
-                if (!code) return toast.error("Please enter a voucher code.");
+                if (!voucherCode)
+                  return toast.error("Please enter a voucher code.");
                 try {
                   const res = await api.post("/vouchers/apply", {
-                    code,
+                    code: voucherCode,
                     eventId: event.id,
                   });
                   setVoucherDiscount(res.data.discount);
@@ -186,57 +210,25 @@ export default function BuyTicketPage() {
           </div>
         </div>
 
-        {/* Coupon */}
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Redeem Coupon
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="coupon-code"
-              type="text"
-              placeholder="Enter coupon"
-              className="input flex-1"
-            />
-            <Button
-              type="button"
-              onClick={async () => {
-                const code = (
-                  document.getElementById("coupon-code") as HTMLInputElement
-                ).value;
-                if (!code) return toast.error("Please enter a coupon code.");
-                try {
-                  const res = await api.post("/coupons/redeem", { code });
-                  toast.success(res.data.message || "Coupon redeemed!");
-                } catch (err: any) {
-                  toast.error(
-                    err?.response?.data?.message || "Coupon invalid or used."
-                  );
-                }
-              }}
-            >
-              Redeem
-            </Button>
-          </div>
-        </div>
-
-        {/* Payment Proof */}
         {finalPrice > 0 && (
-          <Input
-            type="file"
-            accept="image/*"
-            label="Payment Proof"
-            error={errors.paymentProof}
-            {...register("paymentProof", {
-              required: {
-                value: true,
-                message: "Payment proof is required for paid events.",
-              },
-            })}
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700">
+              Payment Proof
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              {...register("paymentProof", {
+                required: {
+                  value: true,
+                  message: "Payment proof is required for paid events.",
+                },
+              })}
+              className="input"
+            />
+          </div>
         )}
 
-        {/* Total */}
         <div className="border-t pt-4 mt-6">
           <p className="text-base font-medium text-gray-700">
             Total:{" "}
@@ -244,7 +236,6 @@ export default function BuyTicketPage() {
           </p>
         </div>
 
-        {/* Submit */}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Processing..." : "Checkout Now"}
         </Button>

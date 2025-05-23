@@ -3,7 +3,6 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import InputField from "@/components/shared/InputField";
 import { useEffect, useState } from "react";
 
 const EventSchema = z
@@ -77,15 +76,15 @@ export default function EventsForm({
 
   const {
     handleSubmit,
-    setValue,
     register,
     watch,
+    setValue,
     formState: { errors },
   } = methods;
 
   const eventType = watch("eventType");
-  const city = watch("city");
   const category = watch("category");
+  const city = watch("city");
 
   const [customCity, setCustomCity] = useState("");
   const [customCategory, setCustomCategory] = useState("");
@@ -104,63 +103,77 @@ export default function EventsForm({
         className="space-y-5"
         encType="multipart/form-data"
       >
-        <InputField<EventFormValues> label="Event Name" name="name" />
-        <InputField<EventFormValues> label="Description" name="description" />
-        <InputField<EventFormValues>
-          label="Start Date"
-          name="startDate"
-          type="date"
-        />
-        <InputField<EventFormValues>
-          label="End Date"
-          name="endDate"
-          type="date"
-        />
-        <InputField<EventFormValues>
-          label="Capacity"
-          name="seats"
-          type="number"
-        />
+        {/* Basic inputs */}
+        {[
+          { label: "Event Name", name: "name", type: "text" },
+          { label: "Description", name: "description", type: "text" },
+          { label: "Start Date", name: "startDate", type: "date" },
+          { label: "End Date", name: "endDate", type: "date" },
+          { label: "Capacity", name: "seats", type: "number" },
+        ].map((field) => (
+          <div key={field.name}>
+            <label className="block font-medium mb-1 text-gray-700">
+              {field.label}
+            </label>
+            <input
+              {...register(field.name as keyof EventFormValues)}
+              type={field.type}
+              className="w-full border rounded px-3 py-2"
+            />
+            {errors[field.name as keyof EventFormValues] && (
+              <p className="text-sm text-red-500 mt-1">
+                {(errors[field.name as keyof EventFormValues] as any)?.message}
+              </p>
+            )}
+          </div>
+        ))}
 
         {/* Event Type */}
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
+          <label className="block font-medium mb-1 text-gray-700">
             Event Type
           </label>
           <select
             {...register("eventType")}
-            defaultValue="PAID"
-            className="w-full border rounded-lg px-3 py-2 text-gray-700"
             onChange={(e) => {
               const value = e.target.value as "PAID" | "FREE";
               setValue("eventType", value);
               if (value === "FREE") setValue("price", 0);
             }}
+            className="w-full border rounded px-3 py-2"
           >
             <option value="PAID">Paid</option>
             <option value="FREE">Free</option>
           </select>
         </div>
 
-        {/* Price only if Paid */}
         {eventType === "PAID" && (
-          <InputField<EventFormValues>
-            label="Price (IDR)"
-            name="price"
-            type="number"
-            placeholder="e.g. 50000"
-          />
+          <div>
+            <label className="block font-medium mb-1 text-gray-700">
+              Price (IDR)
+            </label>
+            <input
+              {...register("price", { valueAsNumber: true })}
+              type="number"
+              placeholder="e.g. 50000"
+              className="w-full border rounded px-3 py-2"
+            />
+            {errors.price && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.price.message}
+              </p>
+            )}
+          </div>
         )}
 
-        {/* Category Select */}
+        {/* Category */}
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
+          <label className="block font-medium mb-1 text-gray-700">
             Category
           </label>
           <select
             {...register("category")}
-            defaultValue=""
-            className="w-full border rounded-lg px-3 py-2 text-gray-700"
+            className="w-full border rounded px-3 py-2"
             onChange={(e) => {
               const value = e.target.value;
               setValue("category", value);
@@ -177,25 +190,24 @@ export default function EventsForm({
             ))}
           </select>
           {category === "Other" && (
-            <InputField<EventFormValues>
-              name="category"
-              label="Custom Category"
+            <input
               value={customCategory}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setCustomCategory(e.target.value);
                 setValue("category", e.target.value);
               }}
+              className="w-full mt-2 border rounded px-3 py-2"
+              placeholder="Custom Category"
             />
           )}
         </div>
 
-        {/* City Select */}
+        {/* City */}
         <div>
-          <label className="block mb-1 font-medium text-gray-700">City</label>
+          <label className="block font-medium mb-1 text-gray-700">City</label>
           <select
             {...register("city")}
-            defaultValue=""
-            className="w-full border rounded-lg px-3 py-2 text-gray-700"
+            className="w-full border rounded px-3 py-2"
             onChange={(e) => {
               const value = e.target.value;
               setValue("city", value);
@@ -212,35 +224,35 @@ export default function EventsForm({
             ))}
           </select>
           {city === "Other" && (
-            <InputField<EventFormValues>
-              name="city"
-              label="Custom City"
+            <input
               value={customCity}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setCustomCity(e.target.value);
                 setValue("city", e.target.value);
               }}
+              className="w-full mt-2 border rounded px-3 py-2"
+              placeholder="Custom City"
             />
           )}
         </div>
 
         {/* Image Upload */}
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
+          <label className="block font-medium mb-1 text-gray-700">
             Event Image
           </label>
           <input
             type="file"
             accept="image/*"
             {...register("image")}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const file = e.target.files?.[0];
               if (file) {
                 setPreviewUrl(URL.createObjectURL(file));
                 setValue("image", file);
               }
             }}
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded px-3 py-2"
           />
           {previewUrl && (
             <img

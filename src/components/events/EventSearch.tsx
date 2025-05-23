@@ -39,7 +39,6 @@ export const EventSearch = () => {
 
   return (
     <div className="space-y-6">
-      {/* ✅ SearchBar */}
       <SearchBar
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -47,14 +46,13 @@ export const EventSearch = () => {
         isLoading={isLoading}
       />
 
-      {/* ✅ Filter Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div className="relative">
-          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="relative h-full">
+          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-full min-h-[42px] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Categories</option>
             <option value="music">Music</option>
@@ -65,14 +63,14 @@ export const EventSearch = () => {
           </select>
         </div>
 
-        <div className="relative">
-          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="relative h-full">
+          <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
             placeholder="Filter by location"
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-full min-h-[42px] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -80,7 +78,7 @@ export const EventSearch = () => {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-full min-h-[42px] py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <input
@@ -88,11 +86,10 @@ export const EventSearch = () => {
           placeholder="Max Price"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-full min-h-[42px] py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Error */}
       {error && (
         <div className="p-4 text-red-500 bg-red-50 border border-red-200 rounded-lg">
           Error loading events:{" "}
@@ -100,7 +97,6 @@ export const EventSearch = () => {
         </div>
       )}
 
-      {/* Results */}
       {!isLoading && (
         <>
           {filteredEvents.length === 0 ? (
@@ -120,7 +116,7 @@ export const EventSearch = () => {
                   key={event.id}
                   event={{
                     id: event.id,
-                    name: event.title,
+                    name: event.title, // pastikan backend mengembalikan `name`
                     location: event.location,
                     description: event.description,
                     price: event.price,

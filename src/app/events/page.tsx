@@ -1,5 +1,5 @@
 "use client";
-import { EventSearch } from "@/components/search/EventSearch";
+import { EventSearch } from "@/components/events/EventSearch";
 
 export default function EventsPage() {
   return (

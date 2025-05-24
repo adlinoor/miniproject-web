@@ -8,11 +8,13 @@ export default function TransactionDetailPage() {
   const { id } = useParams();
   const [transaction, setTransaction] = useState<any | null>(null);
   const [error, setError] = useState(false);
+  const [reviewSent, setReviewSent] = useState(false);
 
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
         const res = await api.get(`/transactions/${id}`);
+        console.log("✅ Transaksi berhasil diambil:", res.data);
         setTransaction(res.data);
       } catch (err) {
         console.error("❌ Gagal fetch detail transaksi:", err);
@@ -22,6 +24,30 @@ export default function TransactionDetailPage() {
 
     if (id) fetchTransaction();
   }, [id]);
+
+  const handleSubmitReview = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const rating = parseInt((form.rating as any).value);
+    const comment = (form.comment as any).value;
+
+    try {
+      await api.post("/reviews", {
+        eventId: transaction.event.id,
+        rating,
+        comment,
+      });
+      setReviewSent(true);
+      alert("✅ Review berhasil dikirim!");
+    } catch (err) {
+      console.error("❌ Gagal kirim review:", err);
+      alert("Gagal mengirim review.");
+    }
+  };
+
+  const alreadyReviewed =
+    Array.isArray(transaction?.event?.reviews) &&
+    transaction.event.reviews.some((r: any) => r.userId === transaction.userId);
 
   if (error)
     return (
@@ -54,7 +80,7 @@ export default function TransactionDetailPage() {
         </p>
         <p>
           <strong>Date:</strong>{" "}
-          {new Date(transaction.createdAt).toLocaleString()}
+          {new Date(transaction.createdAt).toLocaleString("id-ID")}
         </p>
 
         {transaction.paymentProof && (
@@ -70,6 +96,51 @@ export default function TransactionDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Review & Rating Section */}
+      {transaction.status === "DONE" && !alreadyReviewed && !reviewSent && (
+        <div className="mt-8 border-t pt-6">
+          <h2 className="text-lg font-semibold mb-2">
+            Berikan Review & Rating
+          </h2>
+
+          <form onSubmit={handleSubmitReview} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium">Rating (1–5)</label>
+              <select name="rating" className="mt-1 border p-2 rounded w-full">
+                {[1, 2, 3, 4, 5].map((val) => (
+                  <option key={val} value={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">Komentar</label>
+              <textarea
+                name="comment"
+                className="mt-1 border p-2 rounded w-full"
+                placeholder="Tulis ulasan tentang event ini..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              disabled={reviewSent}
+            >
+              {reviewSent ? "Review Terkirim" : "Kirim Review"}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {reviewSent && (
+        <div className="mt-6 text-green-700 font-medium">
+          Terima kasih atas review Anda!
+        </div>
+      )}
     </div>
   );
 }

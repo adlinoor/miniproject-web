@@ -40,7 +40,11 @@ export default function HistoryPage() {
           ...rewardRes.data.coupons.used,
           ...rewardRes.data.coupons.expired,
         ]);
-        setTransactions(transactionRes.data || []);
+        setTransactions(
+          Array.isArray(transactionRes.data.data)
+            ? transactionRes.data.data
+            : []
+        );
       } catch (err) {
         console.error("Failed to load history:", err);
       } finally {
@@ -83,8 +87,11 @@ export default function HistoryPage() {
                     </p>
                     <p className="text-sm text-gray-600">
                       Status: {t.status} | Paid: Rp
-                      {t.totalPaid.toLocaleString()}
+                      {typeof t.totalPaid === "number"
+                        ? t.totalPaid.toLocaleString()
+                        : 0}
                     </p>
+
                     <p className="text-xs text-gray-400">
                       {new Date(t.createdAt).toLocaleString()}
                     </p>

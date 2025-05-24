@@ -95,17 +95,27 @@ export default function TransactionsPage() {
                     {new Date(tx.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    tx.status === "completed"
-                      ? "bg-green-100 text-green-800"
-                      : tx.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {tx.status}
-                </span>
+                <div className="text-right flex flex-col items-end gap-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      tx.status === "completed"
+                        ? "bg-green-100 text-green-800"
+                        : tx.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {tx.status}
+                  </span>
+                  <div className="mt-10">
+                    <Button
+                      variant="primary"
+                      onClick={() => router.push(`/transactions/${tx.id}`)}
+                    >
+                      Detail Transaction
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">

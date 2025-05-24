@@ -23,35 +23,21 @@ export default function TransactionsPage() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await api.get("/transactions/me");
-
-        if (!response.data) {
-          throw new Error("No data received");
-        }
-
-        setTransactions(response.data);
-      } catch (error: unknown) {
-        console.error("Failed to fetch transactions:", error);
-        toast.error("Failed to load transactions. Please try again.");
-
-        // Type guard for Axios error
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "response" in error
-        ) {
-          const axiosError = error as { response?: { status?: number } };
-          if (axiosError.response?.status === 401) {
-            router.push("/login");
-          }
-        }
+        const res = await api.get("/transactions/me");
+        console.log("✅ Response:", res.data);
+        setTransactions(res.data.data);
+      } catch (err: any) {
+        console.error("❌ API error:", err?.response?.data || err.message);
+        toast.error(
+          err?.response?.data?.message || "Failed to load transactions"
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchTransactions();
-  }, [router]);
+  }, []);
 
   if (loading) {
     return (
@@ -86,7 +72,7 @@ export default function TransactionsPage() {
         <Button
           onClick={() => router.push("/events")}
           variant="secondary"
-          className="text-sm" // Removed size prop, use className instead
+          className="text-sm"
         >
           Browse Events
         </Button>

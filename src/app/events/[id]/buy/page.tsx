@@ -63,7 +63,7 @@ export default function BuyTicketPage() {
       return;
     }
 
-    api.get(`/events/${id}`).then((res) => setEvent(res.data));
+    api.get(`/events/${id}`).then((res) => setEvent(res.data.data));
     api
       .get("/users/me")
       .then((res) => setPoints(res.data.totalActivePoints ?? 0));

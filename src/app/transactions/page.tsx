@@ -23,35 +23,21 @@ export default function TransactionsPage() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await api.get("/transactions/me");
-
-        if (!response.data) {
-          throw new Error("No data received");
-        }
-
-        setTransactions(response.data);
-      } catch (error: unknown) {
-        console.error("Failed to fetch transactions:", error);
-        toast.error("Failed to load transactions. Please try again.");
-
-        // Type guard for Axios error
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "response" in error
-        ) {
-          const axiosError = error as { response?: { status?: number } };
-          if (axiosError.response?.status === 401) {
-            router.push("/login");
-          }
-        }
+        const res = await api.get("/transactions/me");
+        console.log("✅ Response:", res.data);
+        setTransactions(res.data.data);
+      } catch (err: any) {
+        console.error("❌ API error:", err?.response?.data || err.message);
+        toast.error(
+          err?.response?.data?.message || "Failed to load transactions"
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchTransactions();
-  }, [router]);
+  }, []);
 
   if (loading) {
     return (
@@ -86,7 +72,7 @@ export default function TransactionsPage() {
         <Button
           onClick={() => router.push("/events")}
           variant="secondary"
-          className="text-sm" // Removed size prop, use className instead
+          className="text-sm"
         >
           Browse Events
         </Button>
@@ -109,17 +95,27 @@ export default function TransactionsPage() {
                     {new Date(tx.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    tx.status === "completed"
-                      ? "bg-green-100 text-green-800"
-                      : tx.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {tx.status}
-                </span>
+                <div className="text-right flex flex-col items-end gap-2">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      tx.status === "completed"
+                        ? "bg-green-100 text-green-800"
+                        : tx.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {tx.status}
+                  </span>
+                  <div className="mt-10">
+                    <Button
+                      variant="primary"
+                      onClick={() => router.push(`/transactions/${tx.id}`)}
+                    >
+                      Detail Transaction
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">

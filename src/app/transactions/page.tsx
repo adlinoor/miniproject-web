@@ -24,10 +24,9 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
       try {
         const res = await api.get("/transactions/me");
-        console.log("✅ Transaksi:", res.data.data);
         setTransactions(res.data.data || []);
       } catch (err) {
-        console.error("❌ Gagal fetch transaksi:", err);
+        setTransactions([]);
       } finally {
         setLoading(false);
       }
@@ -60,10 +59,10 @@ export default function TransactionsPage() {
             <div className="mb-2 sm:mb-0">
               <p className="font-semibold text-gray-800">{tx.event.title}</p>
               <p className="text-sm text-gray-500">
-                #{tx.id} — {new Date(tx.createdAt).toLocaleDateString()}
+                #{tx.id} — {new Date(tx.createdAt).toLocaleDateString("id-ID")}
               </p>
               <p className="text-sm">
-                Total: Rp{tx.totalPrice.toLocaleString("id-ID")}
+                Total: Rp{(tx.totalPrice ?? 0).toLocaleString("id-ID")}
               </p>
             </div>
             <div className="flex flex-col items-end gap-2">

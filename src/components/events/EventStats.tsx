@@ -21,15 +21,15 @@ ChartJS.register(
 );
 
 interface Transaction {
-  id: string;
-  amount: number;
+  id: number;
+  amount: number; // <--- HARUS amount
   status:
-    | "waiting"
-    | "confirmed"
-    | "done"
-    | "rejected"
-    | "expired"
-    | "canceled";
+    | "WAITING_FOR_PAYMENT"
+    | "WAITING_FOR_ADMIN_CONFIRMATION"
+    | "DONE"
+    | "REJECTED"
+    | "EXPIRED"
+    | "CANCELED";
   createdAt: string;
 }
 
@@ -90,7 +90,7 @@ export const EventStats: React.FC<EventStatsProps> = ({
             transactions
               .filter(
                 (t) =>
-                  new Date(t.createdAt).getMonth() === i && t.status === "done"
+                  new Date(t.createdAt).getMonth() === i && t.status === "DONE"
               )
               .reduce((sum, t) => sum + t.amount, 0)
           ),

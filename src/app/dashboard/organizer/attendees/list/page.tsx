@@ -6,32 +6,7 @@ import api from "@/lib/api-client";
 import { useAppSelector } from "@/lib/redux/hook";
 import clsx from "clsx";
 
-interface RawTransaction {
-  user: {
-    id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
-  details: {
-    ticket: {
-      type: string;
-      price: number;
-    };
-    quantity: number;
-  }[];
-  quantity: number;
-  totalPrice: number;
-  status: string;
-  paymentProof?: string;
-}
-
-interface Event {
-  id: number;
-  title: string;
-  transactions: RawTransaction[];
-}
-
+// Tipe data attendee
 interface Attendee {
   user: {
     id: number;
@@ -50,10 +25,17 @@ interface Attendee {
   paymentProof?: string;
 }
 
-function normalizeTransactions(event: any): Attendee[] {
-  if (!Array.isArray(event.transactions)) return [];
+// Event minimal + attendees list
+interface Event {
+  id: number;
+  title: string;
+  transactions: any[];
+  formattedTransactions: Attendee[];
+}
 
-  return event.transactions.map((tx: any) => ({
+function normalizeTransactions(transactions: any[]): Attendee[] {
+  if (!Array.isArray(transactions)) return [];
+  return transactions.map((tx: any) => ({
     user: tx.user,
     ticketTypes: Array.isArray(tx.details)
       ? tx.details.map((d: any) => ({
@@ -73,9 +55,7 @@ export default function AttendeeListPage() {
   const { user } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
-  const [events, setEvents] = useState<
-    (Event & { formattedTransactions: Attendee[] })[]
-  >([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEventId, setSelectedEventId] = useState<number | "all">("all");
@@ -90,15 +70,13 @@ export default function AttendeeListPage() {
       try {
         const res = await api.get("/events/organizer/my-events");
         const rawEvents: Event[] = res.data?.data || [];
-
-        const formatted = rawEvents.map((event) => ({
-          ...event,
-          formattedTransactions: normalizeTransactions(event),
-        }));
-
-        setEvents(formatted);
+        setEvents(
+          rawEvents.map((event) => ({
+            ...event,
+            formattedTransactions: normalizeTransactions(event.transactions),
+          }))
+        );
       } catch (err: any) {
-        console.error("Fetch error:", err);
         setError("Failed to fetch events");
       } finally {
         setLoading(false);
@@ -184,7 +162,11 @@ export default function AttendeeListPage() {
                             }
                           )}
                         >
-                          {tx.status === "DONE" ? "Confirmed" : "Waiting"}
+                          {tx.status === "DONE"
+                            ? "Confirmed"
+                            : tx.status === "WAITING_FOR_ADMIN_CONFIRMATION"
+                            ? "Waiting"
+                            : tx.status}
                         </span>
                       </div>
 

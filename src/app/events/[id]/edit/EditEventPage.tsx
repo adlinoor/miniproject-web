@@ -13,40 +13,40 @@ export default function EditEventPage() {
   const router = useRouter();
   const { user, isHydrated } = useSelector((state: RootState) => state.auth);
   const [initialValues, setInitialValues] = useState<
-    (EventFormValues & { id?: string }) | null
+    (EventFormValues & { id?: string; imageUrl?: string }) | null
   >(null);
 
   useEffect(() => {
-    if (!id || !isHydrated) return;
-    if (!user) return;
+    if (!id || !isHydrated || !user) return;
 
     const fetchEvent = async () => {
       try {
         const res = await api.get(`/events/${id}`);
-        const event = res.data;
+        // INI YANG BENAR:
+        const event = res.data.data;
 
-        // ⛔ ini akan gagal jika user belum siap (undefined/null)
-        if (user?.role !== "ORGANIZER" || user?.id !== event.organizerId) {
+        if (
+          user.role !== "ORGANIZER" ||
+          Number(user.id) !== Number(event.organizerId)
+        ) {
           toast.error("Unauthorized to edit this event");
           router.push("/unauthorized");
           return;
         }
 
-        const [cityPart, ...locationParts] = event.location.split(" - ");
-        const parsed: EventFormValues & { id?: string } = {
+        setInitialValues({
           id: event.id,
           name: event.title,
           description: event.description,
-          startDate: event.startDate.slice(0, 10),
-          endDate: event.endDate.slice(0, 10),
+          startDate: event.startDate?.slice(0, 10),
+          endDate: event.endDate?.slice(0, 10),
           price: event.price,
           seats: event.availableSeats,
           eventType: event.price === 0 ? "FREE" : "PAID",
           category: event.category,
-          city: locationParts.length > 0 ? cityPart : "",
-        };
-
-        setInitialValues(parsed);
+          city: event.location?.split(" - ")[0] || "",
+          imageUrl: event.imageUrl || undefined,
+        });
       } catch (error) {
         console.error("Fetch error:", error);
         toast.error("Failed to fetch event data");
@@ -57,27 +57,9 @@ export default function EditEventPage() {
     fetchEvent();
   }, [id, isHydrated, user, router]);
 
-  const handleUpdate = async (data: EventFormValues) => {
+  // Submit form sebagai FormData (bisa update foto)
+  const handleUpdate = async (formData: FormData) => {
     try {
-      const isFree = data.eventType === "FREE";
-      const price = isFree ? 0 : data.price;
-      const finalLocation = `${data.city} - ${data.name}`;
-
-      const formData = new FormData();
-      formData.append("title", data.name);
-      formData.append("description", data.description);
-      formData.append("startDate", data.startDate);
-      formData.append("endDate", data.endDate);
-      formData.append("price", String(price));
-      formData.append("availableSeats", String(data.seats));
-      formData.append("isFree", String(isFree));
-      formData.append("category", data.category);
-      formData.append("location", finalLocation);
-
-      if (data.image instanceof File) {
-        formData.append("image", data.image);
-      }
-
       const res = await api.put(`/events/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -94,6 +76,7 @@ export default function EditEventPage() {
     }
   };
 
+  // Delete event
   const handleDelete = async () => {
     const confirm = window.confirm(
       "Are you sure you want to delete this event?"

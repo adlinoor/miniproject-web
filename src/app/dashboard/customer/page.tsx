@@ -11,6 +11,7 @@ interface User {
   last_name: string;
   profilePicture?: string;
   userPoints?: number;
+  referralCode?: string;
 }
 
 export default function CustomerDashboardPage() {
@@ -28,7 +29,7 @@ function DashboardContent() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/users/me", { withCredentials: true });
+        const res = await api.get("/users/me");
         setUser(res.data);
       } catch (err) {
         console.error("Error fetching user", err);
@@ -67,6 +68,23 @@ function DashboardContent() {
             <p className="text-sm text-gray-500">
               Poin Anda: {user.userPoints}
             </p>
+          )}
+          {user.referralCode && (
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-sm text-blue-700 font-mono">
+                Referral Code: {user.referralCode}
+              </span>
+              <button
+                type="button"
+                className="text-xs px-2 py-1 rounded bg-blue-100 hover:bg-blue-200 text-blue-900"
+                onClick={() => {
+                  navigator.clipboard.writeText(user.referralCode!);
+                  toast.success("Referral code copied!");
+                }}
+              >
+                Copy
+              </button>
+            </div>
           )}
         </div>
       </div>

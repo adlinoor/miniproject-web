@@ -34,7 +34,7 @@ const authService = {
 
   // ✅ Get profile (bisa dipakai auto-login)
   async getProfile() {
-    return await api.get("/auth/profile");
+    return await api.get("/users/me");
   },
 };
 

@@ -4,9 +4,32 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/api-client";
 
+type Review = {
+  userId: number;
+  rating: number;
+  comment: string;
+};
+
+type TransactionDetail = {
+  id: number;
+  userId: number;
+  event: {
+    id: number;
+    title: string;
+    reviews?: Review[];
+  };
+  status: string;
+  quantity: number;
+  totalPrice: number;
+  paymentProof?: string;
+  createdAt: string;
+};
+
 export default function TransactionDetailPage() {
-  const { id } = useParams();
-  const [transaction, setTransaction] = useState<any | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [transaction, setTransaction] = useState<TransactionDetail | null>(
+    null
+  );
   const [error, setError] = useState(false);
   const [reviewSent, setReviewSent] = useState(false);
 
@@ -14,10 +37,8 @@ export default function TransactionDetailPage() {
     const fetchTransaction = async () => {
       try {
         const res = await api.get(`/transactions/${id}`);
-        console.log("✅ Transaksi berhasil diambil:", res.data);
         setTransaction(res.data);
       } catch (err) {
-        console.error("❌ Gagal fetch detail transaksi:", err);
         setError(true);
       }
     };
@@ -31,23 +52,23 @@ export default function TransactionDetailPage() {
     const rating = parseInt((form.rating as any).value);
     const comment = (form.comment as any).value;
 
+    if (!transaction?.event?.id) return;
     try {
-      await api.post("/reviews", {
-        eventId: transaction.event.id,
+      await api.post(`/events/${transaction.event.id}/reviews`, {
         rating,
         comment,
       });
       setReviewSent(true);
       alert("✅ Review berhasil dikirim!");
     } catch (err) {
-      console.error("❌ Gagal kirim review:", err);
       alert("Gagal mengirim review.");
     }
   };
 
+  // User sudah review event ini?
   const alreadyReviewed =
     Array.isArray(transaction?.event?.reviews) &&
-    transaction.event.reviews.some((r: any) => r.userId === transaction.userId);
+    transaction?.event?.reviews.some((r) => r.userId === transaction.userId);
 
   if (error)
     return (
@@ -76,7 +97,7 @@ export default function TransactionDetailPage() {
         </p>
         <p>
           <strong>Total:</strong> Rp
-          {transaction.totalPrice.toLocaleString("id-ID")}
+          {(transaction.totalPrice ?? 0).toLocaleString("id-ID")}
         </p>
         <p>
           <strong>Date:</strong>{" "}

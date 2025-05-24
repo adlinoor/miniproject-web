@@ -48,21 +48,14 @@ export default function EditProfileForm({ initialUser }: Props) {
 
         const response = await api.put("/users/profile", formData, {
           headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
         });
 
         updatedUrl = response.data.user.profilePicture;
       } else {
-        const response = await api.put(
-          "/users/profile",
-          {
-            first_name: data.first_name,
-            last_name: data.last_name,
-          },
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await api.put("/users/profile", {
+          first_name: data.first_name,
+          last_name: data.last_name,
+        });
 
         updatedUrl = response.data.user.profilePicture;
       }

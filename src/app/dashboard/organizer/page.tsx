@@ -19,22 +19,16 @@ interface Event {
   isCancelled: boolean;
 }
 
-interface Transaction {
-  id: string;
-  amount: number;
-  status:
-    | "waiting"
-    | "confirmed"
-    | "done"
-    | "rejected"
-    | "expired"
-    | "canceled";
+interface RawTransaction {
+  id: number;
+  totalPrice: number;
+  status: string;
   createdAt: string;
 }
 
 export default function OrganizerDashboardPage() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<RawTransaction[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,12 +39,11 @@ export default function OrganizerDashboardPage() {
         const eventRes = await api.get("/events/organizer/my-events", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        setEvents(eventRes.data.data || []);
 
         const txRes = await api.get("/transactions/organizer", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        setEvents(eventRes.data.data || []);
         setTransactions(txRes.data.data || []);
       } catch (err: any) {
         toast.error("Dashboard data unavailable (fallback)");
@@ -61,6 +54,20 @@ export default function OrganizerDashboardPage() {
 
     fetchData();
   }, []);
+
+  // === FIX: Map ke bentuk EventStats Transaction ===
+  const mappedTransactions = transactions.map((tx) => ({
+    id: tx.id,
+    amount: tx.totalPrice,
+    status: tx.status as
+      | "WAITING_FOR_PAYMENT"
+      | "WAITING_FOR_ADMIN_CONFIRMATION"
+      | "DONE"
+      | "REJECTED"
+      | "EXPIRED"
+      | "CANCELED",
+    createdAt: tx.createdAt,
+  }));
 
   return (
     <ProtectedRoute allowedRoles={["ORGANIZER"]}>
@@ -82,7 +89,7 @@ export default function OrganizerDashboardPage() {
         <hr className="border-t border-gray-200" />
 
         {/* Event + Transaction Stats */}
-        <EventStats events={events} transactions={transactions} />
+        <EventStats events={events} transactions={mappedTransactions} />
 
         {/* Divider */}
         <hr className="border-t border-gray-200" />

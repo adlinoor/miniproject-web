@@ -9,10 +9,12 @@ export default function Button({
   children,
   className,
   variant = "primary",
+  type = "button",
   ...props
 }: ButtonProps) {
   return (
     <button
+      type={type}
       className={clsx(
         "btn",
         {

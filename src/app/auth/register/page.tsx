@@ -42,15 +42,18 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const res = await api.post("/auth/register", data);
-      localStorage.setItem("access_token", res.data.token); // Make sure to handle security concerns
+      localStorage.setItem("access_token", res.data.token);
       dispatch(login(res.data.user));
       toast.success("Registration successful!");
 
-      router.push(
-        res.data.user.role === "ORGANIZER"
-          ? "/dashboard/organizer"
-          : "/dashboard/customer"
-      );
+      // Beri delay singkat agar token benar-benar tersimpan sebelum redirect
+      setTimeout(() => {
+        router.push(
+          res.data.user.role === "ORGANIZER"
+            ? "/dashboard/organizer"
+            : "/dashboard/customer"
+        );
+      }, 200);
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Registration failed. Try again."

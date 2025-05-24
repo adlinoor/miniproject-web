@@ -29,7 +29,7 @@ export default function CustomerProfilePage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/users/me", { withCredentials: true });
+        const res = await api.get("/users/me");
         setUser(res.data);
       } catch (err) {
         console.error("Failed to load user", err);

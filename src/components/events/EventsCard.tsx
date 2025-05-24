@@ -23,11 +23,7 @@ export default function EventsCard({ event }: EventsCardProps) {
             {event.name}
           </h2>
         </Link>
-
-        {/* Event Location */}
         <p className="text-sm text-gray-500">{event.location}</p>
-
-        {/* Event Date */}
         <p className="text-sm text-gray-600">
           📅{" "}
           {new Date(event.start_date).toLocaleDateString("id-ID", {
@@ -42,24 +38,18 @@ export default function EventsCard({ event }: EventsCardProps) {
               year: "numeric",
             })}`}
         </p>
-
-        {/* Event Price */}
         <p className="text-sm text-gray-600">
           💰{" "}
           {event.price === 0
             ? "Free"
             : `Rp${event.price.toLocaleString("id-ID")}`}
         </p>
-
-        {/* Event Description */}
         {event.description && (
           <p className="text-sm text-gray-500 mt-2 line-clamp-3">
             {event.description}
           </p>
         )}
       </div>
-
-      {/* Button Section */}
       <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-center">
         <Link href={`/events/${event.id}`} className="w-full">
           <Button variant="secondary" className="w-full text-center">

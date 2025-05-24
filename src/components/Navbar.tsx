@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAppSelector } from "@/lib/redux/hook";
@@ -7,19 +8,37 @@ import { logout } from "@/lib/redux/features/authSlice";
 import { useDispatch } from "react-redux";
 import { deleteCookie } from "cookies-next";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
+    deleteCookie("access_token");
   };
 
-  // ✅ Dynamic link based on role
+  // Detect scroll to toggle blur effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // Dynamic link based on role
   const links = [
     { label: "Events", href: "/events" },
     ...(user
@@ -38,17 +57,21 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-transparent border-b border-white/10">
+    <nav
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled ? "bg-white/90 backdrop-blur-md shadow-lg" : "bg-transparent"
+      } border-b border-white/10`}
+    >
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* ✅ Logo */}
+        {/* Logo */}
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-white drop-shadow-sm"
+          className="text-xl font-semibold tracking-tight text-white drop-shadow-md"
         >
           ARevents
         </Link>
 
-        {/* ✅ Hamburger / X icon */}
+        {/* Hamburger / X icon */}
         <div className="md:hidden">
           <button
             onClick={() => setOpen(!open)}
@@ -56,14 +79,14 @@ export default function Navbar() {
             aria-label="Toggle menu"
           >
             {open ? (
-              <X className="w-5 h-5 text-gray-800" />
+              <X className="w-6 h-6 text-gray-800" />
             ) : (
-              <Menu className="w-5 h-5 text-gray-800" />
+              <Menu className="w-6 h-6 text-gray-800" />
             )}
           </button>
         </div>
 
-        {/* ✅ Desktop Menu */}
+        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           {links.map((link) => (
             <Link
@@ -97,7 +120,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ✅ Mobile Menu */}
+      {/* Mobile Menu */}
       {open && (
         <>
           {/* Backdrop */}

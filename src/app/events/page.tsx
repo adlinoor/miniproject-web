@@ -9,9 +9,13 @@ export default function EventsPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">
+      <h1
+        className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-700 mb-8 text-center drop-shadow-md
+"
+      >
         {user?.role === "ORGANIZER" ? "My Events" : "All Events"}
       </h1>
+
       <EventSearch role={user?.role} />
     </main>
   );

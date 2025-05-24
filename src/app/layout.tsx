@@ -10,7 +10,7 @@ import { Toaster } from "react-hot-toast";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 
 export const metadata: Metadata = {
-  title: "ARevents - Discover Amazing Events",
+  title: "ARevents - Discover Yours",
   description: "Find, create, and manage events all in one place.",
   icons: {
     icon: "/favicon.ico",

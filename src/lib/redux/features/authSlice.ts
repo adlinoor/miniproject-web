@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "@/lib/api-client";
 import { IUser } from "@/interfaces/user.interface";
 
@@ -16,7 +16,8 @@ const initialState: AuthState = {
   isHydrated: false,
 };
 
-export const getProfile = createAsyncThunk(
+// Async thunk untuk fetch profile user
+export const getProfile = createAsyncThunk<IUser>(
   "auth/me",
   async (_, { rejectWithValue }) => {
     try {
@@ -32,24 +33,28 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action) {
+    login(state, action: PayloadAction<IUser>) {
       state.user = action.payload;
       state.isHydrated = true;
     },
     logout(state) {
-      localStorage.removeItem("access_token"); // ✅ hapus token di localStorage
       state.user = null;
       state.isHydrated = true;
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getProfile.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(getProfile.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.loading = false;
         state.isHydrated = true;
       })
       .addCase(getProfile.rejected, (state) => {
         state.user = null;
+        state.loading = false;
         state.isHydrated = true;
       });
   },

@@ -24,6 +24,7 @@ describe("authSlice", () => {
     email: "adli@example.com",
     profilePicture: "",
     role: "CUSTOMER",
+    isVerified: false,
   };
 
   beforeEach(() => {

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import EditProfileForm from "@/components/EditProfileForm";
 import api from "@/lib/api-client";
 import { toast } from "react-hot-toast";
 
 interface User {
+  isVerified: boolean;
+  email: string;
   first_name: string;
   last_name: string;
   profilePicture?: string;
@@ -25,58 +27,136 @@ export default function CustomerProfilePage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingRewards, setLoadingRewards] = useState(true);
+  const [resending, setResending] = useState(false);
+
+  // Fetch user profile
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await api.get("/users/me");
+      setUser(res.data);
+    } catch (err) {
+      toast.error("Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await api.get("/users/me");
-        setUser(res.data);
-      } catch (err) {
-        console.error("Failed to load user", err);
-        toast.error("Failed to load profile");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    fetchUser();
+    // Fetch rewards/coupons
     const fetchRewards = async () => {
       try {
         const res = await api.get("/users/rewards");
-        const active = res.data.coupons?.available || [];
-        setCoupons(active);
-      } catch (err) {
-        console.error("Failed to load rewards", err);
-      } finally {
-        setLoadingRewards(false);
-      }
+        setCoupons(res.data.coupons?.available || []);
+      } catch {}
+      setLoadingRewards(false);
     };
-
-    fetchUser();
     fetchRewards();
-  }, []);
+  }, [fetchUser]);
+
+  // Resend verification email
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResending(true);
+    try {
+      await api.post("/users/resend-verification", { email: user.email });
+      toast.success("Email verifikasi berhasil dikirim ulang!");
+      // Optionally refetch user, but isVerified status won't change until user klik link di email
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        "Gagal mengirim ulang email verifikasi.";
+      toast.error(msg);
+      // Jika backend balas 'already verified', refetch profile
+      if (msg.toLowerCase().includes("already verified")) {
+        await fetchUser();
+      }
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // Refresh user profile status
+  const handleRefreshStatus = async () => {
+    setLoading(true);
+    await fetchUser();
+    toast.success("Status verifikasi diperbarui.");
+  };
 
   if (loading) {
     return <div className="text-center py-10">Loading profile...</div>;
   }
-
   if (!user) {
     return <div className="text-center text-red-500 py-10">User not found</div>;
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-10 space-y-12">
-      {/* === Section: Edit Profile === */}
+    <div className="max-w-2xl mx-auto px-6 py-10 space-y-10">
+      {/* === Email Verification Notice === */}
+      {!user.isVerified ? (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between rounded mb-6 gap-2">
+          <span>
+            Email <b>{user.email}</b>{" "}
+            <span className="text-orange-700 font-medium">
+              belum diverifikasi.
+            </span>
+            <span className="ml-1 text-gray-600 text-xs">
+              (Cek folder spam jika belum masuk)
+            </span>
+          </span>
+          <div className="flex gap-2 mt-2 sm:mt-0">
+            <button
+              className="text-blue-700 font-medium underline"
+              disabled={resending}
+              onClick={handleResendVerification}
+            >
+              {resending ? "Mengirim..." : "Kirim Ulang Email"}
+            </button>
+            <button
+              className="text-xs text-gray-500 underline"
+              title="Refresh status verifikasi"
+              onClick={handleRefreshStatus}
+            >
+              Cek Status
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center bg-green-50 border-l-4 border-green-600 p-4 rounded mb-6">
+          <svg
+            className="w-6 h-6 text-green-600 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          <span>
+            <b>{user.email}</b>{" "}
+            <span className="text-green-700 font-semibold">
+              sudah terverifikasi
+            </span>
+          </span>
+        </div>
+      )}
+
+      {/* === Profile Section === */}
       <section>
         <h1 className="text-2xl font-semibold mb-2">Profile</h1>
         <p className="text-gray-500 mb-6">
-          Edit your information & manage rewards
+          Edit your information &amp; manage rewards
         </p>
         <EditProfileForm initialUser={user} />
       </section>
 
       <hr className="border-gray-200" />
 
-      {/* === Section: User Points === */}
+      {/* === User Points Section === */}
       {user.userPoints !== undefined && (
         <section className="bg-white rounded-xl border shadow px-6 py-4">
           <h2 className="text-lg font-semibold mb-1 text-gray-800">
@@ -88,12 +168,11 @@ export default function CustomerProfilePage() {
         </section>
       )}
 
-      {/* === Section: Active Coupons === */}
+      {/* === Active Coupons Section === */}
       <section className="bg-white rounded-xl border shadow px-6 py-4">
         <h2 className="text-lg font-semibold mb-3 text-gray-800">
           Your Active Coupons
         </h2>
-
         {loadingRewards ? (
           <p className="text-gray-500 text-sm">Loading rewards...</p>
         ) : coupons.length === 0 ? (

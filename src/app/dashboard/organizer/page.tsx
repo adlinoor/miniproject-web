@@ -33,25 +33,15 @@ export default function OrganizerDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-        if (!token) throw new Error("Token missing");
-
-        const eventRes = await api.get("/events/organizer/my-events", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const eventRes = await api.get("/events/organizer/my-events");
         setEvents(eventRes.data.data || []);
 
-        const txRes = await api.get("/transactions/organizer", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const txRes = await api.get("/transactions/organizer");
         setTransactions(txRes.data.data || []);
-      } catch (err: any) {
-        toast.error("Dashboard data unavailable (fallback)");
-        setEvents([]);
-        setTransactions([]);
+      } catch (err) {
+        toast.error("Failed to load data");
       }
     };
-
     fetchData();
   }, []);
 

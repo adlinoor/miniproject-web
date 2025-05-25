@@ -42,7 +42,6 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       const res = await api.post("/auth/register", data);
-      localStorage.setItem("access_token", res.data.token);
       dispatch(login(res.data.user));
       toast.success("Registration successful!");
 

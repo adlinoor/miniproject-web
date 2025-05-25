@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
-
 import ProtectedRoute from "@/components/ProtectedRoute";
+import api from "@/lib/api-client";
 
 type Transaction = {
   id: number;
@@ -29,14 +28,7 @@ export default function OrganizerTransactionsPage() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/transactions/organizer`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const { data } = await api.get("/transactions/organizer");
         setTransactions(data);
       } catch (err) {
         toast.error("Failed to load transactions");
@@ -53,15 +45,7 @@ export default function OrganizerTransactionsPage() {
     newStatus: "DONE" | "REJECTED"
   ) => {
     try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/transactions/${id}/status`,
-        { status: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await api.put(`/transactions/${id}/status`, { status: newStatus });
       toast.success(`Transaction ${newStatus}`);
       setTransactions((prev) =>
         prev.map((tx) => (tx.id === id ? { ...tx, status: newStatus } : tx))

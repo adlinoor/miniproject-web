@@ -1,24 +1,30 @@
 "use client";
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function VerifyEmailFailedPage() {
-  const params = useSearchParams();
-  const email = params.get("email");
-  const router = useRouter();
+function FailedContent() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <h1 className="text-2xl font-bold mb-4">Verifikasi Email Gagal</h1>
-      <p className="mb-2 text-red-600">
-        Verifikasi email <b>{email}</b> gagal. Silakan coba ulang atau hubungi
-        admin.
+    <div className="p-8 text-center">
+      <h1 className="text-2xl font-bold text-red-600 mb-4">Verifikasi Gagal</h1>
+      <p>
+        {email
+          ? `Gagal memverifikasi email: ${email}.`
+          : "Gagal memverifikasi email."}
       </p>
-      <button
-        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded"
-        onClick={() => router.push("/auth/login")}
-      >
-        Kembali ke Login
-      </button>
+      <p className="mt-2 text-gray-500">
+        Cek ulang link verifikasi Anda atau daftar ulang.
+      </p>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FailedContent />
+    </Suspense>
   );
 }

@@ -12,7 +12,7 @@ import Link from "next/link";
 import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input"; // ✅ use your Input component
+import Input from "@/components/ui/Input";
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),

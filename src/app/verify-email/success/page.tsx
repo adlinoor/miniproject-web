@@ -1,23 +1,30 @@
 "use client";
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function VerifyEmailSuccessPage() {
-  const params = useSearchParams();
-  const email = params.get("email");
-  const router = useRouter();
+function SuccessContent() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <h1 className="text-2xl font-bold mb-4">Verifikasi Email Berhasil</h1>
-      <p className="mb-2 text-green-600">
-        Email <b>{email}</b> berhasil diverifikasi!
+    <div className="p-8 text-center">
+      <h1 className="text-2xl font-bold text-green-700 mb-4">
+        Verifikasi Berhasil!
+      </h1>
+      <p>
+        {email
+          ? `Email ${email} berhasil diverifikasi.`
+          : "Email berhasil diverifikasi."}
       </p>
-      <button
-        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded"
-        onClick={() => router.push("/auth/login")}
-      >
-        Login
-      </button>
+      <p className="mt-2 text-gray-500">Kamu bisa login sekarang.</p>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

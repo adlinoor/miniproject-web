@@ -22,7 +22,6 @@ export default function EditEventPage() {
     const fetchEvent = async () => {
       try {
         const res = await api.get(`/events/${id}`);
-        // INI YANG BENAR:
         const event = res.data.data;
 
         if (
@@ -57,12 +56,10 @@ export default function EditEventPage() {
     fetchEvent();
   }, [id, isHydrated, user, router]);
 
-  // Submit form sebagai FormData (bisa update foto)
-  const handleUpdate = async (formData: FormData) => {
+  // Submit form sebagai OBJECT, bukan FormData!
+  const handleUpdate = async (values: EventFormValues) => {
     try {
-      const res = await api.put(`/events/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.put(`/events/${id}`, values);
 
       if (res.status === 200) {
         toast.success("Event updated successfully!");

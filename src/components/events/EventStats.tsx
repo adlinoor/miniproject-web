@@ -47,6 +47,7 @@ export const EventStats: React.FC<EventStatsProps> = ({
   events,
   transactions,
 }) => {
+  // -------- Data
   const eventStatusData: ChartData<"doughnut"> = {
     labels: ["Upcoming", "Ongoing", "Completed", "Cancelled"],
     datasets: [
@@ -66,7 +67,8 @@ export const EventStats: React.FC<EventStatsProps> = ({
     ],
   };
 
-  const revenuePerMonth = Array(12)
+  // -------- Monthly revenue array
+  const monthlyRevenue = Array(12)
     .fill(0)
     .map((_, i) =>
       transactions
@@ -76,9 +78,23 @@ export const EventStats: React.FC<EventStatsProps> = ({
         .reduce((sum, t) => sum + t.amount, 0)
     );
 
-  // Ambil max value buat auto max di axis (optional)
-  const maxValue = Math.max(...revenuePerMonth, 0);
+  // -------- Hitung max untuk Y-axis
+  const maxValue = Math.max(...monthlyRevenue, 0);
+  function getStepSize(maxValue: number) {
+    if (maxValue <= 100_000) return 10_000;
+    if (maxValue <= 1_000_000) return 100_000;
+    if (maxValue <= 5_000_000) return 500_000;
+    if (maxValue <= 20_000_000) return 2_000_000;
+    if (maxValue <= 100_000_000) return 10_000_000;
+    return 50_000_000;
+  }
+  const stepSize = getStepSize(maxValue);
+  const suggestedMax = Math.max(
+    stepSize * 2,
+    Math.ceil(maxValue / stepSize) * stepSize
+  );
 
+  // -------- Bar Chart
   const revenueData: ChartData<"bar"> = {
     labels: [
       "Jan",
@@ -97,7 +113,7 @@ export const EventStats: React.FC<EventStatsProps> = ({
     datasets: [
       {
         label: "Revenue (Rupiah)",
-        data: revenuePerMonth,
+        data: monthlyRevenue,
         backgroundColor: "#4F46E5",
       },
     ],
@@ -107,16 +123,12 @@ export const EventStats: React.FC<EventStatsProps> = ({
     scales: {
       y: {
         beginAtZero: true,
-        min: 0,
-        // Set max 10% di atas max value biar axis bagus
-        max: maxValue > 0 ? maxValue * 1.1 : undefined,
+        suggestedMax: suggestedMax,
         ticks: {
-          // ✅ Fix: full rupiah, no compact, no desimal
+          stepSize: stepSize,
           callback: (value) =>
             "Rp " +
             Number(value).toLocaleString("id-ID", { minimumFractionDigits: 0 }),
-          precision: 0,
-          maxTicksLimit: 8,
         },
       },
     },
@@ -145,7 +157,6 @@ export const EventStats: React.FC<EventStatsProps> = ({
         <h3 className="text-lg font-medium mb-4">Event Status Distribution</h3>
         <Doughnut data={eventStatusData} />
       </div>
-
       <div className="bg-white p-4 rounded-lg shadow">
         <h3 className="text-lg font-medium mb-4">Monthly Revenue</h3>
         <Bar data={revenueData} options={barOptions} />

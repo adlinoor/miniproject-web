@@ -46,6 +46,16 @@ export default function CustomerProfilePage() {
     fetchRewards();
   }, [fetchUser]);
 
+  // === Scroll otomatis ke bagian #rewards jika URL mengandung #rewards ===
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#rewards") {
+      setTimeout(() => {
+        const el = document.getElementById("rewards");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, []);
+
   // Resend verification email
   const handleResendVerification = async () => {
     if (!user?.email) return;
@@ -53,7 +63,6 @@ export default function CustomerProfilePage() {
     try {
       await api.post("/users/resend-verification", { email: user.email });
       toast.success("Email verifikasi berhasil dikirim ulang!");
-      // Optionally refetch user, but isVerified status won't change until user klik link di email
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
@@ -148,40 +157,46 @@ export default function CustomerProfilePage() {
 
       <hr className="border-gray-200" />
 
-      {/* === User Points Section === */}
-      {user.userPoints !== undefined && (
-        <section className="bg-white rounded-xl border shadow px-6 py-4">
-          <h2 className="text-lg font-semibold mb-1 text-gray-800">
-            Your Points
-          </h2>
-          <p className="text-3xl font-bold text-sky-600">
-            {user.userPoints} pts
-          </p>
-        </section>
-      )}
-
-      {/* === Active Coupons Section === */}
-      <section className="bg-white rounded-xl border shadow px-6 py-4">
-        <h2 className="text-lg font-semibold mb-3 text-gray-800">
-          Your Active Coupons
-        </h2>
-        {loadingRewards ? (
-          <p className="text-gray-500 text-sm">Loading rewards...</p>
-        ) : coupons.length === 0 ? (
-          <p className="text-gray-500 text-sm">No active coupons available.</p>
-        ) : (
-          <ul className="space-y-2">
-            {coupons.map((c, i) => (
-              <li
-                key={i}
-                className="flex justify-between text-sm text-gray-700 border-b pb-2"
-              >
-                <span className="font-medium">{c.code}</span>
-                <span className="text-sky-600">{c.discount}% OFF</span>
-              </li>
-            ))}
-          </ul>
+      {/* === User Points & Coupons Section (PAKAI id="rewards") === */}
+      <section
+        id="rewards"
+        className="space-y-6 bg-white rounded-xl border shadow px-6 py-4"
+      >
+        {user.userPoints !== undefined && (
+          <div>
+            <h2 className="text-lg font-semibold mb-1 text-gray-800">
+              Your Points
+            </h2>
+            <p className="text-3xl font-bold text-sky-600">
+              {user.userPoints} pts
+            </p>
+          </div>
         )}
+
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-gray-800">
+            Your Active Coupons
+          </h2>
+          {loadingRewards ? (
+            <p className="text-gray-500 text-sm">Loading rewards...</p>
+          ) : coupons.length === 0 ? (
+            <p className="text-gray-500 text-sm">
+              No active coupons available.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {coupons.map((c, i) => (
+                <li
+                  key={i}
+                  className="flex justify-between text-sm text-gray-700 border-b pb-2"
+                >
+                  <span className="font-medium">{c.code}</span>
+                  <span className="text-sky-600">{c.discount}% OFF</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </section>
     </div>
   );

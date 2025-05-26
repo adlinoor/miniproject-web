@@ -89,7 +89,7 @@ function DashboardContent() {
           emoji="📝"
         />
         <DashboardCard
-          href="/dashboard/customer/profile"
+          href="/dashboard/customer/profile#rewards"
           title="Points & Rewards"
           emoji="🎁"
         />

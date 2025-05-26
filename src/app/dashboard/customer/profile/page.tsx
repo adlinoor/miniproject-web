@@ -46,14 +46,21 @@ export default function CustomerProfilePage() {
     fetchRewards();
   }, [fetchUser]);
 
-  // === Scroll otomatis ke bagian #rewards jika URL mengandung #rewards ===
+  // ==== Reliable Scroll to #rewards section ====
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash === "#rewards") {
-      setTimeout(() => {
-        const el = document.getElementById("rewards");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+    function scrollToRewards() {
+      if (window.location.hash === "#rewards") {
+        setTimeout(() => {
+          const el = document.getElementById("rewards");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 200);
+      }
     }
+    scrollToRewards();
+    window.addEventListener("hashchange", scrollToRewards);
+    return () => window.removeEventListener("hashchange", scrollToRewards);
   }, []);
 
   // Resend verification email
@@ -68,7 +75,6 @@ export default function CustomerProfilePage() {
         err?.response?.data?.message ||
         "Gagal mengirim ulang email verifikasi.";
       toast.error(msg);
-      // Jika backend balas 'already verified', refetch profile
       if (msg.toLowerCase().includes("already verified")) {
         await fetchUser();
       }
@@ -157,7 +163,7 @@ export default function CustomerProfilePage() {
 
       <hr className="border-gray-200" />
 
-      {/* === User Points & Coupons Section (PAKAI id="rewards") === */}
+      {/* === User Points & Coupons Section (id="rewards") === */}
       <section
         id="rewards"
         className="space-y-6 bg-white rounded-xl border shadow px-6 py-4"

@@ -38,7 +38,7 @@ export default function ProtectedRoute({
       } else if (allowedRoles && !allowedRoles.includes(user.role)) {
         toast.error("You don't have permission to access this page");
         router.replace(redirectTo);
-      } else if (requireVerified && user.isVerified === false) {
+      } else if (user.role === "CUSTOMER" && user.isVerified === false) {
         toast.error("Please verify your email first");
         router.replace("/verify-email-notice"); // custom page, buat sesuai kebutuhan
       }

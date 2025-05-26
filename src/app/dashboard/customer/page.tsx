@@ -5,14 +5,7 @@ import api from "@/lib/api-client";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import ProtectedRoute from "@/components/ProtectedRoute";
-
-interface User {
-  first_name: string;
-  last_name: string;
-  profilePicture?: string;
-  userPoints?: number;
-  referralCode?: string;
-}
+import { IUser } from "@/interfaces/user.interface";
 
 export default function CustomerDashboardPage() {
   return (
@@ -23,7 +16,7 @@ export default function CustomerDashboardPage() {
 }
 
 function DashboardContent() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

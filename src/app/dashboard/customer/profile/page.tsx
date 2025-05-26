@@ -4,15 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import EditProfileForm from "@/components/EditProfileForm";
 import api from "@/lib/api-client";
 import { toast } from "react-hot-toast";
-
-interface User {
-  isVerified: boolean;
-  email: string;
-  first_name: string;
-  last_name: string;
-  profilePicture?: string;
-  userPoints?: number;
-}
+import { IUser } from "@/interfaces/user.interface";
 
 interface Coupon {
   code: string;
@@ -23,7 +15,7 @@ interface Coupon {
 }
 
 export default function CustomerProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingRewards, setLoadingRewards] = useState(true);
@@ -93,7 +85,7 @@ export default function CustomerProfilePage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-10 space-y-10">
       {/* === Email Verification Notice === */}
-      {!user.isVerified ? (
+      {user.role === "CUSTOMER" && user.isVerified === false ? (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between rounded mb-6 gap-2">
           <span>
             Email <b>{user.email}</b>{" "}

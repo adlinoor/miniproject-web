@@ -1,4 +1,5 @@
 export interface IUser {
+  userPoints: number;
   isVerified: boolean;
   profilePicture: any;
   id: number;

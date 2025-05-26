@@ -45,7 +45,7 @@ export default function OrganizerDashboardPage() {
     fetchData();
   }, []);
 
-  // === FIX: Map ke bentuk EventStats Transaction ===
+  // === Mapping untuk EventStats
   const mappedTransactions = transactions.map((tx) => ({
     id: tx.id,
     amount: tx.totalPrice,

@@ -66,6 +66,19 @@ export const EventStats: React.FC<EventStatsProps> = ({
     ],
   };
 
+  const revenuePerMonth = Array(12)
+    .fill(0)
+    .map((_, i) =>
+      transactions
+        .filter(
+          (t) => new Date(t.createdAt).getMonth() === i && t.status === "DONE"
+        )
+        .reduce((sum, t) => sum + t.amount, 0)
+    );
+
+  // Ambil max value buat auto max di axis (optional)
+  const maxValue = Math.max(...revenuePerMonth, 0);
+
   const revenueData: ChartData<"bar"> = {
     labels: [
       "Jan",
@@ -84,16 +97,7 @@ export const EventStats: React.FC<EventStatsProps> = ({
     datasets: [
       {
         label: "Revenue (Rupiah)",
-        data: Array(12)
-          .fill(0)
-          .map((_, i) =>
-            transactions
-              .filter(
-                (t) =>
-                  new Date(t.createdAt).getMonth() === i && t.status === "DONE"
-              )
-              .reduce((sum, t) => sum + t.amount, 0)
-          ),
+        data: revenuePerMonth,
         backgroundColor: "#4F46E5",
       },
     ],
@@ -103,11 +107,16 @@ export const EventStats: React.FC<EventStatsProps> = ({
     scales: {
       y: {
         beginAtZero: true,
+        min: 0,
+        // Set max 10% di atas max value biar axis bagus
+        max: maxValue > 0 ? maxValue * 1.1 : undefined,
         ticks: {
-          // ✅ Format Y-axis ke Rupiah
+          // ✅ Fix: full rupiah, no compact, no desimal
           callback: (value) =>
             "Rp " +
             Number(value).toLocaleString("id-ID", { minimumFractionDigits: 0 }),
+          precision: 0,
+          maxTicksLimit: 8,
         },
       },
     },

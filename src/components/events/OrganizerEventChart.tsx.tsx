@@ -69,7 +69,6 @@ export default function OrganizerEventChart() {
         setData(result);
       } catch (err) {
         toast.error("Failed to fetch event data");
-        console.error("❌ Chart fetch failed:", err);
       } finally {
         setLoading(false);
       }

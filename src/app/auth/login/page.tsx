@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +13,6 @@ import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -26,7 +25,6 @@ type FormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -73,34 +71,14 @@ export default function LoginPage() {
             error={errors.email}
           />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                className="pr-12"
-                {...register("password")}
-                error={errors.password}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-100 transition focus:outline-none"
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <Eye className="w-5 h-5 text-gray-500" />
-                )}
-              </button>
-            </div>
-          </div>
+          <Input
+            type="password"
+            label="Password"
+            placeholder="••••••••"
+            autoComplete="current-password"
+            {...register("password")}
+            error={errors.password}
+          />
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 text-gray-700">

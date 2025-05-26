@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,8 +43,6 @@ export default function RegisterPage() {
       const res = await api.post("/auth/register", data);
       dispatch(login(res.data.user));
       toast.success("Registration successful!");
-
-      // Beri delay singkat agar token benar-benar tersimpan sebelum redirect
       setTimeout(() => {
         router.push(
           res.data.user.role === "ORGANIZER"
@@ -66,56 +63,55 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-left">
           Register
         </h1>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {[
-            {
-              label: "First Name",
-              name: "first_name",
-              type: "text",
-              placeholder: "Adli",
-            },
-            {
-              label: "Last Name",
-              name: "last_name",
-              type: "text",
-              placeholder: "Mumtaz",
-            },
-            {
-              label: "Email",
-              name: "email",
-              type: "email",
-              placeholder: "email@example.com",
-            },
-            {
-              label: "Password",
-              name: "password",
-              type: "password",
-              placeholder: "••••••••",
-            },
-            {
-              label: "Referral Code (optional)",
-              name: "referralCode",
-              type: "text",
-              placeholder: "REF-ARevents",
-            },
-          ].map((field) => (
-            <Input
-              key={field.name}
-              type={field.type}
-              label={field.label}
-              placeholder={field.placeholder}
-              {...register(field.name as keyof RegisterFormData)}
-              error={errors[field.name as keyof RegisterFormData]}
-            />
-          ))}
-
-          {/* Role selection */}
+          <Input
+            label="First Name"
+            type="text"
+            placeholder="Adli"
+            {...register("first_name")}
+            error={errors.first_name}
+          />
+          <Input
+            label="Last Name"
+            type="text"
+            placeholder="Mumtaz"
+            {...register("last_name")}
+            error={errors.last_name}
+          />
+          <Input
+            label="Email"
+            type="email"
+            placeholder="email@example.com"
+            {...register("email")}
+            error={errors.email}
+          />
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            {...register("password")}
+            error={errors.password}
+          />
+          <Input
+            label="Referral Code (optional)"
+            type="text"
+            placeholder="REF-ARevents"
+            {...register("referralCode")}
+            error={errors.referralCode}
+          />
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium mb-1 text-gray-700"
+            >
               Register as
             </label>
-            <select {...register("role")} className="input">
+            <select
+              {...register("role")}
+              className="input"
+              id="role"
+              name="role"
+            >
               <option value="">Select role</option>
               <option value="CUSTOMER">Customer</option>
               <option value="ORGANIZER">Organizer</option>
@@ -124,12 +120,10 @@ export default function RegisterPage() {
               <p className="text-sm text-red-500 mt-1">{errors.role.message}</p>
             )}
           </div>
-
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </form>
-
         <p className="mt-6 text-sm text-center text-gray-600">
           Already have an account?{" "}
           <Link href="/auth/login" className="text-blue-600 hover:underline">

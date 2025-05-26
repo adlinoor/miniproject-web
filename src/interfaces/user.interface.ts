@@ -8,4 +8,5 @@ export interface IUser {
   email: string;
   role: "CUSTOMER" | "ORGANIZER";
   referralCode?: string;
+  referralCount?: number;
 }

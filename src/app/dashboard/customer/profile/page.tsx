@@ -20,6 +20,7 @@ export default function CustomerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [loadingRewards, setLoadingRewards] = useState(true);
   const [resending, setResending] = useState(false);
+  const [referralCount, setReferralCount] = useState<number>(0);
 
   // Fetch user profile
   const fetchUser = useCallback(async () => {
@@ -34,17 +35,24 @@ export default function CustomerProfilePage() {
   }, []);
 
   useEffect(() => {
-    fetchUser();
-    // Fetch rewards/coupons
-    const fetchRewards = async () => {
+    async function fetchAll() {
       try {
-        const res = await api.get("/users/rewards");
-        setCoupons(res.data.coupons?.available || []);
-      } catch {}
-      setLoadingRewards(false);
-    };
-    fetchRewards();
-  }, [fetchUser]);
+        const [profileRes, rewardsRes] = await Promise.all([
+          api.get("/users/me"),
+          api.get("/users/rewards"),
+        ]);
+        setUser(profileRes.data);
+        setCoupons(rewardsRes.data.coupons?.active || []);
+        setReferralCount(profileRes.data.referralCount || 0);
+      } catch {
+        toast.error("Failed to load profile/rewards");
+      } finally {
+        setLoading(false);
+        setLoadingRewards(false);
+      }
+    }
+    fetchAll();
+  }, []);
 
   // ==== Reliable Scroll to #rewards section ====
   useEffect(() => {
@@ -52,9 +60,7 @@ export default function CustomerProfilePage() {
       if (window.location.hash === "#rewards") {
         setTimeout(() => {
           const el = document.getElementById("rewards");
-          if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 200);
       }
     }

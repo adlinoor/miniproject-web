@@ -22,7 +22,7 @@ ChartJS.register(
 
 interface Transaction {
   id: number;
-  amount: number; // <--- HARUS amount
+  amount: number;
   status:
     | "WAITING_FOR_PAYMENT"
     | "WAITING_FOR_ADMIN_CONFIRMATION"
@@ -83,7 +83,7 @@ export const EventStats: React.FC<EventStatsProps> = ({
     ],
     datasets: [
       {
-        label: "Revenue (IDR)",
+        label: "Revenue (Rupiah)",
         data: Array(12)
           .fill(0)
           .map((_, i) =>
@@ -104,7 +104,27 @@ export const EventStats: React.FC<EventStatsProps> = ({
       y: {
         beginAtZero: true,
         ticks: {
-          callback: (value) => `IDR ${Number(value).toLocaleString()}`,
+          // ✅ Format Y-axis ke Rupiah
+          callback: (value) =>
+            "Rp " +
+            Number(value).toLocaleString("id-ID", { minimumFractionDigits: 0 }),
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.dataset.label || "";
+            const value = context.parsed.y || 0;
+            return (
+              label +
+              ": Rp " +
+              Number(value).toLocaleString("id-ID", {
+                minimumFractionDigits: 0,
+              })
+            );
+          },
         },
       },
     },

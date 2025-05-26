@@ -7,14 +7,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-export default function OrganizerProfilePage() {
+export default function OrganizerEditProfilePage() {
   const user = useSelector((state: RootState) => state.auth.user);
   const router = useRouter();
 
   useEffect(() => {
     if (user && user.role !== "ORGANIZER") {
       toast.error("Access denied: only organizers can edit this profile");
-      router.push("/"); // redirect to home or 403 page
+      router.push("/"); // redirect ke home atau halaman 403
     }
   }, [user, router]);
 

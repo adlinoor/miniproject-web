@@ -17,7 +17,7 @@ type ProtectedRouteProps = {
 export default function ProtectedRoute({
   children,
   allowedRoles,
-  requireVerified = false, // default: tidak wajib verified
+  requireVerified = false,
   redirectTo = "/unauthorized",
   loadingFallback = null,
 }: ProtectedRouteProps) {
@@ -32,15 +32,24 @@ export default function ProtectedRoute({
     const checkAccess = async () => {
       setIsChecking(true);
 
+      // === HARUS LOGIN ===
       if (!user) {
         toast.error("Please login to continue");
         router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
-      } else if (allowedRoles && !allowedRoles.includes(user.role)) {
+      }
+      // === ROLE TIDAK DIIJINKAN ===
+      else if (allowedRoles && !allowedRoles.includes(user.role)) {
         toast.error("You don't have permission to access this page");
         router.replace(redirectTo);
-      } else if (user.role === "CUSTOMER" && user.isVerified === false) {
+      }
+      // === KHUSUS: REQUIRE VERIFIED ===
+      else if (
+        requireVerified &&
+        user.role === "CUSTOMER" &&
+        user.isVerified === false
+      ) {
         toast.error("Please verify your email first");
-        router.replace("/verify-email-notice"); // custom page, buat sesuai kebutuhan
+        router.replace("/verify-email-notice");
       }
 
       setIsChecking(false);
@@ -57,14 +66,12 @@ export default function ProtectedRoute({
     pathname,
   ]);
 
-  // Sembunyikan children sampai state siap & lolos semua pengecekan
   if (isChecking || !isHydrated) return loadingFallback;
 
-  // Render children hanya jika lolos semua filter
   if (
     !user ||
     (allowedRoles && !allowedRoles.includes(user.role)) ||
-    (requireVerified && user.isVerified === false)
+    (requireVerified && user.role === "CUSTOMER" && user.isVerified === false)
   ) {
     return null;
   }

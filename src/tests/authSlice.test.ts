@@ -25,12 +25,12 @@ describe("authSlice", () => {
     profilePicture: "",
     role: "CUSTOMER",
     isVerified: false,
+    userPoints: 0,
   };
 
   beforeEach(() => {
     store.dispatch(logout());
-    mock.reset(); // ✅ clear mock
-    localStorage.clear();
+    mock.reset();
   });
 
   it("should fetch profile successfully", async () => {

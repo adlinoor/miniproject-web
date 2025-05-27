@@ -1,14 +1,22 @@
-export type Event = {
+export interface Event {
   id: number;
   title: string;
   description: string;
+  startDate: string;
+  endDate: string;
   location: string;
   category: string;
   price: number;
   availableSeats: number;
-  startDate: string;
-  endDate: string;
+  organizerId: number;
   createdAt: string;
   updatedAt: string;
-  organizerId: number;
-};
+  images?: { url: string }[];
+  promotions?: { code: string; discount: number }[];
+  tickets?: {
+    id: number;
+    type: string;
+    price: number;
+    quantity: number;
+  }[];
+}

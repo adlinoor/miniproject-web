@@ -12,6 +12,17 @@ interface EventSearchProps {
   role?: string;
 }
 
+const CATEGORY_LIST = [
+  { value: "", label: "All Categories" },
+  { value: "Music", label: "Music" },
+  { value: "Workshop", label: "Workshop" },
+  { value: "Seminar", label: "Seminar" },
+  { value: "Business", label: "Business" },
+  { value: "Tech", label: "Tech" },
+  { value: "Health", label: "Health" },
+  { value: "Other", label: "Other" },
+];
+
 export default function EventSearch({ role }: EventSearchProps) {
   const { query, setQuery } = useDebouncedSearch("", 800);
   const [events, setEvents] = useState<Event[]>([]);
@@ -46,7 +57,7 @@ export default function EventSearch({ role }: EventSearchProps) {
       ? event.category?.toLowerCase() === categoryFilter.toLowerCase()
       : true;
     const matchLocation = locationFilter
-      ? event.location.toLowerCase().includes(locationFilter.toLowerCase())
+      ? event.location?.toLowerCase().includes(locationFilter.toLowerCase())
       : true;
     const matchText = (event.title + event.location)
       .toLowerCase()
@@ -76,13 +87,11 @@ export default function EventSearch({ role }: EventSearchProps) {
           onChange={(e) => setCategoryFilter(e.target.value)}
           className="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">All Categories</option>
-          <option value="music">Music</option>
-          <option value="sports">Sports</option>
-          <option value="art">Art</option>
-          <option value="food">Food & Drink</option>
-          <option value="business">Business</option>
-          <option value="other">Other</option>
+          {CATEGORY_LIST.map((cat) => (
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
+            </option>
+          ))}
         </select>
 
         <input
@@ -135,12 +144,14 @@ export default function EventSearch({ role }: EventSearchProps) {
                   key={event.id}
                   event={{
                     id: event.id,
-                    name: event.title,
+                    title: event.title,
                     location: event.location,
                     description: event.description,
                     price: event.price,
-                    start_date: event.startDate,
-                    end_date: event.endDate,
+                    startDate: event.startDate,
+                    endDate: event.endDate,
+                    images: event.images,
+                    promotions: event.promotions,
                   }}
                 />
               ))}

@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, FormProvider } from "react-hook-form";
+import React, { useRef, useState, useEffect } from "react";
+import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Button from "@/components/ui/Button";
 
-// Schema Zod tanpa image
 export const EventSchema = z.object({
   name: z.string().min(1, "Event name is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -19,14 +20,24 @@ export const EventSchema = z.object({
   eventType: z.enum(["PAID", "FREE"]),
   category: z.string().min(1, "Category is required"),
   city: z.string().min(1, "City is required"),
+  ticketTypes: z
+    .array(
+      z.object({
+        type: z.string().min(1, "Ticket type is required"),
+        price: z
+          .number({ invalid_type_error: "Price must be a number" })
+          .min(0),
+        quantity: z
+          .number({ invalid_type_error: "Quantity must be a number" })
+          .min(1),
+      })
+    )
+    .min(1, "At least one ticket type is required"),
+  // image: z.any().optional(), // DEPRECATED, use images
+  images: z.any().optional(), // handle images as FileList or array
 });
 
 export type EventFormValues = z.infer<typeof EventSchema>;
-
-interface EventFormProps {
-  onSubmit: (values: EventFormValues) => void;
-  initialValues?: EventFormValues & { id?: string };
-}
 
 const defaultCategories = [
   "Music",
@@ -46,6 +57,14 @@ const defaultCities = [
   "Other",
 ];
 
+interface EventFormProps {
+  onSubmit: (data: FormData) => void;
+  initialValues?: Partial<EventFormValues> & {
+    id?: string;
+    imageUrls?: string[];
+  };
+}
+
 export default function EventsForm({
   onSubmit,
   initialValues,
@@ -57,6 +76,13 @@ export default function EventsForm({
       price: initialValues?.price ?? 0,
       seats: initialValues?.seats ?? 1,
       eventType: initialValues?.eventType ?? "PAID",
+      ticketTypes: initialValues?.ticketTypes ?? [
+        {
+          type: "",
+          price: 0,
+          quantity: 1,
+        },
+      ],
     },
   });
 
@@ -65,18 +91,84 @@ export default function EventsForm({
     register,
     watch,
     setValue,
+    reset,
+    control,
     formState: { errors },
   } = methods;
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "ticketTypes",
+  });
+
+  useEffect(() => {
+    if (initialValues) {
+      reset({
+        ...initialValues,
+        price: initialValues.price ?? 0,
+        seats: initialValues.seats ?? 1,
+        eventType: initialValues.eventType ?? "PAID",
+        ticketTypes:
+          initialValues.ticketTypes && initialValues.ticketTypes.length > 0
+            ? initialValues.ticketTypes
+            : [
+                {
+                  type: "",
+                  price: 0,
+                  quantity: 1,
+                },
+              ],
+      });
+    }
+  }, [initialValues, reset]);
+
   const eventType = watch("eventType");
 
-  // Submit as JSON object
+  // Images Preview
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
+    initialValues?.imageUrls ?? []
+  );
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    setNewImages((prev) => [...prev, ...files]);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews((prev) => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemoveImage = (idx: number) => {
+    setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+    setNewImages((prev) => prev.filter((_, i) => i !== idx));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Submit as FormData (with file and stringified ticketTypes)
   const internalSubmit = (data: EventFormValues) => {
-    // Sederhanakan: lokasi = "city - event name" (ikut versi backend kamu)
-    onSubmit({
-      ...data,
-      location: `${data.city} - ${data.name}`,
-    } as any);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("startDate", data.startDate);
+    formData.append("endDate", data.endDate);
+    formData.append(
+      "price",
+      data.eventType === "FREE" ? "0" : String(data.price)
+    );
+    formData.append("seats", String(data.seats));
+    formData.append("eventType", data.eventType);
+    formData.append("category", data.category);
+    formData.append("city", data.city);
+    formData.append("location", data.city);
+    formData.append("ticketTypes", JSON.stringify(data.ticketTypes));
+    // Add new images to FormData
+    newImages.forEach((file) => formData.append("images", file));
+    onSubmit(formData);
   };
 
   return (
@@ -236,13 +328,94 @@ export default function EventsForm({
           )}
         </div>
 
+        {/* Images (Multiple Upload) */}
+        <div>
+          <label className="block font-medium mb-1 text-gray-700">
+            Event Images
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="block w-full"
+          />
+          <div className="flex gap-2 mt-2">
+            {imagePreviews.map((url, idx) => (
+              <div key={idx} className="relative">
+                <img
+                  src={url}
+                  alt={`preview-${idx}`}
+                  className="h-16 w-16 object-cover rounded"
+                />
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 text-xs bg-red-500 text-white rounded"
+                  onClick={() => handleRemoveImage(idx)}
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Ticket Types (Dynamic) */}
+        <div>
+          <label className="block font-medium mb-1 text-gray-700">
+            Ticket Types
+          </label>
+          {fields.map((field, idx) => (
+            <div key={field.id} className="flex gap-2 items-end mb-2">
+              <input
+                {...register(`ticketTypes.${idx}.type`)}
+                placeholder="Type"
+                className="w-1/3 border rounded px-2 py-1"
+              />
+              <input
+                {...register(`ticketTypes.${idx}.price`, {
+                  valueAsNumber: true,
+                })}
+                type="number"
+                placeholder="Price"
+                className="w-1/3 border rounded px-2 py-1"
+              />
+              <input
+                {...register(`ticketTypes.${idx}.quantity`, {
+                  valueAsNumber: true,
+                })}
+                type="number"
+                placeholder="quantity"
+                className="w-1/3 border rounded px-2 py-1"
+              />
+              <button
+                type="button"
+                onClick={() => remove(idx)}
+                className="bg-red-100 hover:bg-red-300 rounded px-2 text-red-700"
+              >
+                -
+              </button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => append({ type: "", price: 0, quantity: 1 })}
+          >
+            Add Ticket Type
+          </Button>
+          {errors.ticketTypes && (
+            <p className="text-sm text-red-500">
+              {(errors.ticketTypes as any).message}
+            </p>
+          )}
+        </div>
+
         {/* Submit */}
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
-        >
+        <Button type="submit" className="w-full">
           {initialValues?.id ? "Update Event" : "Create Event"}
-        </button>
+        </Button>
       </form>
     </FormProvider>
   );

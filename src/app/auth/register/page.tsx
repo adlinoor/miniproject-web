@@ -1,5 +1,4 @@
 "use client";
-
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
-
 import api from "@/lib/api-client";
 import { login } from "@/lib/redux/features/authSlice";
 import Button from "@/components/ui/Button";
@@ -29,14 +27,11 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useDispatch();
-
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-  });
+  } = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -58,12 +53,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="max-w-md mx-auto p-6">
-      <section className="bg-white border border-gray-200 p-8 rounded-2xl shadow-xl w-full">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-left">
+    <main className="min-h-screen flex justify-center pt-16 md:pt-28 pb-4 bg-gradient-to-br from-sky-100 via-white to-gray-50">
+      <section className="w-full max-w-sm md:max-w-md bg-white border border-gray-200 p-4 md:p-8 rounded-2xl shadow-xl animate-fade-in-up">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-center">
           Register
         </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 md:space-y-5"
+        >
           <Input
             label="First Name"
             type="text"
@@ -120,11 +118,15 @@ export default function RegisterPage() {
               <p className="text-sm text-red-500 mt-1">{errors.role.message}</p>
             )}
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full py-2.5"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </form>
-        <p className="mt-6 text-sm text-center text-gray-600">
+        <p className="mt-4 text-sm text-center text-gray-600">
           Already have an account?{" "}
           <Link href="/auth/login" className="text-blue-600 hover:underline">
             Login

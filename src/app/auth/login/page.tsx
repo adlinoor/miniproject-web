@@ -57,11 +57,16 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <main className="max-w-md mx-auto p-6">
-      <section className="bg-white border border-gray-200 p-8 rounded-2xl shadow-xl">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Login</h1>
+    <main className="min-h-screen flex justify-center pt-16 md:pt-28 pb-4 bg-gradient-to-br from-sky-100 via-white to-gray-50">
+      <section className="w-full max-w-sm md:max-w-md bg-white border border-gray-200 rounded-2xl shadow-xl p-6 md:p-8 animate-fade-in-up overflow-hidden">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-center">
+          Login
+        </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 md:space-y-5"
+        >
           <Input
             type="email"
             label="Email"
@@ -80,25 +85,33 @@ export default function LoginPage() {
             error={errors.password}
           />
 
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 text-gray-700">
-              <input type="checkbox" {...register("rememberMe")} />
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <label className="flex items-center gap-2 text-gray-700 text-sm">
+              <input
+                type="checkbox"
+                {...register("rememberMe")}
+                className="accent-sky-600"
+              />
               Remember me
             </label>
             <Link
               href="/auth/forgot-password"
-              className="text-blue-600 hover:underline"
+              className="text-sm text-blue-600 hover:underline"
             >
               Forgot password?
             </Link>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full py-2.5"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Logging in..." : "Login"}
           </Button>
         </form>
 
-        <p className="mt-6 text-sm text-center text-gray-600">
+        <p className="mt-4 text-sm text-center text-gray-600">
           Don't have an account?{" "}
           <Link href="/auth/register" className="text-blue-600 hover:underline">
             Register

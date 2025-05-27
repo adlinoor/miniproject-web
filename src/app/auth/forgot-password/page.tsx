@@ -1,13 +1,10 @@
 "use client";
-
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import authService from "@/services/auth.service";
 
-type FormData = {
-  email: string;
-};
+type FormData = { email: string };
 
 export default function ForgotPasswordPage() {
   const {
@@ -26,12 +23,15 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="max-w-md mx-auto p-6">
-      <section className="bg-white border border-gray-200 shadow rounded-2xl p-8">
-        <h1 className="text-xl font-bold mb-4 text-gray-800">
+    <main className="min-h-screen flex justify-center pt-16 md:pt-28 pb-4 bg-gradient-to-br from-sky-100 via-white to-gray-50">
+      <section className="w-full max-w-sm md:max-w-md bg-white border border-gray-200 p-4 md:p-8 rounded-2xl shadow-xl animate-fade-in-up">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-center">
           Forgot Password
         </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 md:space-y-5"
+        >
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -49,7 +49,11 @@ export default function ForgotPasswordPage() {
               </p>
             )}
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full py-2.5"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Sending..." : "Send Reset Link"}
           </Button>
         </form>

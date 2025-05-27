@@ -24,18 +24,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-
         <div className="relative">
           <input
             id={inputId}
             ref={ref}
             type={inputType}
             className={clsx(
-              "w-full p-2 border rounded bg-white focus:outline-none transition",
+              "input",
               error
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-[var(--primary)]",
-              type === "password" && "pr-14", // padding supaya tombol show/hide ga numpuk teks
+              type === "password" && "pr-14",
               className
             )}
             {...props}
@@ -46,8 +45,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               tabIndex={-1}
               className={clsx(
                 "absolute right-2 top-1/2 -translate-y-1/2 text-xs px-2 py-1 rounded",
-                "bg-gray-100 hover:bg-gray-200 text-gray-700",
-                "transition"
+                "bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
               )}
               onClick={() => setShow((s) => !s)}
               aria-label={show ? "Hide password" : "Show password"}

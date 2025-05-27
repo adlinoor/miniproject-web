@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-/* ===== CSS Variables ===== */
+/* =========================
+   1. CSS Variables & Colors
+   ========================= */
 :root {
   --background: #f4f4f5;
   --foreground: #1f2937;
@@ -11,24 +13,27 @@
   --card: #ffffff;
 }
 
-/* ===== Global Base Styles ===== */
+/* =========================
+   2. Global Base Styles
+   ========================= */
 html,
 body {
   height: 100%;
   width: 100%;
   margin: 0;
-  padding-top: 0;
-  overflow-y: auto;
+  padding: 0;
   font-family: var(--font-geist-sans), Arial, sans-serif;
   scroll-behavior: smooth;
   overscroll-behavior-y: contain;
 }
 
 body {
-  @apply bg-gradient-to-br from-sky-100 via-white to-gray-50 text-gray-900;
+  @apply text-gray-900;
 }
 
-/* ===== Typography ===== */
+/* =========================
+   3. Typography
+   ========================= */
 h1,
 h2,
 h3,
@@ -39,12 +44,15 @@ h4 {
 a {
   color: var(--primary);
   text-decoration: none;
+  transition: color 0.2s;
 }
 a:hover {
   color: var(--primary-hover);
 }
 
-/* ===== Buttons ===== */
+/* =========================
+   4. Button Styles
+   ========================= */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -54,7 +62,7 @@ a:hover {
   font-size: 0.875rem;
   border: 1px solid transparent;
   border-radius: 9999px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
 }
 
 .btn-primary {
@@ -72,22 +80,24 @@ a:hover {
 .btn-secondary:hover {
   background-color: var(--secondary-hover);
 }
+
 .btn:active {
-  transform: scale(
-    0.98
-  ); /* Mengurangi ukuran tombol saat ditekan untuk feedback */
+  transform: scale(0.98); /* Button press feedback */
 }
 
-/* ===== Form Elements ===== */
+/* =========================
+   5. Form Elements (Native + .input)
+   ========================= */
 input,
 textarea,
 select {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   border: 1px solid #d1d5db;
   background-color: white;
-  transition: box-shadow 0.2s ease, border 0.2s ease;
+  font-size: 1rem;
+  transition: box-shadow 0.2s, border 0.2s;
 }
 
 input:focus,
@@ -95,23 +105,43 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.18);
 }
 
-/* ===== Cards ===== */
+/* -- Utility for controlled input (react-hook-form, etc.) -- */
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  font-size: 1rem;
+  transition: box-shadow 0.2s, border 0.2s;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.18);
+}
+
+/* =========================
+   6. Cards
+   ========================= */
 .card {
   background-color: var(--card);
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 .card:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
 
-/* ===== Animations ===== */
+/* =========================
+   7. Animation Utility
+   ========================= */
 @keyframes fade-in-up {
   0% {
     opacity: 0;
@@ -126,45 +156,41 @@ select:focus {
 .fade-in-up {
   animation: fade-in-up 1s ease-out both;
 }
-
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
-
 .animate-fade-in-delay {
   opacity: 0;
   animation: fade-in-up 1.2s ease-out 0.3s forwards;
 }
-
 .animate-fade-in-delay-2 {
   opacity: 0;
   animation: fade-in-up 1.5s ease-out 0.6s forwards;
 }
 
-/* ===== Visual Effects ===== */
+/* =========================
+   8. Visual Effects
+   ========================= */
 .text-glow {
   text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
 }
 
-/* Navbar styles for smooth scroll effect */
+/* =========================
+   9. Navbar Styles
+   ========================= */
 nav {
-  background: rgba(
-    255,
-    255,
-    255,
-    0.8
-  ); /* White background with slight opacity */
-  backdrop-filter: blur(10px); /* Added blur effect */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow */
-  z-index: 100; /* Ensures navbar stays on top */
+  background: rgba(255, 255, 255, 0.8); /* Slight opacity */
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
 }
 
 .navbar {
-  background-color: rgba(255, 255, 255, 0.9); /* Slightly more opaque */
-  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .navbar.scroll-active {
-  background-color: rgba(0, 0, 0, 0.8); /* Darkens background when scrolling */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Adds shadow when active */
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }

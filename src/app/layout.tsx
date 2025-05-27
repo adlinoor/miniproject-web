@@ -5,9 +5,8 @@ import "./globals.css";
 
 import StoreProvider from "@/components/storeProvider";
 import AuthProvider from "@/components/authProvider";
-import Navbar from "@/components/Navbar";
+import LayoutWrapper from "@/components/LayoutWrapper";
 import { Toaster } from "react-hot-toast";
-import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 
 export const metadata: Metadata = {
   title: "ARevents - Discover Yours",
@@ -30,15 +29,10 @@ export default function RootLayout({
       >
         <StoreProvider>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <ClientLayoutWrapper>
-                <main>{children}</main>
-              </ClientLayoutWrapper>
-              <Toaster position="top-center" />
-            </div>
+            <LayoutWrapper>{children}</LayoutWrapper>
           </AuthProvider>
         </StoreProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

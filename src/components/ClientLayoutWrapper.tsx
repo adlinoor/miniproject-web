@@ -1,5 +1,4 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 
 export default function ClientLayoutWrapper({
@@ -9,6 +8,11 @@ export default function ClientLayoutWrapper({
 }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isAuthPage = pathname?.startsWith("/auth");
+
+  if (isAuthPage) {
+    return <>{children}</>; // No main wrapper, no padding
+  }
 
   return (
     <main

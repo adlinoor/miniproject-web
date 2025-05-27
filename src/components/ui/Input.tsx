@@ -29,6 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             ref={ref}
             type={inputType}
+            autoComplete={props.autoComplete}
             className={clsx(
               "input",
               error

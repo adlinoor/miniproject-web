@@ -53,9 +53,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex justify-center pt-16 md:pt-28 pb-4 bg-gradient-to-br from-sky-100 via-white to-gray-50">
-      <section className="w-full max-w-sm md:max-w-md bg-white border border-gray-200 p-4 md:p-8 rounded-2xl shadow-xl animate-fade-in-up">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-center">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-white to-gray-50 px-4">
+      <section className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-xl p-6 sm:p-8 animate-fade-in-up space-y-6">
+        <h1 className="text-2xl font-bold text-gray-800 text-center">
           Register
         </h1>
         <form
@@ -66,6 +66,7 @@ export default function RegisterPage() {
             label="First Name"
             type="text"
             placeholder="Adli"
+            autoComplete="given-name"
             {...register("first_name")}
             error={errors.first_name}
           />
@@ -73,6 +74,7 @@ export default function RegisterPage() {
             label="Last Name"
             type="text"
             placeholder="Mumtaz"
+            autoComplete="family-name"
             {...register("last_name")}
             error={errors.last_name}
           />
@@ -80,6 +82,7 @@ export default function RegisterPage() {
             label="Email"
             type="email"
             placeholder="email@example.com"
+            autoComplete="username"
             {...register("email")}
             error={errors.email}
           />
@@ -87,6 +90,7 @@ export default function RegisterPage() {
             label="Password"
             type="password"
             placeholder="••••••••"
+            autoComplete="new-password"
             {...register("password")}
             error={errors.password}
           />

@@ -23,9 +23,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen flex justify-center pt-16 md:pt-28 pb-4 bg-gradient-to-br from-sky-100 via-white to-gray-50">
-      <section className="w-full max-w-sm md:max-w-md bg-white border border-gray-200 p-4 md:p-8 rounded-2xl shadow-xl animate-fade-in-up">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 text-center">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-white to-gray-50 px-4">
+      <section className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-xl p-6 sm:p-8 animate-fade-in-up space-y-6">
+        <h1 className="text-2xl font-bold text-gray-800 text-center">
           Forgot Password
         </h1>
         <form

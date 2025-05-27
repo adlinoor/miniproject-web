@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/redux/hook";
-import { getProfile, logout } from "@/lib/redux/features/authSlice";
+import { getProfile } from "@/lib/redux/features/authSlice";
 
 export default function AuthProvider({
   children,
@@ -10,10 +11,17 @@ export default function AuthProvider({
   children: React.ReactNode;
 }) {
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   useEffect(() => {
-    dispatch(getProfile());
-  }, [dispatch]);
+    dispatch(getProfile())
+      .unwrap()
+      .catch((err) => {
+        if (err === "Unauthorized") {
+          router.push("/auth/login");
+        }
+      });
+  }, [dispatch, router]);
 
   return <>{children}</>;
 }

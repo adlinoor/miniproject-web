@@ -1,9 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
-import AppBackgroundWrapper from "@/components/AppBackgroundWrapper";
+import { usePathname } from "next/navigation";
 
 export default function LayoutWrapper({
   children,
@@ -11,14 +9,19 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAuthPage = pathname?.startsWith("/auth");
+  const isHome = pathname === "/";
 
   return (
-    <AppBackgroundWrapper>
-      <div className="min-h-screen flex flex-col">
-        {!isAuthPage && <Navbar />}
-        <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
-      </div>
-    </AppBackgroundWrapper>
+    <div className="min-h-screen w-full bg-gradient-to-br from-sky-100 via-white to-gray-50 text-gray-900 flex flex-col">
+      <Navbar />
+
+      <main
+        className={`flex-1 w-full ${
+          isHome ? "" : "px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-20"
+        }`}
+      >
+        {children}
+      </main>
+    </div>
   );
 }

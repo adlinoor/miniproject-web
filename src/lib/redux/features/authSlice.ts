@@ -16,6 +16,16 @@ const initialState: AuthState = {
   isHydrated: false,
 };
 
+// Utility untuk cek cookie
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+  return match ? match[2] : null;
+}
+
+function setCookie(name: string, value: string, maxAgeSeconds = 60) {
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAgeSeconds}`;
+}
+
 // Async thunk untuk fetch profile user
 export const getProfile = createAsyncThunk<IUser>(
   "auth/me",
@@ -36,6 +46,7 @@ const authSlice = createSlice({
     login(state, action: PayloadAction<IUser>) {
       state.user = action.payload;
       state.isHydrated = true;
+      document.cookie = "logged_out=; Max-Age=0; path=/";
     },
     logout(state) {
       state.user = null;
@@ -52,7 +63,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.isHydrated = true;
       })
-      .addCase(getProfile.rejected, (state) => {
+      .addCase(getProfile.rejected, (state, action) => {
         state.user = null;
         state.loading = false;
         state.isHydrated = true;

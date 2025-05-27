@@ -66,23 +66,32 @@ export default function HistoryPage() {
   ) => {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
-    const rating = parseInt((form.rating as any).value);
-    const comment = (form.comment as any).value;
+    const ratingValue = form.rating?.value?.trim();
+    const rating = parseInt(ratingValue);
+    const comment = form.comment?.value?.trim();
+
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      alert("Rating harus antara 1 hingga 5");
+      return;
+    }
 
     try {
       await api.post("/reviews", { eventId, rating, comment });
       alert("✅ Review berhasil dikirim!");
-      setShowForm((prev) => ({ ...prev, [transactionId]: false }));
 
-      // Tandai transaksi ini sudah direview
+      // Sembunyikan form dan tandai sebagai sudah review
+      setShowForm((prev) => ({ ...prev, [transactionId]: false }));
       setTransactions((prev) =>
         prev.map((tx) =>
           tx.id === transactionId ? { ...tx, isReviewed: true } : tx
         )
       );
-    } catch (err) {
-      console.error("❌ Gagal kirim review:", err);
-      alert("Gagal mengirim review.");
+    } catch (err: any) {
+      console.error("❌ Gagal kirim review:", err.response?.data || err);
+      const msg =
+        err.response?.data?.message ||
+        "Terjadi kesalahan saat mengirim review.";
+      alert(`Gagal: ${msg}`);
     }
   };
 

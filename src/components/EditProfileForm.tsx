@@ -18,6 +18,7 @@ export interface EditProfileFormProps {
 type FormData = {
   first_name: string;
   last_name: string;
+  email: string;
   profilePicture?: FileList;
 };
 
@@ -31,6 +32,7 @@ export default function EditProfileForm({ initialUser }: EditProfileFormProps) {
     defaultValues: {
       first_name: initialUser.first_name,
       last_name: initialUser.last_name,
+      email: initialUser.email,
     },
   });
 
@@ -42,6 +44,7 @@ export default function EditProfileForm({ initialUser }: EditProfileFormProps) {
     const formData = new FormData();
     formData.append("first_name", data.first_name);
     formData.append("last_name", data.last_name);
+    formData.append("email", data.email);
 
     if (data.profilePicture && data.profilePicture.length > 0) {
       formData.append("profilePicture", data.profilePicture[0]);
@@ -131,11 +134,18 @@ export default function EditProfileForm({ initialUser }: EditProfileFormProps) {
         </label>
         <input
           type="email"
-          className="input bg-gray-100"
-          value={initialUser.email}
-          readOnly
-          disabled
+          className="input"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Email tidak valid",
+            },
+          })}
         />
+        {errors.email && (
+          <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+        )}
       </div>
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Saving..." : "Save Changes"}
